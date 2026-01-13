@@ -26,7 +26,7 @@ import ARCLogger
 ///
 /// ### Guide
 /// - <doc:CrashReportingGuide>
-public final class CrashlyticsManager {
+public final class CrashlyticsManager: @unchecked Sendable {
 
     // MARK: - Singleton
 
@@ -55,7 +55,7 @@ public final class CrashlyticsManager {
     ///
     /// - Throws: ``FirebaseError/notConfigured`` if Firebase hasn't been initialized.
     public func configure() throws {
-        try FirebaseManager.shared.ensureConfigured()
+        try FirebaseManager.ensureConfigured()
         logger.info("CrashlyticsManager configured successfully")
     }
 

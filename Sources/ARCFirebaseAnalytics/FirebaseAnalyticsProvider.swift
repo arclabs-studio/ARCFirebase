@@ -34,7 +34,7 @@ public final class FirebaseAnalyticsProvider: AnalyticsProviding, @unchecked Sen
     ///
     /// - Throws: ``FirebaseError/notConfigured`` if Firebase hasn't been initialized.
     public init() throws {
-        try FirebaseManager.shared.ensureConfigured()
+        try FirebaseManager.ensureConfigured()
         logger.info("FirebaseAnalyticsProvider initialized")
     }
 

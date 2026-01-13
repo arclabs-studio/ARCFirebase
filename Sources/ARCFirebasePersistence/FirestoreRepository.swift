@@ -67,7 +67,7 @@ public final class FirestoreRepository<Entity: Identifiable & Codable>: Reposito
     ///
     /// - Throws: ``FirebaseError/notConfigured`` if Firebase hasn't been initialized.
     public init(collectionPath: String) throws {
-        try FirebaseManager.shared.ensureConfigured()
+        try FirebaseManager.ensureConfigured()
 
         self.collectionPath = collectionPath
         self.db = Firestore.firestore()

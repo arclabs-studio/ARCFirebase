@@ -127,7 +127,7 @@ struct FirebaseStorageProviderTests {
         let mock = MockStorageProvider()
 
         await mock.reset()
-        mock.mockError = MockStorageError.uploadFailed
+        await mock.setMockError(MockStorageError.uploadFailed)
 
         do {
             _ = try await mock.upload(
