@@ -1,9 +1,8 @@
-import SwiftUI
-import ARCFirebaseAuth
 import ARCFirebaseAnalytics
+import ARCFirebaseAuth
+import SwiftUI
 
 struct ContentView: View {
-
     @Environment(\.authProvider) private var auth
     @Environment(\.analyticsProvider) private var analytics
     @State private var authViewModel: AuthViewModel?
@@ -31,7 +30,6 @@ struct ContentView: View {
 }
 
 struct MainTabView: View {
-
     @Environment(AuthViewModel.self) private var authViewModel
 
     var body: some View {
@@ -50,7 +48,6 @@ struct MainTabView: View {
 }
 
 struct ProfileView: View {
-
     @Environment(AuthViewModel.self) private var authViewModel
 
     var body: some View {

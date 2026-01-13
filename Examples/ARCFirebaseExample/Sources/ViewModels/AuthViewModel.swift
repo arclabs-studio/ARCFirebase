@@ -1,12 +1,11 @@
-import SwiftUI
-import ARCFirebaseAuth
 import ARCFirebaseAnalytics
+import ARCFirebaseAuth
 import ARCFirebaseCrashlytics
+import SwiftUI
 
 @MainActor
 @Observable
 final class AuthViewModel {
-
     // MARK: - Dependencies
 
     private let auth: any AuthProviding

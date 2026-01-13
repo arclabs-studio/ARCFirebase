@@ -1,8 +1,7 @@
-import Foundation
 import FirebaseCore
+import Foundation
 
 extension Error {
-
     /// Converts Firebase NSError codes to ``FirebaseError``.
     ///
     /// Use this to wrap Firebase errors in a more Swift-friendly enum.

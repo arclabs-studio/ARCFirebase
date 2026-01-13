@@ -1,7 +1,7 @@
-import Foundation
-import FirebaseFirestore
 import ARCFirebaseCore
 import ARCLogger
+import FirebaseFirestore
+import Foundation
 
 /// Generic Firestore repository implementation.
 ///
@@ -48,7 +48,6 @@ import ARCLogger
 /// ### Guide
 /// - <doc:FirestorePatterns>
 public final class FirestoreRepository<Entity: Identifiable & Codable>: Repository where Entity.ID == String {
-
     // MARK: - Properties
 
     private let collectionPath: String
@@ -70,8 +69,8 @@ public final class FirestoreRepository<Entity: Identifiable & Codable>: Reposito
         try FirebaseManager.ensureConfigured()
 
         self.collectionPath = collectionPath
-        self.db = Firestore.firestore()
-        self.logger = ARCLogger(category: "Firestore[\(collectionPath)]")
+        db = Firestore.firestore()
+        logger = ARCLogger(category: "Firestore[\(collectionPath)]")
 
         logger.info("Repository initialized for collection: \(collectionPath)")
     }
@@ -92,7 +91,6 @@ public final class FirestoreRepository<Entity: Identifiable & Codable>: Reposito
             let entity = try document.data(as: Entity.self)
             logger.debug("Fetched document: \(id)")
             return entity
-
         } catch {
             logger.error("Failed to fetch document \(id): \(error.localizedDescription)")
             throw error.asFirebaseError()
@@ -110,7 +108,6 @@ public final class FirestoreRepository<Entity: Identifiable & Codable>: Reposito
 
             logger.debug("Fetched \(entities.count) documents")
             return entities
-
         } catch {
             logger.error("Failed to fetch all documents: \(error.localizedDescription)")
             throw error.asFirebaseError()
@@ -123,7 +120,6 @@ public final class FirestoreRepository<Entity: Identifiable & Codable>: Reposito
         do {
             try collection.document(entity.id).setData(from: entity)
             logger.info("Saved document: \(entity.id)")
-
         } catch {
             logger.error("Failed to save document \(entity.id): \(error.localizedDescription)")
             throw error.asFirebaseError()
@@ -136,7 +132,6 @@ public final class FirestoreRepository<Entity: Identifiable & Codable>: Reposito
         do {
             try collection.document(entity.id).setData(from: entity, merge: true)
             logger.info("Updated document: \(entity.id)")
-
         } catch {
             logger.error("Failed to update document \(entity.id): \(error.localizedDescription)")
             throw error.asFirebaseError()
@@ -149,7 +144,6 @@ public final class FirestoreRepository<Entity: Identifiable & Codable>: Reposito
         do {
             try await collection.document(id).delete()
             logger.info("Deleted document: \(id)")
-
         } catch {
             logger.error("Failed to delete document \(id): \(error.localizedDescription)")
             throw error.asFirebaseError()
@@ -183,7 +177,6 @@ public final class FirestoreRepository<Entity: Identifiable & Codable>: Reposito
 
             logger.debug("Query returned \(entities.count) documents")
             return entities
-
         } catch {
             logger.error("Query failed: \(error.localizedDescription)")
             throw error.asFirebaseError()
@@ -212,7 +205,7 @@ public final class FirestoreRepository<Entity: Identifiable & Codable>: Reposito
         do {
             var query: Query = collection.order(by: field, descending: descending)
 
-            if let limit = limit {
+            if let limit {
                 query = query.limit(to: limit)
             }
 
@@ -223,7 +216,6 @@ public final class FirestoreRepository<Entity: Identifiable & Codable>: Reposito
 
             logger.debug("Query returned \(entities.count) documents")
             return entities
-
         } catch {
             logger.error("Query failed: \(error.localizedDescription)")
             throw error.asFirebaseError()

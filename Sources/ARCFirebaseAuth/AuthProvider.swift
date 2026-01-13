@@ -78,7 +78,6 @@ import Foundation
 /// ### Implementations
 /// - ``FirebaseAuthProvider``
 public protocol AuthProviding: Sendable {
-
     /// The currently authenticated user, if any.
     var currentUser: User? { get async }
 

@@ -3,7 +3,6 @@ import Testing
 
 @Suite("FirebaseAnalyticsProvider Tests")
 struct FirebaseAnalyticsProviderTests {
-
     // MARK: - Mock Provider Tests
 
     @Test("Mock provider logs events")

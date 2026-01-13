@@ -3,7 +3,6 @@ import Foundation
 
 /// Mock authentication provider for testing.
 actor MockAuthProvider: AuthProviding {
-
     // MARK: - Mock State
 
     var mockUser: User?
@@ -24,7 +23,7 @@ actor MockAuthProvider: AuthProviding {
         get async { mockUser != nil }
     }
 
-    func signIn(email: String, password: String) async throws -> User {
+    func signIn(email: String, password _: String) async throws -> User {
         signInCallCount += 1
 
         if let error = mockError {
@@ -41,7 +40,7 @@ actor MockAuthProvider: AuthProviding {
         return user
     }
 
-    func signUp(email: String, password: String) async throws -> User {
+    func signUp(email: String, password _: String) async throws -> User {
         signUpCallCount += 1
 
         if let error = mockError {
@@ -63,7 +62,7 @@ actor MockAuthProvider: AuthProviding {
         mockUser = nil
     }
 
-    func sendPasswordReset(email: String) async throws {
+    func sendPasswordReset(email _: String) async throws {
         passwordResetCallCount += 1
 
         if let error = mockError {
@@ -71,7 +70,7 @@ actor MockAuthProvider: AuthProviding {
         }
     }
 
-    func updatePassword(_ newPassword: String) async throws {
+    func updatePassword(_: String) async throws {
         updatePasswordCallCount += 1
 
         if let error = mockError {

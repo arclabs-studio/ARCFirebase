@@ -14,7 +14,6 @@ import Foundation
 /// }
 /// ```
 public protocol FirestoreDocument: Identifiable, Codable where ID == String {
-
     /// The document's creation timestamp.
     var createdAt: Date { get }
 
@@ -23,10 +22,9 @@ public protocol FirestoreDocument: Identifiable, Codable where ID == String {
 }
 
 /// Default implementation for timestamp handling.
-public extension FirestoreDocument {
-
+extension FirestoreDocument {
     /// Creates timestamps for a new document.
-    static func withTimestamps<T: FirestoreDocument>(_ transform: (Date) -> T) -> T {
+    public static func withTimestamps<T: FirestoreDocument>(_ transform: (Date) -> T) -> T {
         let now = Date()
         return transform(now)
     }

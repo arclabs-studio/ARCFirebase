@@ -79,7 +79,6 @@ import Foundation
 /// ### Implementations
 /// - ``FirebaseStorageProvider``
 public protocol StorageProviding: Sendable {
-
     /// Uploads data to storage.
     ///
     /// - Parameters:

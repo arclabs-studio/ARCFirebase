@@ -3,10 +3,10 @@ import Foundation
 
 /// Mock storage provider for testing.
 actor MockStorageProvider: StorageProviding {
-
     // MARK: - Mock State
 
     var uploadedFiles: [String: Data] = [:]
+    // swiftlint:disable:next force_unwrapping
     var mockDownloadURL = URL(string: "https://example.com/file.jpg")!
     var mockError: Error?
     var uploadDataCallCount = 0
@@ -17,7 +17,7 @@ actor MockStorageProvider: StorageProviding {
 
     // MARK: - StorageProviding Implementation
 
-    func upload(data: Data, path: String, contentType: String) async throws -> URL {
+    func upload(data: Data, path: String, contentType _: String) async throws -> URL {
         uploadDataCallCount += 1
 
         if let error = mockError {

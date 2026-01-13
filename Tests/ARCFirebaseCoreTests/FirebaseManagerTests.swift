@@ -4,7 +4,6 @@ import Testing
 
 @Suite("FirebaseManager Tests")
 struct FirebaseManagerTests {
-
     @Test("FirebaseManager is a singleton")
     @MainActor
     func firebaseManagerSingleton() {
@@ -27,7 +26,7 @@ struct FirebaseManagerTests {
     func firebaseErrorDescriptions() {
         let notConfiguredError = FirebaseError.notConfigured
         #expect(notConfiguredError.errorDescription != nil)
-        #expect(notConfiguredError.errorDescription!.contains("Firebase"))
+        #expect(notConfiguredError.errorDescription?.contains("Firebase") == true)
 
         let authError = FirebaseError.authNotAvailable
         #expect(authError.errorDescription != nil)
@@ -54,7 +53,7 @@ struct FirebaseManagerTests {
         let networkError = FirebaseError.networkError(underlying: underlyingError)
 
         #expect(networkError.errorDescription != nil)
-        #expect(networkError.errorDescription!.contains("Network"))
+        #expect(networkError.errorDescription?.contains("Network") == true)
     }
 
     @Test("Unknown error wrapping")
@@ -63,6 +62,6 @@ struct FirebaseManagerTests {
         let unknownError = FirebaseError.unknown(underlying: underlyingError)
 
         #expect(unknownError.errorDescription != nil)
-        #expect(unknownError.errorDescription!.contains("unknown"))
+        #expect(unknownError.errorDescription?.contains("unknown") == true)
     }
 }

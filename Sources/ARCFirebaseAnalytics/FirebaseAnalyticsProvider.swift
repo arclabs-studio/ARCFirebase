@@ -1,7 +1,7 @@
-import Foundation
-import FirebaseAnalytics
 import ARCFirebaseCore
 import ARCLogger
+import FirebaseAnalytics
+import Foundation
 
 /// Firebase implementation of ``AnalyticsProviding``.
 ///
@@ -23,7 +23,6 @@ import ARCLogger
 /// - ``init()``
 /// - ``live``
 public final class FirebaseAnalyticsProvider: AnalyticsProviding, @unchecked Sendable {
-
     // MARK: - Properties
 
     private let logger = ARCLogger(category: "FirebaseAnalytics")
@@ -64,12 +63,42 @@ public final class FirebaseAnalyticsProvider: AnalyticsProviding, @unchecked Sen
     }
 }
 
-// MARK: - Convenience
+// MARK: - Factory Methods
 
 extension FirebaseAnalyticsProvider {
+    /// Creates a new instance with explicit error handling.
+    ///
+    /// Use this method when you want to handle initialization errors:
+    ///
+    /// ```swift
+    /// do {
+    ///     let analytics = try FirebaseAnalyticsProvider.create()
+    /// } catch {
+    ///     // Handle configuration error
+    /// }
+    /// ```
+    ///
+    /// - Returns: A configured ``FirebaseAnalyticsProvider`` instance.
+    /// - Throws: ``FirebaseError/notConfigured`` if Firebase hasn't been initialized.
+    public static func create() throws -> FirebaseAnalyticsProvider {
+        try FirebaseAnalyticsProvider()
+    }
 
     /// Default live instance for production use.
+    ///
+    /// - Important: This will crash if Firebase is not configured.
+    ///              Call ``FirebaseManager/configure()`` first.
     public static var live: FirebaseAnalyticsProvider {
-        try! FirebaseAnalyticsProvider()
+        do {
+            return try create()
+        } catch {
+            fatalError(
+                """
+                FirebaseAnalyticsProvider initialization failed.
+                Ensure FirebaseManager.shared.configure() is called before accessing .live.
+                Error: \(error.localizedDescription)
+                """
+            )
+        }
     }
 }

@@ -1,12 +1,11 @@
-import SwiftUI
-import ARCFirebasePersistence
 import ARCFirebaseAnalytics
 import ARCFirebaseCrashlytics
+import ARCFirebasePersistence
+import SwiftUI
 
 @MainActor
 @Observable
 final class ItemsViewModel {
-
     // MARK: - Dependencies
 
     private let analytics: any AnalyticsProviding
@@ -22,10 +21,10 @@ final class ItemsViewModel {
         self.analytics = analytics
 
         do {
-            self.repository = try FirestoreRepository(collectionPath: "items")
+            repository = try FirestoreRepository(collectionPath: "items")
         } catch {
-            self.repository = try! FirestoreRepository(collectionPath: "items")
-            self.errorMessage = "Failed to initialize repository: \(error.localizedDescription)"
+            repository = try! FirestoreRepository(collectionPath: "items")
+            errorMessage = "Failed to initialize repository: \(error.localizedDescription)"
             CrashlyticsManager.shared.record(error: error)
         }
     }

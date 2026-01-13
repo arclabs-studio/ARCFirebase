@@ -3,7 +3,6 @@ import Testing
 
 @Suite("FirebaseAuthProvider Tests")
 struct FirebaseAuthProviderTests {
-
     @Test("Mock provider can authenticate user")
     func mockAuthenticationFlow() async throws {
         let mock = MockAuthProvider()

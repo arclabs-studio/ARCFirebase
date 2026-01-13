@@ -1,7 +1,7 @@
-import Foundation
+import ARCLogger
 import FirebaseAnalytics
 import FirebaseCore
-import ARCLogger
+import Foundation
 
 /// Central manager for Firebase configuration and initialization.
 ///
@@ -20,7 +20,6 @@ import ARCLogger
 /// - <doc:MultiAppSetup>
 @MainActor
 public final class FirebaseManager: Sendable {
-
     // MARK: - Singleton
 
     /// Shared singleton instance.

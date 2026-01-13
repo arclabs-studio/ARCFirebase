@@ -13,7 +13,6 @@ import Foundation
 /// - ``update(_:)``
 /// - ``delete(id:)``
 public protocol Repository {
-
     /// The type of entity this repository manages.
     associatedtype Entity: Identifiable & Codable
 
