@@ -6,26 +6,153 @@ import PackageDescription
 let package = Package(
     name: "ARCFirebase",
     platforms: [
-        .iOS(.v14),
-        .macOS(.v11),
-        .tvOS(.v14),
-        .watchOS(.v7)
+        .iOS(.v17),
+        .macOS(.v14),
+        .watchOS(.v10),
+        .visionOS(.v1)
     ],
     products: [
+        // Core - Required by all other modules
+        .library(
+            name: "ARCFirebaseCore",
+            targets: ["ARCFirebaseCore"]
+        ),
+
+        // Individual modules
+        .library(
+            name: "ARCFirebaseAuth",
+            targets: ["ARCFirebaseAuth"]
+        ),
+        .library(
+            name: "ARCFirebaseAnalytics",
+            targets: ["ARCFirebaseAnalytics"]
+        ),
+        .library(
+            name: "ARCFirebaseCrashlytics",
+            targets: ["ARCFirebaseCrashlytics"]
+        ),
+        .library(
+            name: "ARCFirebasePersistence",
+            targets: ["ARCFirebasePersistence"]
+        ),
+        .library(
+            name: "ARCFirebaseStorage",
+            targets: ["ARCFirebaseStorage"]
+        ),
+
+        // Convenience: All modules in one
         .library(
             name: "ARCFirebase",
-            targets: ["ARCFirebase"]
+            targets: [
+                "ARCFirebaseCore",
+                "ARCFirebaseAuth",
+                "ARCFirebaseAnalytics",
+                "ARCFirebaseCrashlytics",
+                "ARCFirebasePersistence",
+                "ARCFirebaseStorage"
+            ]
+        )
+    ],
+    dependencies: [
+        // Firebase iOS SDK
+        .package(
+            url: "https://github.com/firebase/firebase-ios-sdk.git",
+            from: "10.0.0"
         ),
+
+        // ARC Labs Logger
+        .package(path: "../ARCLogger")
     ],
     targets: [
+        // MARK: - Core
         .target(
-            name: "ARCFirebase",
-            path: "Sources"
+            name: "ARCFirebaseCore",
+            dependencies: [
+                .product(name: "FirebaseCore", package: "firebase-ios-sdk"),
+                .product(name: "ARCLogger", package: "ARCLogger")
+            ],
+            path: "Sources/ARCFirebaseCore"
+        ),
+
+        // MARK: - Auth
+        .target(
+            name: "ARCFirebaseAuth",
+            dependencies: [
+                "ARCFirebaseCore",
+                .product(name: "FirebaseAuth", package: "firebase-ios-sdk"),
+                .product(name: "ARCLogger", package: "ARCLogger")
+            ],
+            path: "Sources/ARCFirebaseAuth"
+        ),
+
+        // MARK: - Analytics
+        .target(
+            name: "ARCFirebaseAnalytics",
+            dependencies: [
+                "ARCFirebaseCore",
+                .product(name: "FirebaseAnalytics", package: "firebase-ios-sdk"),
+                .product(name: "ARCLogger", package: "ARCLogger")
+            ],
+            path: "Sources/ARCFirebaseAnalytics"
+        ),
+
+        // MARK: - Crashlytics
+        .target(
+            name: "ARCFirebaseCrashlytics",
+            dependencies: [
+                "ARCFirebaseCore",
+                .product(name: "FirebaseCrashlytics", package: "firebase-ios-sdk"),
+                .product(name: "ARCLogger", package: "ARCLogger")
+            ],
+            path: "Sources/ARCFirebaseCrashlytics"
+        ),
+
+        // MARK: - Persistence
+        .target(
+            name: "ARCFirebasePersistence",
+            dependencies: [
+                "ARCFirebaseCore",
+                .product(name: "FirebaseFirestore", package: "firebase-ios-sdk"),
+                .product(name: "ARCLogger", package: "ARCLogger")
+            ],
+            path: "Sources/ARCFirebasePersistence"
+        ),
+
+        // MARK: - Storage
+        .target(
+            name: "ARCFirebaseStorage",
+            dependencies: [
+                "ARCFirebaseCore",
+                .product(name: "FirebaseStorage", package: "firebase-ios-sdk"),
+                .product(name: "ARCLogger", package: "ARCLogger")
+            ],
+            path: "Sources/ARCFirebaseStorage"
+        ),
+
+        // MARK: - Tests
+        .testTarget(
+            name: "ARCFirebaseCoreTests",
+            dependencies: ["ARCFirebaseCore"]
         ),
         .testTarget(
-            name: "ARCFirebaseTests",
-            dependencies: ["ARCFirebase"],
-            path: "Tests"
+            name: "ARCFirebaseAuthTests",
+            dependencies: ["ARCFirebaseAuth"]
+        ),
+        .testTarget(
+            name: "ARCFirebaseAnalyticsTests",
+            dependencies: ["ARCFirebaseAnalytics"]
+        ),
+        .testTarget(
+            name: "ARCFirebaseCrashlyticsTests",
+            dependencies: ["ARCFirebaseCrashlytics"]
+        ),
+        .testTarget(
+            name: "ARCFirebasePersistenceTests",
+            dependencies: ["ARCFirebasePersistence"]
+        ),
+        .testTarget(
+            name: "ARCFirebaseStorageTests",
+            dependencies: ["ARCFirebaseStorage"]
         )
     ]
 )
