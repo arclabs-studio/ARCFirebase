@@ -27,15 +27,35 @@ public final class FirebaseStorageProvider: StorageProviding, @unchecked Sendabl
 
     private let storage = Storage.storage()
     private let logger = ARCLogger(category: "FirebaseStorage")
+    private let configuration: StorageConfiguration
 
     // MARK: - Initialization
 
-    /// Creates a Firebase storage provider.
+    /// Creates a Firebase storage provider with default configuration.
     ///
     /// - Throws: ``FirebaseError/notConfigured`` if Firebase hasn't been initialized.
     public init() throws {
         try FirebaseManager.ensureConfigured()
-        logger.info("FirebaseStorageProvider initialized")
+        configuration = .default
+        logger.info("FirebaseStorageProvider initialized with default configuration")
+    }
+
+    /// Creates a Firebase storage provider with custom configuration.
+    ///
+    /// - Parameter configuration: The storage configuration to use.
+    /// - Throws: ``FirebaseError/notConfigured`` if Firebase hasn't been initialized.
+    ///
+    /// ## Example
+    ///
+    /// ```swift
+    /// // Allow larger downloads
+    /// let config = StorageConfiguration(maxDownloadSize: 50 * 1024 * 1024)
+    /// let storage = try FirebaseStorageProvider(configuration: config)
+    /// ```
+    public init(configuration: StorageConfiguration) throws {
+        try FirebaseManager.ensureConfigured()
+        self.configuration = configuration
+        logger.info("FirebaseStorageProvider initialized with maxDownloadSize: \(configuration.maxDownloadSize) bytes")
     }
 
     // MARK: - StorageProviding Implementation
@@ -95,7 +115,7 @@ public final class FirebaseStorageProvider: StorageProviding, @unchecked Sendabl
 
         do {
             let ref = storage.reference().child(path)
-            let data = try await ref.data(maxSize: 10 * 1024 * 1024) // 10 MB max
+            let data = try await ref.data(maxSize: configuration.maxDownloadSize)
 
             logger.debug("Download successful: \(data.count) bytes")
             return data

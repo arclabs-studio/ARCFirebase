@@ -68,6 +68,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+#### ARCFirebaseAnalytics
+- Converted `FirebaseAnalyticsProvider` from `class @unchecked Sendable` to `actor`
+  - Methods are `nonisolated` since Firebase Analytics SDK is internally thread-safe
+  - Eliminates need for `@unchecked Sendable` annotation
+
+#### ARCFirebaseCore
+- Added `FirebaseConfiguring` protocol for dependency injection
+  - Enables testing of code that depends on Firebase configuration
+  - `FirebaseManager` now conforms to `FirebaseConfiguring`
+  - Includes usage examples for production and testing in documentation
+
+#### ARCFirebaseStorage
+- Added `StorageConfiguration` struct for configurable download limits
+  - `maxDownloadSize` property (default: 10 MB)
+  - Preset configurations: `.default` (10 MB) and `.largeFiles` (50 MB)
+  - New initializer: `FirebaseStorageProvider(configuration:)`
+
 ### Planned
 - Integration tests with Firebase emulator
 - Additional query methods for FirestoreRepository
