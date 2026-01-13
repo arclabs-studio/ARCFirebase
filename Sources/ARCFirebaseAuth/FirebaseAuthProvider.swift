@@ -47,7 +47,7 @@ import ARCLogger
 /// - ``signOut()``
 /// - ``sendPasswordReset(email:)``
 /// - ``updatePassword(_:)``
-public actor FirebaseAuthProvider: AuthProviding {
+public final class FirebaseAuthProvider: AuthProviding, @unchecked Sendable {
 
     // MARK: - Properties
 
@@ -60,7 +60,7 @@ public actor FirebaseAuthProvider: AuthProviding {
     ///
     /// - Throws: ``FirebaseError/notConfigured`` if Firebase hasn't been initialized.
     public init() throws {
-        try FirebaseManager.shared.ensureConfigured()
+        try FirebaseManager.ensureConfigured()
         logger.info("FirebaseAuthProvider initialized")
     }
 
@@ -107,7 +107,7 @@ public actor FirebaseAuthProvider: AuthProviding {
         }
     }
 
-    public func signOut() throws {
+    public func signOut() async throws {
         logger.info("Attempting sign out")
 
         do {

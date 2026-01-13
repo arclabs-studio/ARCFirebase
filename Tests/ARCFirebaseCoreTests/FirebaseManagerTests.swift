@@ -1,3 +1,4 @@
+import Foundation
 import Testing
 @testable import ARCFirebaseCore
 
@@ -5,6 +6,7 @@ import Testing
 struct FirebaseManagerTests {
 
     @Test("FirebaseManager is a singleton")
+    @MainActor
     func firebaseManagerSingleton() {
         let manager1 = FirebaseManager.shared
         let manager2 = FirebaseManager.shared
@@ -13,6 +15,7 @@ struct FirebaseManagerTests {
     }
 
     @Test("Initial configuration state exists")
+    @MainActor
     func initialConfigurationState() {
         // Note: In a real test environment, Firebase might already be configured
         // This test verifies the property exists

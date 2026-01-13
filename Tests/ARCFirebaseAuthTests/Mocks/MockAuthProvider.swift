@@ -53,7 +53,7 @@ actor MockAuthProvider: AuthProviding {
         return user
     }
 
-    func signOut() throws {
+    func signOut() async throws {
         signOutCallCount += 1
 
         if let error = mockError {
@@ -89,5 +89,9 @@ actor MockAuthProvider: AuthProviding {
         signOutCallCount = 0
         passwordResetCallCount = 0
         updatePasswordCallCount = 0
+    }
+
+    func setMockError(_ error: Error?) {
+        mockError = error
     }
 }

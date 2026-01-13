@@ -68,7 +68,7 @@ let package = Package(
         .target(
             name: "ARCFirebaseCore",
             dependencies: [
-                .product(name: "FirebaseCore", package: "firebase-ios-sdk"),
+                .product(name: "FirebaseAnalytics", package: "firebase-ios-sdk"),
                 .product(name: "ARCLogger", package: "ARCLogger")
             ],
             path: "Sources/ARCFirebaseCore"

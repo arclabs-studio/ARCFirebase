@@ -102,6 +102,10 @@ actor MockStorageProvider: StorageProviding {
     func fileCount() -> Int {
         uploadedFiles.count
     }
+
+    func setMockError(_ error: Error?) {
+        mockError = error
+    }
 }
 
 // MARK: - Mock Errors

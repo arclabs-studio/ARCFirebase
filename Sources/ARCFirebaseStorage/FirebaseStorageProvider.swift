@@ -22,7 +22,7 @@ import ARCLogger
 /// ### Initialization
 /// - ``init()``
 /// - ``live``
-public actor FirebaseStorageProvider: StorageProviding {
+public final class FirebaseStorageProvider: StorageProviding, @unchecked Sendable {
 
     // MARK: - Properties
 
@@ -35,7 +35,7 @@ public actor FirebaseStorageProvider: StorageProviding {
     ///
     /// - Throws: ``FirebaseError/notConfigured`` if Firebase hasn't been initialized.
     public init() throws {
-        try FirebaseManager.shared.ensureConfigured()
+        try FirebaseManager.ensureConfigured()
         logger.info("FirebaseStorageProvider initialized")
     }
 

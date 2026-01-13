@@ -80,7 +80,7 @@ struct FirebaseAuthProviderTests {
         }
 
         await mock.reset()
-        mock.mockError = TestError.mockFailure
+        await mock.setMockError(TestError.mockFailure)
 
         // Test sign in error
         do {

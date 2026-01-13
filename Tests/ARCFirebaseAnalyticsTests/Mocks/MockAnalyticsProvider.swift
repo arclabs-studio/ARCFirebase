@@ -8,7 +8,7 @@ final class MockAnalyticsProvider: AnalyticsProviding, @unchecked Sendable {
 
     var loggedEvents: [(name: String, parameters: [String: Any]?)] = []
     var screenViews: [(screenName: String, screenClass: String?)] = []
-    var userProperties: [String: String?] = [:]
+    var userProperties: [String: String] = [:]
     var userID: String?
 
     // MARK: - AnalyticsProviding Implementation
@@ -22,7 +22,11 @@ final class MockAnalyticsProvider: AnalyticsProviding, @unchecked Sendable {
     }
 
     func setUserProperty(_ name: String, value: String?) {
-        userProperties[name] = value
+        if let value {
+            userProperties[name] = value
+        } else {
+            userProperties.removeValue(forKey: name)
+        }
     }
 
     func setUserID(_ userID: String?) {

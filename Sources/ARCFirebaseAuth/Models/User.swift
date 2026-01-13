@@ -29,6 +29,34 @@ public struct User: Sendable, Identifiable {
 
     // MARK: - Initialization
 
+    /// Creates a user with all properties.
+    ///
+    /// - Parameters:
+    ///   - id: The user's unique identifier.
+    ///   - email: The user's email address.
+    ///   - displayName: The user's display name.
+    ///   - photoURL: The user's photo URL.
+    ///   - isEmailVerified: Whether the email is verified.
+    ///   - creationDate: The date the user was created.
+    ///   - lastSignInDate: The date of last sign in.
+    public init(
+        id: String,
+        email: String? = nil,
+        displayName: String? = nil,
+        photoURL: URL? = nil,
+        isEmailVerified: Bool = false,
+        creationDate: Date? = nil,
+        lastSignInDate: Date? = nil
+    ) {
+        self.id = id
+        self.email = email
+        self.displayName = displayName
+        self.photoURL = photoURL
+        self.isEmailVerified = isEmailVerified
+        self.creationDate = creationDate
+        self.lastSignInDate = lastSignInDate
+    }
+
     /// Creates a user from a Firebase user object.
     ///
     /// - Parameter firebaseUser: The Firebase user to convert.

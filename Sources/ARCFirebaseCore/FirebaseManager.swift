@@ -1,4 +1,5 @@
 import Foundation
+import FirebaseAnalytics
 import FirebaseCore
 import ARCLogger
 
@@ -17,7 +18,8 @@ import ARCLogger
 /// ### Best Practices
 /// - <doc:GettingStarted>
 /// - <doc:MultiAppSetup>
-public final class FirebaseManager {
+@MainActor
+public final class FirebaseManager: Sendable {
 
     // MARK: - Singleton
 
@@ -76,17 +78,15 @@ public final class FirebaseManager {
     ///
     /// ```swift
     /// public init() throws {
-    ///     try FirebaseManager.shared.ensureConfigured()
+    ///     try FirebaseManager.ensureConfigured()
     ///     // Safe to use Firebase services now
     /// }
     /// ```
     ///
     /// - Throws: ``FirebaseError/notConfigured`` if Firebase hasn't been initialized.
-    public func ensureConfigured() throws {
+    public nonisolated static func ensureConfigured() throws {
         guard FirebaseApp.app() != nil else {
-            logger.error("Firebase not configured. Call FirebaseManager.configure() first.")
             throw FirebaseError.notConfigured
         }
-        isConfigured = true
     }
 }

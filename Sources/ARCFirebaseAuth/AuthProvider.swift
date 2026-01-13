@@ -106,7 +106,7 @@ public protocol AuthProviding: Sendable {
     /// Signs out the currently authenticated user.
     ///
     /// - Throws: Sign out errors.
-    func signOut() throws
+    func signOut() async throws
 
     /// Sends a password reset email.
     ///
