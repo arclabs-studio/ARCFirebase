@@ -1,18 +1,30 @@
 import SwiftUI
 import ARCFirebaseAuth
+import ARCFirebaseAnalytics
 
 struct ContentView: View {
 
-    @State private var authViewModel = AuthViewModel()
+    @Environment(\.authProvider) private var auth
+    @Environment(\.analyticsProvider) private var analytics
+    @State private var authViewModel: AuthViewModel?
 
     var body: some View {
         Group {
-            if authViewModel.isAuthenticated {
-                MainTabView()
-                    .environment(authViewModel)
+            if let viewModel = authViewModel {
+                if viewModel.isAuthenticated {
+                    MainTabView()
+                        .environment(viewModel)
+                } else {
+                    SignInView()
+                        .environment(viewModel)
+                }
             } else {
-                SignInView()
-                    .environment(authViewModel)
+                ProgressView()
+            }
+        }
+        .task {
+            if authViewModel == nil {
+                authViewModel = AuthViewModel(auth: auth, analytics: analytics)
             }
         }
     }
@@ -54,7 +66,9 @@ struct ProfileView: View {
 
                 Section {
                     Button("Sign Out", role: .destructive) {
-                        authViewModel.signOut()
+                        Task {
+                            await authViewModel.signOut()
+                        }
                     }
                 }
             }

@@ -7,18 +7,27 @@ import ARCFirebaseCrashlytics
 @Observable
 final class AuthViewModel {
 
+    // MARK: - Dependencies
+
+    private let auth: any AuthProviding
+    private let analytics: any AnalyticsProviding
+
+    // MARK: - Published State
+
     var email: String = ""
     var password: String = ""
     var isLoading: Bool = false
     var errorMessage: String?
     var currentUser: User?
+    var isAuthenticated: Bool = false
 
-    var isAuthenticated: Bool {
-        AuthManager.shared.isAuthenticated
-    }
+    init(auth: any AuthProviding, analytics: any AnalyticsProviding) {
+        self.auth = auth
+        self.analytics = analytics
 
-    init() {
-        updateCurrentUser()
+        Task {
+            await updateCurrentUser()
+        }
     }
 
     // MARK: - Sign In
@@ -30,20 +39,21 @@ final class AuthViewModel {
         errorMessage = nil
 
         do {
-            let user = try await AuthManager.shared.signIn(
+            let user = try await auth.signIn(
                 email: email,
                 password: password
             )
 
             currentUser = user
+            isAuthenticated = true
 
             // Track sign in event
-            AnalyticsManager.shared.logEvent("user_signed_in", parameters: [
+            analytics.logEvent("user_signed_in", parameters: [
                 "method": "email"
             ])
 
             // Set user ID for analytics and crashlytics
-            AnalyticsManager.shared.setUserID(user.id)
+            analytics.setUserID(user.id)
             CrashlyticsManager.shared.setUserID(user.id)
 
             print("✅ Sign in successful: \(user.email ?? "unknown")")
@@ -66,20 +76,21 @@ final class AuthViewModel {
         errorMessage = nil
 
         do {
-            let user = try await AuthManager.shared.signUp(
+            let user = try await auth.signUp(
                 email: email,
                 password: password
             )
 
             currentUser = user
+            isAuthenticated = true
 
             // Track sign up event
-            AnalyticsManager.shared.logEvent("user_signed_up", parameters: [
+            analytics.logEvent("user_signed_up", parameters: [
                 "method": "email"
             ])
 
             // Set user ID for analytics and crashlytics
-            AnalyticsManager.shared.setUserID(user.id)
+            analytics.setUserID(user.id)
             CrashlyticsManager.shared.setUserID(user.id)
 
             print("✅ Sign up successful: \(user.email ?? "unknown")")
@@ -95,16 +106,17 @@ final class AuthViewModel {
 
     // MARK: - Sign Out
 
-    func signOut() {
+    func signOut() async {
         do {
-            try AuthManager.shared.signOut()
+            try await auth.signOut()
             currentUser = nil
+            isAuthenticated = false
 
             // Track sign out event
-            AnalyticsManager.shared.logEvent("user_signed_out")
+            analytics.logEvent("user_signed_out")
 
             // Clear user ID
-            AnalyticsManager.shared.setUserID(nil)
+            analytics.setUserID(nil)
             CrashlyticsManager.shared.setUserID("")
 
             print("✅ Sign out successful")
@@ -132,7 +144,8 @@ final class AuthViewModel {
         return true
     }
 
-    private func updateCurrentUser() {
-        currentUser = AuthManager.shared.currentUser
+    private func updateCurrentUser() async {
+        currentUser = await auth.currentUser
+        isAuthenticated = await auth.isAuthenticated
     }
 }

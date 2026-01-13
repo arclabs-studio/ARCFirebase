@@ -6,12 +6,17 @@ Firebase Storage integration for file uploads and downloads.
 
 ARCFirebaseStorage provides a simplified interface to Firebase Storage for uploading images, documents, and other files.
 
+The module follows a protocol-based architecture for testability and flexibility, allowing you to easily swap implementations or use mocks in tests.
+
 ## Key Features
 
+- **Protocol-based design**: Use `StorageProviding` for dependency injection
 - **File uploads**: Upload from Data or file URLs
 - **File downloads**: Get download URLs or data
 - **Type-safe paths**: StorageReference for path management
-- **Progress tracking**: Monitor upload/download progress
+- **Actor-based**: Thread-safe with Swift concurrency
+- **SwiftUI integration**: Environment values support
+- **Logging**: ARCLogger integration for debugging
 
 ## Topics
 
@@ -19,23 +24,31 @@ ARCFirebaseStorage provides a simplified interface to Firebase Storage for uploa
 
 - <doc:FileUploadGuide>
 
-### Storage Manager
+### Protocols
 
-- ``StorageManager``
+- ``StorageProviding``
+
+### Implementations
+
+- ``FirebaseStorageProvider``
+
+### SwiftUI Integration
+
+- ``StorageProviderKey``
 
 ### Upload
 
-- ``StorageManager/upload(data:path:contentType:)``
-- ``StorageManager/upload(fileURL:path:)``
+- ``StorageProviding/upload(data:path:contentType:)``
+- ``StorageProviding/upload(fileURL:path:)``
 
 ### Download
 
-- ``StorageManager/downloadURL(path:)``
-- ``StorageManager/download(path:)``
+- ``StorageProviding/downloadURL(path:)``
+- ``StorageProviding/download(path:)``
 
 ### Delete
 
-- ``StorageManager/delete(path:)``
+- ``StorageProviding/delete(path:)``
 
 ### Path Management
 

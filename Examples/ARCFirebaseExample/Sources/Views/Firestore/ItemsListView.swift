@@ -1,39 +1,45 @@
 import SwiftUI
+import ARCFirebaseAnalytics
 
 struct ItemsListView: View {
 
     @Environment(AuthViewModel.self) private var authViewModel
-    @State private var viewModel = ItemsViewModel()
+    @Environment(\.analyticsProvider) private var analytics
+    @State private var viewModel: ItemsViewModel?
     @State private var showAddItem = false
 
     var body: some View {
         NavigationStack {
             Group {
-                if viewModel.isLoading && viewModel.items.isEmpty {
-                    ProgressView("Loading items...")
-                } else if viewModel.items.isEmpty {
-                    ContentUnavailableView(
-                        "No Items",
-                        systemImage: "tray",
-                        description: Text("Tap + to add your first item")
-                    )
-                } else {
-                    List {
-                        ForEach(viewModel.items) { item in
-                            NavigationLink {
-                                ItemDetailView(item: item)
-                            } label: {
-                                ItemRowView(item: item)
+                if let viewModel = viewModel {
+                    if viewModel.isLoading && viewModel.items.isEmpty {
+                        ProgressView("Loading items...")
+                    } else if viewModel.items.isEmpty {
+                        ContentUnavailableView(
+                            "No Items",
+                            systemImage: "tray",
+                            description: Text("Tap + to add your first item")
+                        )
+                    } else {
+                        List {
+                            ForEach(viewModel.items) { item in
+                                NavigationLink {
+                                    ItemDetailView(item: item)
+                                } label: {
+                                    ItemRowView(item: item)
+                                }
                             }
-                        }
-                        .onDelete { indexSet in
-                            Task {
-                                for index in indexSet {
-                                    await viewModel.deleteItem(viewModel.items[index])
+                            .onDelete { indexSet in
+                                Task {
+                                    for index in indexSet {
+                                        await viewModel.deleteItem(viewModel.items[index])
+                                    }
                                 }
                             }
                         }
                     }
+                } else {
+                    ProgressView()
                 }
             }
             .navigationTitle("Items")
@@ -49,27 +55,32 @@ struct ItemsListView: View {
                 ToolbarItem(placement: .secondaryAction) {
                     Button {
                         Task {
-                            await viewModel.loadItems()
+                            await viewModel?.loadItems()
                         }
                     } label: {
                         Image(systemName: "arrow.clockwise")
                     }
-                    .disabled(viewModel.isLoading)
+                    .disabled(viewModel?.isLoading ?? true)
                 }
             }
             .task {
-                await viewModel.loadItems()
+                if viewModel == nil {
+                    viewModel = ItemsViewModel(analytics: analytics)
+                }
+                await viewModel?.loadItems()
             }
             .sheet(isPresented: $showAddItem) {
-                AddItemView(viewModel: viewModel)
-                    .environment(authViewModel)
+                if let viewModel = viewModel {
+                    AddItemView(viewModel: viewModel)
+                        .environment(authViewModel)
+                }
             }
-            .alert("Error", isPresented: .constant(viewModel.errorMessage != nil)) {
+            .alert("Error", isPresented: .constant(viewModel?.errorMessage != nil)) {
                 Button("OK") {
-                    viewModel.errorMessage = nil
+                    viewModel?.errorMessage = nil
                 }
             } message: {
-                if let error = viewModel.errorMessage {
+                if let error = viewModel?.errorMessage {
                     Text(error)
                 }
             }

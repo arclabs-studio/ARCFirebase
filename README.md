@@ -7,8 +7,10 @@ Modular Firebase integration for ARC Labs Studio apps.
 ## Features
 
 - **Modular architecture**: Import only what you need
-- **Type-safe APIs**: Protocol-based, Swift-first design
-- **Async/await**: Modern concurrency throughout
+- **Protocol-based design**: Dependency injection for testability
+- **Type-safe APIs**: Swift-first, async/await throughout
+- **Actor-based**: Thread-safe with Swift concurrency
+- **SwiftUI integration**: Environment values support
 - **Comprehensive logging**: ARCLogger integration
 - **Full DocC documentation**: Learn as you code
 - **Multi-app ready**: Reusable across all ARC Labs apps
@@ -74,22 +76,38 @@ import ARCFirebaseAnalytics
 import SwiftUI
 import ARCFirebaseCore
 import ARCFirebaseAuth
+import ARCFirebaseAnalytics
+import ARCFirebaseStorage
+import ARCFirebaseCrashlytics
 
 @main
 struct FavResApp: App {
+    // Initialize providers
+    private let auth: FirebaseAuthProvider
+    private let analytics: FirebaseAnalyticsProvider
+    private let storage: FirebaseStorageProvider
+
     init() {
-        // Configure Firebase
+        // Configure Firebase Core
         FirebaseManager.configure()
 
-        // Configure services
-        try? AuthManager.shared.configure()
-        try? AnalyticsManager.shared.configure()
-        try? CrashlyticsManager.shared.configure()
+        // Initialize providers
+        do {
+            auth = try FirebaseAuthProvider()
+            analytics = FirebaseAnalyticsProvider()
+            storage = try FirebaseStorageProvider()
+            try CrashlyticsManager.shared.configure()
+        } catch {
+            fatalError("Firebase configuration failed: \(error)")
+        }
     }
 
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .environment(\.authProvider, auth)
+                .environment(\.analyticsProvider, analytics)
+                .environment(\.storageProvider, storage)
         }
     }
 }
@@ -99,46 +117,113 @@ struct FavResApp: App {
 
 ### Authentication
 
+#### SwiftUI with Environment
+
+```swift
+import SwiftUI
+import ARCFirebaseAuth
+
+struct MyView: View {
+    @Environment(\.authProvider) var auth
+
+    var body: some View {
+        Button("Sign In") {
+            Task {
+                let user = try await auth.signIn(
+                    email: "user@example.com",
+                    password: "password"
+                )
+                print("Signed in: \(user.email ?? "")")
+            }
+        }
+    }
+}
+```
+
+#### Dependency Injection
+
 ```swift
 import ARCFirebaseAuth
 
-// Sign up
-let user = try await AuthManager.shared.signUp(
-    email: "user@example.com",
-    password: "securePassword"
-)
+class AuthViewModel {
+    private let auth: any AuthProviding
 
-// Sign in
-let user = try await AuthManager.shared.signIn(
-    email: "user@example.com",
-    password: "password"
-)
+    init(auth: any AuthProviding) {
+        self.auth = auth
+    }
 
-// Check status
-if AuthManager.shared.isAuthenticated {
-    print("Signed in as: \(AuthManager.shared.currentUser?.email)")
+    func signUp(email: String, password: String) async throws {
+        let user = try await auth.signUp(email: email, password: password)
+        print("User created: \(user.id)")
+    }
+
+    func signIn(email: String, password: String) async throws {
+        let user = try await auth.signIn(email: email, password: password)
+        let isAuthenticated = await auth.isAuthenticated
+        print("Authenticated: \(isAuthenticated)")
+    }
+
+    func signOut() async throws {
+        try await auth.signOut()
+    }
 }
 
-// Sign out
-try AuthManager.shared.signOut()
+// Production
+let viewModel = AuthViewModel(auth: FirebaseAuthProvider.live)
+
+// Testing
+let viewModel = AuthViewModel(auth: MockAuthProvider())
 ```
 
 ### Analytics
 
+#### SwiftUI with Environment
+
+```swift
+import SwiftUI
+import ARCFirebaseAnalytics
+
+struct RestaurantView: View {
+    @Environment(\.analyticsProvider) var analytics
+
+    var body: some View {
+        VStack {
+            // Your UI
+        }
+        .onAppear {
+            analytics.logScreenView("RestaurantDetail")
+            analytics.logEvent("restaurant_viewed", parameters: [
+                "restaurant_id": "abc123",
+                "category": "italian"
+            ])
+        }
+    }
+}
+```
+
+#### Dependency Injection
+
 ```swift
 import ARCFirebaseAnalytics
 
-// Track events
-AnalyticsManager.shared.logEvent("restaurant_viewed", parameters: [
-    "restaurant_id": "abc123",
-    "category": "italian"
-])
+class ItemViewModel {
+    private let analytics: any AnalyticsProviding
 
-// Screen tracking
-AnalyticsManager.shared.logScreenView("RestaurantDetail")
+    init(analytics: any AnalyticsProviding) {
+        self.analytics = analytics
+    }
 
-// User properties
-AnalyticsManager.shared.setUserProperty("premium", value: "true")
+    func trackAction() {
+        analytics.logEvent("user_action", parameters: ["key": "value"])
+        analytics.setUserProperty("premium", value: "true")
+    }
+}
+
+// Production
+let viewModel = ItemViewModel(analytics: FirebaseAnalyticsProvider.live)
+
+// Testing
+let viewModel = ItemViewModel(analytics: MockAnalyticsProvider())
 ```
 
 ### Firestore (Persistence)
@@ -179,26 +264,56 @@ let top = try await repository.query(
 
 ### Storage
 
+#### SwiftUI with Environment
+
+```swift
+import SwiftUI
+import ARCFirebaseStorage
+
+struct ImageUploadView: View {
+    @Environment(\.storageProvider) var storage
+    @State private var uploadedURL: URL?
+
+    func uploadImage(_ imageData: Data) async throws {
+        uploadedURL = try await storage.upload(
+            data: imageData,
+            path: "photos/\(UUID().uuidString).jpg",
+            contentType: "image/jpeg"
+        )
+    }
+}
+```
+
+#### Dependency Injection
+
 ```swift
 import ARCFirebaseStorage
 
-// Upload
-let imageData = image.jpegData(compressionQuality: 0.8)!
-let url = try await StorageManager.shared.upload(
-    data: imageData,
-    path: "restaurants/\(id)/photo.jpg",
-    contentType: "image/jpeg"
-)
+class ImageUploader {
+    private let storage: any StorageProviding
 
-// Download URL
-let url = try await StorageManager.shared.downloadURL(
-    path: "restaurants/\(id)/photo.jpg"
-)
+    init(storage: any StorageProviding) {
+        self.storage = storage
+    }
 
-// Delete
-try await StorageManager.shared.delete(
-    path: "restaurants/\(id)/photo.jpg"
-)
+    func upload(_ imageData: Data, path: String) async throws -> URL {
+        return try await storage.upload(
+            data: imageData,
+            path: path,
+            contentType: "image/jpeg"
+        )
+    }
+
+    func delete(path: String) async throws {
+        try await storage.delete(path: path)
+    }
+}
+
+// Production
+let uploader = ImageUploader(storage: FirebaseStorageProvider.live)
+
+// Testing
+let uploader = ImageUploader(storage: MockStorageProvider())
 ```
 
 ### Crashlytics
@@ -220,6 +335,157 @@ CrashlyticsManager.shared.log("User action: \(action)")
 CrashlyticsManager.shared.setUserID(user.id)
 CrashlyticsManager.shared.setCustomValue("dark", forKey: "theme")
 ```
+
+## Migration Guide
+
+Migrating from singleton pattern to protocol-based dependency injection.
+
+### From Singleton to DI Pattern
+
+**Before (Singleton):**
+
+```swift
+// Old: Direct singleton access
+AuthManager.shared.signIn(email: email, password: password)
+AnalyticsManager.shared.logEvent("user_action")
+StorageManager.shared.upload(data: data, path: path, contentType: type)
+```
+
+**After (Dependency Injection):**
+
+```swift
+// New: Inject dependencies
+class MyViewModel {
+    private let auth: any AuthProviding
+    private let analytics: any AnalyticsProviding
+    private let storage: any StorageProviding
+
+    init(auth: any AuthProviding, analytics: any AnalyticsProviding, storage: any StorageProviding) {
+        self.auth = auth
+        self.analytics = analytics
+        self.storage = storage
+    }
+
+    func signIn() async throws {
+        try await auth.signIn(email: email, password: password)
+        analytics.logEvent("user_signed_in")
+    }
+}
+```
+
+### SwiftUI Environment Setup
+
+**Before:**
+
+```swift
+@main
+struct MyApp: App {
+    init() {
+        FirebaseManager.configure()
+        try? AuthManager.shared.configure()
+    }
+
+    var body: some Scene {
+        WindowGroup {
+            ContentView()
+        }
+    }
+}
+```
+
+**After:**
+
+```swift
+@main
+struct MyApp: App {
+    private let auth = FirebaseAuthProvider.live
+    private let analytics = FirebaseAnalyticsProvider.live
+    private let storage = FirebaseStorageProvider.live
+
+    init() {
+        FirebaseManager.configure()
+    }
+
+    var body: some Scene {
+        WindowGroup {
+            ContentView()
+                .environment(\.authProvider, auth)
+                .environment(\.analyticsProvider, analytics)
+                .environment(\.storageProvider, storage)
+        }
+    }
+}
+```
+
+### Testing Benefits
+
+**Before (Hard to test):**
+
+```swift
+// Cannot mock AuthManager.shared
+func testSignIn() async {
+    // This hits real Firebase!
+    try await AuthManager.shared.signIn(email: "test@test.com", password: "password")
+}
+```
+
+**After (Easy to test):**
+
+```swift
+// Mock implementation
+actor MockAuthProvider: AuthProviding {
+    var mockUser: User?
+
+    var currentUser: User? {
+        get async { mockUser }
+    }
+
+    func signIn(email: String, password: String) async throws -> User {
+        let user = User(id: "mock-id", email: email)
+        mockUser = user
+        return user
+    }
+    // ... other methods
+}
+
+// Test with mock
+func testSignIn() async throws {
+    let mock = MockAuthProvider()
+    let viewModel = AuthViewModel(auth: mock)
+
+    try await viewModel.signIn(email: "test@test.com", password: "password")
+
+    let user = await mock.currentUser
+    #expect(user?.email == "test@test.com")
+}
+```
+
+### Key Changes
+
+| Component | Old Name | New Name | Type |
+|-----------|----------|----------|------|
+| Auth | `AuthManager.shared` | `FirebaseAuthProvider` | Actor |
+| Analytics | `AnalyticsManager.shared` | `FirebaseAnalyticsProvider` | Class (@unchecked Sendable) |
+| Storage | `StorageManager.shared` | `FirebaseStorageProvider` | Actor |
+
+### Actor Isolation
+
+Auth and Storage providers are now actors for thread safety:
+
+```swift
+// Async access required for actor properties
+let isAuthenticated = await auth.isAuthenticated
+let user = await auth.currentUser
+
+// Methods are already async, no change needed
+try await auth.signIn(email: email, password: password)
+```
+
+### What Stays the Same
+
+- **FirebaseManager**: Still a singleton (stateless coordinator)
+- **CrashlyticsManager**: Still a singleton (global logging)
+- **FirestoreRepository**: Already protocol-based, no changes needed
 
 ## Documentation
 

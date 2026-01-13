@@ -4,16 +4,51 @@ Learn how to upload and manage files with Firebase Storage.
 
 ## Overview
 
-This guide covers uploading images, documents, and other files to Firebase Storage.
+This guide covers uploading images, documents, and other files to Firebase Storage using the protocol-based architecture for dependency injection and testability.
 
 ## Basic Setup
 
+### Production Setup
+
 ```swift
 import ARCFirebaseStorage
+import ARCFirebaseCore
 
-// Configure at app launch
+// Configure Firebase at app launch
 FirebaseManager.configure()
-try StorageManager.shared.configure()
+
+// Create the storage provider
+let storage = try FirebaseStorageProvider()
+// Or use the convenience accessor
+let storage = FirebaseStorageProvider.live
+```
+
+### Dependency Injection
+
+For better testability, inject the storage provider into your classes:
+
+```swift
+class ImageUploader {
+    private let storage: any StorageProviding
+
+    init(storage: any StorageProviding) {
+        self.storage = storage
+    }
+
+    func uploadImage(_ imageData: Data, path: String) async throws -> URL {
+        return try await storage.upload(
+            data: imageData,
+            path: path,
+            contentType: "image/jpeg"
+        )
+    }
+}
+
+// Production
+let uploader = ImageUploader(storage: FirebaseStorageProvider.live)
+
+// Testing
+let uploader = ImageUploader(storage: MockStorageProvider())
 ```
 
 ## Uploading Files
@@ -21,6 +56,8 @@ try StorageManager.shared.configure()
 ### Upload Image Data
 
 ```swift
+let storage = FirebaseStorageProvider.live
+
 #if canImport(UIKit)
 import UIKit
 
@@ -29,7 +66,7 @@ let image = UIImage(named: "photo")!
 let imageData = image.jpegData(compressionQuality: 0.8)!
 
 // Upload
-let downloadURL = try await StorageManager.shared.upload(
+let downloadURL = try await storage.upload(
     data: imageData,
     path: "restaurants/\(restaurantID)/photo.jpg",
     contentType: "image/jpeg"
@@ -42,9 +79,10 @@ print("Uploaded to: \(downloadURL)")
 ### Upload from File URL
 
 ```swift
+let storage = FirebaseStorageProvider.live
 let fileURL = URL(fileURLWithPath: "/path/to/document.pdf")
 
-let downloadURL = try await StorageManager.shared.upload(
+let downloadURL = try await storage.upload(
     fileURL: fileURL,
     path: "documents/\(userID)/resume.pdf"
 )
@@ -55,7 +93,9 @@ let downloadURL = try await StorageManager.shared.upload(
 ### Get Download URL
 
 ```swift
-let url = try await StorageManager.shared.downloadURL(
+let storage = FirebaseStorageProvider.live
+
+let url = try await storage.downloadURL(
     path: "restaurants/abc123/photo.jpg"
 )
 
@@ -72,7 +112,9 @@ AsyncImage(url: url) { image in
 For small files only (<10 MB):
 
 ```swift
-let data = try await StorageManager.shared.download(
+let storage = FirebaseStorageProvider.live
+
+let data = try await storage.download(
     path: "restaurants/abc123/photo.jpg"
 )
 
@@ -84,7 +126,9 @@ let image = UIImage(data: data)
 ## Deleting Files
 
 ```swift
-try await StorageManager.shared.delete(
+let storage = FirebaseStorageProvider.live
+
+try await storage.delete(
     path: "restaurants/abc123/photo.jpg"
 )
 ```
@@ -94,13 +138,15 @@ try await StorageManager.shared.delete(
 ### Using StorageReference
 
 ```swift
+let storage = FirebaseStorageProvider.live
+
 // Restaurant photo
 let ref = StorageReference.restaurantPhoto(
     restaurantID: restaurant.id,
     filename: "main-photo.jpg"
 )
 
-let url = try await StorageManager.shared.upload(
+let url = try await storage.upload(
     data: imageData,
     path: ref.fullPath,
     contentType: "image/jpeg"
@@ -117,10 +163,32 @@ let ref = StorageReference(
 
 ## SwiftUI Integration
 
+### Environment Values
+
+Use SwiftUI's environment to pass the storage provider through your view hierarchy:
+
+```swift
+import SwiftUI
+import ARCFirebaseStorage
+
+@main
+struct MyApp: App {
+    let storage = FirebaseStorageProvider.live
+
+    var body: some Scene {
+        WindowGroup {
+            ContentView()
+                .environment(\.storageProvider, storage)
+        }
+    }
+}
+```
+
 ### Image Upload View
 
 ```swift
 struct ImageUploadView: View {
+    @Environment(\.storageProvider) var storage
     @State private var selectedImage: UIImage?
     @State private var isUploading = false
     @State private var uploadedURL: URL?
@@ -161,7 +229,7 @@ struct ImageUploadView: View {
 
         Task {
             do {
-                let url = try await StorageManager.shared.upload(
+                let url = try await storage.upload(
                     data: imageData,
                     path: "uploads/\(UUID().uuidString).jpg",
                     contentType: "image/jpeg"
@@ -213,8 +281,10 @@ let compressedData = image.jpegData(compressionQuality: 0.7)
 For files >10 MB, use download URL instead of downloading to memory:
 
 ```swift
+let storage = FirebaseStorageProvider.live
+
 // For large files, get URL and stream download
-let url = try await StorageManager.shared.downloadURL(path: path)
+let url = try await storage.downloadURL(path: path)
 
 // Then use URLSession to download with progress tracking
 let (localURL, _) = try await URLSession.shared.download(from: url)
@@ -223,13 +293,15 @@ let (localURL, _) = try await URLSession.shared.download(from: url)
 ### Clean Up Old Files
 
 ```swift
+let storage = FirebaseStorageProvider.live
+
 // Delete old profile photo before uploading new one
-try? await StorageManager.shared.delete(
+try? await storage.delete(
     path: "users/\(userID)/profile.jpg"
 )
 
 // Upload new photo
-let url = try await StorageManager.shared.upload(
+let url = try await storage.upload(
     data: newImageData,
     path: "users/\(userID)/profile.jpg",
     contentType: "image/jpeg"
@@ -261,8 +333,62 @@ service firebase.storage {
 }
 ```
 
+## Testing with Mocks
+
+Create a mock provider for testing:
+
+```swift
+actor MockStorageProvider: StorageProviding {
+    var uploadedFiles: [String: Data] = [:]
+    var mockDownloadURL = URL(string: "https://example.com/file.jpg")!
+
+    func upload(data: Data, path: String, contentType: String) async throws -> URL {
+        uploadedFiles[path] = data
+        return mockDownloadURL
+    }
+
+    func upload(fileURL: URL, path: String) async throws -> URL {
+        let data = try Data(contentsOf: fileURL)
+        uploadedFiles[path] = data
+        return mockDownloadURL
+    }
+
+    func downloadURL(path: String) async throws -> URL {
+        guard uploadedFiles[path] != nil else {
+            throw NSError(domain: "MockStorageError", code: 404)
+        }
+        return mockDownloadURL
+    }
+
+    func download(path: String) async throws -> Data {
+        guard let data = uploadedFiles[path] else {
+            throw NSError(domain: "MockStorageError", code: 404)
+        }
+        return data
+    }
+
+    func delete(path: String) async throws {
+        uploadedFiles.removeValue(forKey: path)
+    }
+}
+
+// In tests
+func testUpload() async throws {
+    let mock = MockStorageProvider()
+    let uploader = ImageUploader(storage: mock)
+
+    let testData = Data([1, 2, 3, 4])
+    let url = try await uploader.uploadImage(testData, path: "test/image.jpg")
+
+    #expect(url == mock.mockDownloadURL)
+    let stored = await mock.uploadedFiles["test/image.jpg"]
+    #expect(stored == testData)
+}
+```
+
 ## See Also
 
-- ``StorageManager``
+- ``StorageProviding``
+- ``FirebaseStorageProvider``
 - ``StorageReference``
 - <doc:/ARCFirebaseCore/SecurityBestPractices>

@@ -4,16 +4,48 @@ Learn how to implement user authentication in your app.
 
 ## Overview
 
-This guide covers the complete authentication workflow, from user sign-up to session management.
+This guide covers the complete authentication workflow, from user sign-up to session management, using the protocol-based architecture for dependency injection and testability.
 
 ## Basic Setup
 
+### Production Setup
+
 ```swift
 import ARCFirebaseAuth
+import ARCFirebaseCore
 
-// Configure at app launch
+// Configure Firebase at app launch
 FirebaseManager.configure()
-try AuthManager.shared.configure()
+
+// Create the auth provider
+let auth = try FirebaseAuthProvider()
+// Or use the convenience accessor
+let auth = FirebaseAuthProvider.live
+```
+
+### Dependency Injection
+
+For better testability, inject the auth provider into your classes:
+
+```swift
+class AuthViewModel {
+    private let auth: any AuthProviding
+
+    init(auth: any AuthProviding) {
+        self.auth = auth
+    }
+
+    func signIn(email: String, password: String) async throws {
+        let user = try await auth.signIn(email: email, password: password)
+        // Handle successful sign in
+    }
+}
+
+// Production
+let viewModel = AuthViewModel(auth: FirebaseAuthProvider.live)
+
+// Testing
+let viewModel = AuthViewModel(auth: MockAuthProvider())
 ```
 
 ## User Sign Up
@@ -21,8 +53,10 @@ try AuthManager.shared.configure()
 Create new user accounts with email and password:
 
 ```swift
+let auth = FirebaseAuthProvider.live
+
 do {
-    let user = try await AuthManager.shared.signUp(
+    let user = try await auth.signUp(
         email: "user@example.com",
         password: "securePassword123"
     )
@@ -38,8 +72,10 @@ do {
 Authenticate existing users:
 
 ```swift
+let auth = FirebaseAuthProvider.live
+
 do {
-    let user = try await AuthManager.shared.signIn(
+    let user = try await auth.signIn(
         email: "user@example.com",
         password: "password123"
     )
@@ -54,8 +90,10 @@ do {
 Monitor the current user's authentication status:
 
 ```swift
-if AuthManager.shared.isAuthenticated {
-    if let user = AuthManager.shared.currentUser {
+let auth = FirebaseAuthProvider.live
+
+if await auth.isAuthenticated {
+    if let user = await auth.currentUser {
         print("User ID: \(user.id)")
         print("Email: \(user.email ?? "N/A")")
         print("Verified: \(user.isEmailVerified)")
@@ -70,8 +108,10 @@ if AuthManager.shared.isAuthenticated {
 Log out the current user:
 
 ```swift
+let auth = FirebaseAuthProvider.live
+
 do {
-    try AuthManager.shared.signOut()
+    try await auth.signOut()
     print("User signed out")
 } catch {
     print("Sign out failed: \(error)")
@@ -80,17 +120,46 @@ do {
 
 ## SwiftUI Integration
 
-### View Modifier for Auth State
+### Environment Values
+
+Use SwiftUI's environment to pass the auth provider through your view hierarchy:
+
+```swift
+import SwiftUI
+import ARCFirebaseAuth
+
+@main
+struct MyApp: App {
+    let auth = FirebaseAuthProvider.live
+
+    var body: some Scene {
+        WindowGroup {
+            ContentView()
+                .environment(\.authProvider, auth)
+        }
+    }
+}
+```
+
+### View with Auth State
+
+Access the auth provider from the environment:
 
 ```swift
 struct ContentView: View {
-    @State private var isAuthenticated = AuthManager.shared.isAuthenticated
+    @Environment(\.authProvider) var auth
+    @State private var isAuthenticated = false
 
     var body: some View {
-        if isAuthenticated {
-            HomeView()
-        } else {
-            SignInView()
+        Group {
+            if isAuthenticated {
+                HomeView()
+            } else {
+                SignInView()
+            }
+        }
+        .task {
+            isAuthenticated = await auth.isAuthenticated
         }
     }
 }
@@ -100,6 +169,7 @@ struct ContentView: View {
 
 ```swift
 struct SignInView: View {
+    @Environment(\.authProvider) var auth
     @State private var email = ""
     @State private var password = ""
     @State private var errorMessage: String?
@@ -132,7 +202,7 @@ struct SignInView: View {
 
         Task {
             do {
-                _ = try await AuthManager.shared.signIn(
+                _ = try await auth.signIn(
                     email: email,
                     password: password
                 )
@@ -150,8 +220,10 @@ struct SignInView: View {
 Handle common authentication errors:
 
 ```swift
+let auth = FirebaseAuthProvider.live
+
 do {
-    let user = try await AuthManager.shared.signIn(
+    let user = try await auth.signIn(
         email: email,
         password: password
     )
@@ -190,7 +262,9 @@ func validatePassword(_ password: String) -> Bool {
 Check if user's email is verified:
 
 ```swift
-guard let user = AuthManager.shared.currentUser else { return }
+let auth = FirebaseAuthProvider.live
+
+guard let user = await auth.currentUser else { return }
 
 if !user.isEmailVerified {
     // Prompt user to verify email
@@ -201,14 +275,58 @@ if !user.isEmailVerified {
 ### Automatic Sign In After Sign Up
 
 ```swift
+let auth = FirebaseAuthProvider.live
+
 // After successful sign up, user is automatically signed in
-let user = try await AuthManager.shared.signUp(
+let user = try await auth.signUp(
     email: email,
     password: password
 )
 
 // User is now authenticated
-assert(AuthManager.shared.isAuthenticated)
+let isAuthenticated = await auth.isAuthenticated
+assert(isAuthenticated)
+```
+
+### Testing with Mocks
+
+Create a mock provider for testing:
+
+```swift
+actor MockAuthProvider: AuthProviding {
+    var mockUser: User?
+    var mockError: Error?
+
+    var currentUser: User? {
+        get async { mockUser }
+    }
+
+    var isAuthenticated: Bool {
+        get async { mockUser != nil }
+    }
+
+    func signIn(email: String, password: String) async throws -> User {
+        if let error = mockError {
+            throw error
+        }
+        let user = User(id: "mock-id", email: email)
+        mockUser = user
+        return user
+    }
+
+    // Implement other methods...
+}
+
+// In tests
+func testSignIn() async throws {
+    let mock = MockAuthProvider()
+    let viewModel = AuthViewModel(auth: mock)
+
+    try await viewModel.signIn(email: "test@example.com", password: "password")
+
+    let user = await mock.currentUser
+    #expect(user?.email == "test@example.com")
+}
 ```
 
 ## Security Tips
@@ -221,6 +339,7 @@ assert(AuthManager.shared.isAuthenticated)
 
 ## See Also
 
-- ``AuthManager``
+- ``AuthProviding``
+- ``FirebaseAuthProvider``
 - ``User``
 - <doc:/ARCFirebaseCore/SecurityBestPractices>

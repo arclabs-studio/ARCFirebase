@@ -7,13 +7,20 @@ import ARCFirebaseCrashlytics
 @Observable
 final class ItemsViewModel {
 
+    // MARK: - Dependencies
+
+    private let analytics: any AnalyticsProviding
+    private let repository: FirestoreRepository<Item>
+
+    // MARK: - State
+
     var items: [Item] = []
     var isLoading: Bool = false
     var errorMessage: String?
 
-    private let repository: FirestoreRepository<Item>
+    init(analytics: any AnalyticsProviding) {
+        self.analytics = analytics
 
-    init() {
         do {
             self.repository = try FirestoreRepository(collectionPath: "items")
         } catch {
@@ -33,7 +40,7 @@ final class ItemsViewModel {
             items = try await repository.fetchAll()
 
             // Track event
-            AnalyticsManager.shared.logEvent("items_loaded", parameters: [
+            analytics.logEvent("items_loaded", parameters: [
                 "count": items.count
             ])
 
@@ -69,7 +76,7 @@ final class ItemsViewModel {
             try await repository.save(item)
 
             // Track event
-            AnalyticsManager.shared.logEvent("item_created", parameters: [
+            analytics.logEvent("item_created", parameters: [
                 "title_length": title.count
             ])
 
@@ -97,7 +104,7 @@ final class ItemsViewModel {
             try await repository.delete(id: item.id)
 
             // Track event
-            AnalyticsManager.shared.logEvent("item_deleted")
+            analytics.logEvent("item_deleted")
 
             // Remove from local array
             items.removeAll { $0.id == item.id }
