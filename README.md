@@ -14,6 +14,18 @@ Modular Firebase integration for ARC Labs Studio apps.
 - **Multi-app ready**: Reusable across all ARC Labs apps
 - **Production tested**: Used in FavRes, FavBook, and more
 
+## Example App
+
+A complete SwiftUI example app is available in [`Examples/ARCFirebaseExample`](Examples/ARCFirebaseExample/README.md) demonstrating:
+
+- Authentication (sign up, sign in, sign out)
+- Firestore CRUD operations with generic repository
+- Analytics event tracking
+- Crashlytics error reporting
+- Complete SwiftUI architecture with MVVM
+
+Perfect for learning how to integrate ARCFirebase in your app!
+
 ## Modules
 
 | Module | Description | Firebase SDK |
