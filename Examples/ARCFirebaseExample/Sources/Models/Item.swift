@@ -1,5 +1,5 @@
-import Foundation
 import ARCFirebasePersistence
+import Foundation
 
 /// Example model representing an item in Firestore
 struct Item: FirestoreDocument, Sendable {

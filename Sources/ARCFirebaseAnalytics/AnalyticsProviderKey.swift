@@ -6,7 +6,6 @@ public struct AnalyticsProviderKey: EnvironmentKey {
 }
 
 extension EnvironmentValues {
-
     /// The analytics provider in the environment.
     public var analyticsProvider: any AnalyticsProviding {
         get { self[AnalyticsProviderKey.self] }

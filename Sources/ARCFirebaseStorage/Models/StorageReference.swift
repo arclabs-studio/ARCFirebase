@@ -11,7 +11,6 @@ import Foundation
 /// )
 /// ```
 public struct StorageReference {
-
     /// The storage bucket (optional, uses default if nil).
     public let bucket: String?
 
@@ -20,7 +19,7 @@ public struct StorageReference {
 
     /// The full storage path.
     public var fullPath: String {
-        if let bucket = bucket {
+        if let bucket {
             return "\(bucket)/\(path)"
         }
         return path
@@ -41,19 +40,18 @@ public struct StorageReference {
 
 // MARK: - Common Paths
 
-public extension StorageReference {
-
+extension StorageReference {
     /// Creates a reference for a restaurant photo.
     ///
     /// Path format: `restaurants/{restaurantID}/photos/{filename}`
-    static func restaurantPhoto(restaurantID: String, filename: String) -> StorageReference {
+    public static func restaurantPhoto(restaurantID: String, filename: String) -> StorageReference {
         StorageReference(path: "restaurants/\(restaurantID)/photos/\(filename)")
     }
 
     /// Creates a reference for a user profile photo.
     ///
     /// Path format: `users/{userID}/profile.jpg`
-    static func userProfilePhoto(userID: String) -> StorageReference {
+    public static func userProfilePhoto(userID: String) -> StorageReference {
         StorageReference(path: "users/\(userID)/profile.jpg")
     }
 }

@@ -62,7 +62,6 @@ import Foundation
 /// ### Implementations
 /// - ``FirebaseAnalyticsProvider``
 public protocol AnalyticsProviding: Sendable {
-
     /// Logs a custom analytics event.
     ///
     /// - Parameters:
@@ -93,7 +92,6 @@ public protocol AnalyticsProviding: Sendable {
 // MARK: - Default Parameters
 
 extension AnalyticsProviding {
-
     /// Logs an event without parameters.
     public func logEvent(_ name: String) {
         logEvent(name, parameters: nil)

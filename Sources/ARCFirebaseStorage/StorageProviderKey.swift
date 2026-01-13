@@ -6,7 +6,6 @@ public struct StorageProviderKey: EnvironmentKey {
 }
 
 extension EnvironmentValues {
-
     /// The storage provider in the environment.
     public var storageProvider: any StorageProviding {
         get { self[StorageProviderKey.self] }

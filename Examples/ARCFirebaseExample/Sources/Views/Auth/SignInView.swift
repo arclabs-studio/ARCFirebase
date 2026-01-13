@@ -1,7 +1,6 @@
 import SwiftUI
 
 struct SignInView: View {
-
     @Environment(AuthViewModel.self) private var viewModel
     @State private var showSignUp = false
 

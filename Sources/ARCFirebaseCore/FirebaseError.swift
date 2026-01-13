@@ -4,7 +4,6 @@ import Foundation
 ///
 /// All Firebase modules use this error type for consistency.
 public enum FirebaseError: LocalizedError {
-
     /// Firebase was not configured before attempting to use it.
     ///
     /// **Solution**: Call ``FirebaseManager/configure()`` at app launch.
@@ -39,23 +38,23 @@ public enum FirebaseError: LocalizedError {
     public var errorDescription: String? {
         switch self {
         case .notConfigured:
-            return "Firebase is not configured. Call FirebaseManager.configure() at app launch."
+            "Firebase is not configured. Call FirebaseManager.configure() at app launch."
         case .authNotAvailable:
-            return "Firebase Authentication is not available."
+            "Firebase Authentication is not available."
         case .firestoreNotAvailable:
-            return "Firestore database is not available."
+            "Firestore database is not available."
         case .storageNotAvailable:
-            return "Firebase Storage is not available."
+            "Firebase Storage is not available."
         case .analyticsNotAvailable:
-            return "Firebase Analytics is not available."
-        case .networkError(let error):
-            return "Network error: \(error.localizedDescription)"
+            "Firebase Analytics is not available."
+        case let .networkError(error):
+            "Network error: \(error.localizedDescription)"
         case .documentNotFound:
-            return "The requested document was not found."
+            "The requested document was not found."
         case .permissionDenied:
-            return "Permission denied. Check your Firestore security rules."
-        case .unknown(let error):
-            return "An unknown error occurred: \(error.localizedDescription)"
+            "Permission denied. Check your Firestore security rules."
+        case let .unknown(error):
+            "An unknown error occurred: \(error.localizedDescription)"
         }
     }
 }

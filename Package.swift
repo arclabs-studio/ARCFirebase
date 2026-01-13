@@ -65,6 +65,7 @@ let package = Package(
     ],
     targets: [
         // MARK: - Core
+
         .target(
             name: "ARCFirebaseCore",
             dependencies: [
@@ -75,6 +76,7 @@ let package = Package(
         ),
 
         // MARK: - Auth
+
         .target(
             name: "ARCFirebaseAuth",
             dependencies: [
@@ -86,6 +88,7 @@ let package = Package(
         ),
 
         // MARK: - Analytics
+
         .target(
             name: "ARCFirebaseAnalytics",
             dependencies: [
@@ -97,6 +100,7 @@ let package = Package(
         ),
 
         // MARK: - Crashlytics
+
         .target(
             name: "ARCFirebaseCrashlytics",
             dependencies: [
@@ -108,6 +112,7 @@ let package = Package(
         ),
 
         // MARK: - Persistence
+
         .target(
             name: "ARCFirebasePersistence",
             dependencies: [
@@ -119,6 +124,7 @@ let package = Package(
         ),
 
         // MARK: - Storage
+
         .target(
             name: "ARCFirebaseStorage",
             dependencies: [
@@ -130,6 +136,7 @@ let package = Package(
         ),
 
         // MARK: - Tests
+
         .testTarget(
             name: "ARCFirebaseCoreTests",
             dependencies: ["ARCFirebaseCore"]

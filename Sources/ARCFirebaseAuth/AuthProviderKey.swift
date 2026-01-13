@@ -34,7 +34,6 @@ public struct AuthProviderKey: EnvironmentKey {
 }
 
 extension EnvironmentValues {
-
     /// The authentication provider in the environment.
     public var authProvider: any AuthProviding {
         get { self[AuthProviderKey.self] }

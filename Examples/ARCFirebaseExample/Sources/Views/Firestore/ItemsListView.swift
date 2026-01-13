@@ -1,8 +1,7 @@
-import SwiftUI
 import ARCFirebaseAnalytics
+import SwiftUI
 
 struct ItemsListView: View {
-
     @Environment(AuthViewModel.self) private var authViewModel
     @Environment(\.analyticsProvider) private var analytics
     @State private var viewModel: ItemsViewModel?
@@ -11,8 +10,8 @@ struct ItemsListView: View {
     var body: some View {
         NavigationStack {
             Group {
-                if let viewModel = viewModel {
-                    if viewModel.isLoading && viewModel.items.isEmpty {
+                if let viewModel {
+                    if viewModel.isLoading, viewModel.items.isEmpty {
                         ProgressView("Loading items...")
                     } else if viewModel.items.isEmpty {
                         ContentUnavailableView(
@@ -70,7 +69,7 @@ struct ItemsListView: View {
                 await viewModel?.loadItems()
             }
             .sheet(isPresented: $showAddItem) {
-                if let viewModel = viewModel {
+                if let viewModel {
                     AddItemView(viewModel: viewModel)
                         .environment(authViewModel)
                 }
@@ -89,7 +88,6 @@ struct ItemsListView: View {
 }
 
 struct ItemRowView: View {
-
     let item: Item
 
     var body: some View {
@@ -111,7 +109,6 @@ struct ItemRowView: View {
 }
 
 struct ItemDetailView: View {
-
     let item: Item
 
     var body: some View {
@@ -133,7 +130,6 @@ struct ItemDetailView: View {
 }
 
 struct AddItemView: View {
-
     @Environment(\.dismiss) private var dismiss
     @Environment(AuthViewModel.self) private var authViewModel
     @Bindable var viewModel: ItemsViewModel
@@ -147,7 +143,7 @@ struct AddItemView: View {
                 Section("Item Information") {
                     TextField("Title", text: $title)
                     TextField("Description", text: $description, axis: .vertical)
-                        .lineLimit(3...6)
+                        .lineLimit(3 ... 6)
                 }
 
                 Section {

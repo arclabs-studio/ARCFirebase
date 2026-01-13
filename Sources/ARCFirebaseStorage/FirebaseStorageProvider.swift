@@ -1,7 +1,7 @@
-import Foundation
-import FirebaseStorage
 import ARCFirebaseCore
 import ARCLogger
+import FirebaseStorage
+import Foundation
 
 /// Firebase implementation of ``StorageProviding``.
 ///
@@ -23,20 +23,39 @@ import ARCLogger
 /// - ``init()``
 /// - ``live``
 public final class FirebaseStorageProvider: StorageProviding, @unchecked Sendable {
-
     // MARK: - Properties
 
     private let storage = Storage.storage()
     private let logger = ARCLogger(category: "FirebaseStorage")
+    private let configuration: StorageConfiguration
 
     // MARK: - Initialization
 
-    /// Creates a Firebase storage provider.
+    /// Creates a Firebase storage provider with default configuration.
     ///
     /// - Throws: ``FirebaseError/notConfigured`` if Firebase hasn't been initialized.
     public init() throws {
         try FirebaseManager.ensureConfigured()
-        logger.info("FirebaseStorageProvider initialized")
+        configuration = .default
+        logger.info("FirebaseStorageProvider initialized with default configuration")
+    }
+
+    /// Creates a Firebase storage provider with custom configuration.
+    ///
+    /// - Parameter configuration: The storage configuration to use.
+    /// - Throws: ``FirebaseError/notConfigured`` if Firebase hasn't been initialized.
+    ///
+    /// ## Example
+    ///
+    /// ```swift
+    /// // Allow larger downloads
+    /// let config = StorageConfiguration(maxDownloadSize: 50 * 1024 * 1024)
+    /// let storage = try FirebaseStorageProvider(configuration: config)
+    /// ```
+    public init(configuration: StorageConfiguration) throws {
+        try FirebaseManager.ensureConfigured()
+        self.configuration = configuration
+        logger.info("FirebaseStorageProvider initialized with maxDownloadSize: \(configuration.maxDownloadSize) bytes")
     }
 
     // MARK: - StorageProviding Implementation
@@ -49,12 +68,11 @@ public final class FirebaseStorageProvider: StorageProviding, @unchecked Sendabl
             let metadata = StorageMetadata()
             metadata.contentType = contentType
 
-            let _ = try await ref.putDataAsync(data, metadata: metadata)
+            _ = try await ref.putDataAsync(data, metadata: metadata)
             let downloadURL = try await ref.downloadURL()
 
             logger.info("Upload successful: \(downloadURL)")
             return downloadURL
-
         } catch {
             logger.error("Upload failed: \(error.localizedDescription)")
             throw error.asFirebaseError()
@@ -66,12 +84,11 @@ public final class FirebaseStorageProvider: StorageProviding, @unchecked Sendabl
 
         do {
             let ref = storage.reference().child(path)
-            let _ = try await ref.putFileAsync(from: fileURL)
+            _ = try await ref.putFileAsync(from: fileURL)
             let downloadURL = try await ref.downloadURL()
 
             logger.info("File upload successful: \(downloadURL)")
             return downloadURL
-
         } catch {
             logger.error("File upload failed: \(error.localizedDescription)")
             throw error.asFirebaseError()
@@ -87,7 +104,6 @@ public final class FirebaseStorageProvider: StorageProviding, @unchecked Sendabl
 
             logger.debug("Got download URL: \(url)")
             return url
-
         } catch {
             logger.error("Failed to get download URL: \(error.localizedDescription)")
             throw error.asFirebaseError()
@@ -99,11 +115,10 @@ public final class FirebaseStorageProvider: StorageProviding, @unchecked Sendabl
 
         do {
             let ref = storage.reference().child(path)
-            let data = try await ref.data(maxSize: 10 * 1024 * 1024) // 10 MB max
+            let data = try await ref.data(maxSize: configuration.maxDownloadSize)
 
             logger.debug("Download successful: \(data.count) bytes")
             return data
-
         } catch {
             logger.error("Download failed: \(error.localizedDescription)")
             throw error.asFirebaseError()
@@ -118,7 +133,6 @@ public final class FirebaseStorageProvider: StorageProviding, @unchecked Sendabl
             try await ref.delete()
 
             logger.info("Delete successful: \(path)")
-
         } catch {
             logger.error("Delete failed: \(error.localizedDescription)")
             throw error.asFirebaseError()
@@ -126,12 +140,42 @@ public final class FirebaseStorageProvider: StorageProviding, @unchecked Sendabl
     }
 }
 
-// MARK: - Convenience
+// MARK: - Factory Methods
 
 extension FirebaseStorageProvider {
+    /// Creates a new instance with explicit error handling.
+    ///
+    /// Use this method when you want to handle initialization errors:
+    ///
+    /// ```swift
+    /// do {
+    ///     let storage = try FirebaseStorageProvider.create()
+    /// } catch {
+    ///     // Handle configuration error
+    /// }
+    /// ```
+    ///
+    /// - Returns: A configured ``FirebaseStorageProvider`` instance.
+    /// - Throws: ``FirebaseError/notConfigured`` if Firebase hasn't been initialized.
+    public static func create() throws -> FirebaseStorageProvider {
+        try FirebaseStorageProvider()
+    }
 
     /// Default live instance for production use.
+    ///
+    /// - Important: This will crash if Firebase is not configured.
+    ///              Call ``FirebaseManager/configure()`` first.
     public static var live: FirebaseStorageProvider {
-        try! FirebaseStorageProvider()
+        do {
+            return try create()
+        } catch {
+            fatalError(
+                """
+                FirebaseStorageProvider initialization failed.
+                Ensure FirebaseManager.shared.configure() is called before accessing .live.
+                Error: \(error.localizedDescription)
+                """
+            )
+        }
     }
 }

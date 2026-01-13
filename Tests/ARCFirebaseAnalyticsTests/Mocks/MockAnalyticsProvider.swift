@@ -3,7 +3,6 @@ import Foundation
 
 /// Mock analytics provider for testing.
 final class MockAnalyticsProvider: AnalyticsProviding, @unchecked Sendable {
-
     // MARK: - Mock State
 
     var loggedEvents: [(name: String, parameters: [String: Any]?)] = []
@@ -43,7 +42,7 @@ final class MockAnalyticsProvider: AnalyticsProviding, @unchecked Sendable {
     }
 
     func eventCount(named name: String) -> Int {
-        loggedEvents.filter { $0.name == name }.count
+        loggedEvents.count(where: { $0.name == name })
     }
 
     func lastEvent(named name: String) -> (name: String, parameters: [String: Any]?)? {

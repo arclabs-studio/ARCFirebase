@@ -1,7 +1,65 @@
-import Foundation
+import ARCLogger
 import FirebaseAnalytics
 import FirebaseCore
-import ARCLogger
+import Foundation
+
+// MARK: - FirebaseConfiguring Protocol
+
+/// Protocol defining Firebase configuration capabilities.
+///
+/// Use this protocol for dependency injection to make your code testable
+/// and decoupled from the Firebase singleton.
+///
+/// ## Usage in Production
+///
+/// ```swift
+/// @MainActor
+/// class AppCoordinator {
+///     private let firebase: FirebaseConfiguring
+///
+///     init(firebase: FirebaseConfiguring = FirebaseManager.shared) {
+///         self.firebase = firebase
+///     }
+///
+///     func setup() {
+///         firebase.configure()
+///     }
+/// }
+/// ```
+///
+/// ## Usage in Tests
+///
+/// ```swift
+/// @MainActor
+/// final class MockFirebaseManager: FirebaseConfiguring {
+///     var configureCallCount = 0
+///     var isConfigured = false
+///
+///     func configure() {
+///         configureCallCount += 1
+///         isConfigured = true
+///     }
+/// }
+/// ```
+///
+/// ## Topics
+///
+/// ### Configuration
+/// - ``configure()``
+/// - ``isConfigured``
+///
+/// ### Implementations
+/// - ``FirebaseManager``
+@MainActor
+public protocol FirebaseConfiguring: AnyObject, Sendable {
+    /// Indicates whether Firebase has been configured.
+    var isConfigured: Bool { get }
+
+    /// Configures Firebase using the GoogleService-Info.plist file.
+    func configure()
+}
+
+// MARK: - FirebaseManager
 
 /// Central manager for Firebase configuration and initialization.
 ///
@@ -19,8 +77,7 @@ import ARCLogger
 /// - <doc:GettingStarted>
 /// - <doc:MultiAppSetup>
 @MainActor
-public final class FirebaseManager: Sendable {
-
+public final class FirebaseManager: FirebaseConfiguring, Sendable {
     // MARK: - Singleton
 
     /// Shared singleton instance.
@@ -40,7 +97,7 @@ public final class FirebaseManager: Sendable {
 
     private init() {}
 
-    // MARK: - Public Methods
+    // MARK: - FirebaseConfiguring Implementation
 
     /// Configures Firebase using the GoogleService-Info.plist file in your app bundle.
     ///
@@ -51,7 +108,7 @@ public final class FirebaseManager: Sendable {
     /// @main
     /// struct FavResApp: App {
     ///     init() {
-    ///         FirebaseManager.configure()
+    ///         FirebaseManager.shared.configure()
     ///     }
     /// }
     /// ```
@@ -60,15 +117,24 @@ public final class FirebaseManager: Sendable {
     ///              Calling it multiple times is safe (subsequent calls are ignored).
     ///
     /// - Warning: Your app must include a valid `GoogleService-Info.plist` file.
-    public static func configure() {
+    public func configure() {
         // Safe to call multiple times - Firebase handles this
         if FirebaseApp.app() == nil {
             FirebaseApp.configure()
-            shared.isConfigured = true
-            shared.logger.info("Firebase configured successfully")
+            isConfigured = true
+            logger.info("Firebase configured successfully")
         } else {
-            shared.logger.debug("Firebase already configured")
+            logger.debug("Firebase already configured")
         }
+    }
+
+    // MARK: - Static Convenience Methods
+
+    /// Static convenience method for configuration.
+    ///
+    /// Equivalent to calling `FirebaseManager.shared.configure()`.
+    public static func configure() {
+        shared.configure()
     }
 
     /// Verifies that Firebase is configured.

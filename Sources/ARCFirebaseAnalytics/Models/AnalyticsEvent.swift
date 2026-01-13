@@ -10,8 +10,7 @@ import Foundation
 ///     parameters: ["item_id": "abc123"]
 /// )
 /// ```
-public struct AnalyticsEvent {
-
+public enum AnalyticsEvent {
     // MARK: - E-commerce
 
     /// User viewed an item (restaurant, book, product, etc.)
@@ -49,8 +48,7 @@ public struct AnalyticsEvent {
 }
 
 /// Common analytics parameter names.
-public struct AnalyticsParameter {
-
+public enum AnalyticsParameter {
     /// Item ID
     public static let itemID = "item_id"
 

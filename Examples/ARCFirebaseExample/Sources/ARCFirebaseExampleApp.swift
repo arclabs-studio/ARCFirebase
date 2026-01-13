@@ -1,13 +1,12 @@
-import SwiftUI
-import ARCFirebaseCore
-import ARCFirebaseAuth
 import ARCFirebaseAnalytics
-import ARCFirebaseStorage
+import ARCFirebaseAuth
+import ARCFirebaseCore
 import ARCFirebaseCrashlytics
+import ARCFirebaseStorage
+import SwiftUI
 
 @main
 struct ARCFirebaseExampleApp: App {
-
     // MARK: - Providers
 
     private let auth: FirebaseAuthProvider

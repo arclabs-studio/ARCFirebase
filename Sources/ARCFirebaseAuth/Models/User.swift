@@ -1,11 +1,10 @@
-import Foundation
 import FirebaseAuth
+import Foundation
 
 /// Represents an authenticated user.
 ///
 /// This is a simplified, app-specific representation of a Firebase user.
 public struct User: Sendable, Identifiable {
-
     /// The user's unique identifier.
     public let id: String
 
@@ -61,13 +60,13 @@ public struct User: Sendable, Identifiable {
     ///
     /// - Parameter firebaseUser: The Firebase user to convert.
     public init(from firebaseUser: FirebaseAuth.User) {
-        self.id = firebaseUser.uid
-        self.email = firebaseUser.email
-        self.displayName = firebaseUser.displayName
-        self.photoURL = firebaseUser.photoURL
-        self.isEmailVerified = firebaseUser.isEmailVerified
-        self.creationDate = firebaseUser.metadata.creationDate
-        self.lastSignInDate = firebaseUser.metadata.lastSignInDate
+        id = firebaseUser.uid
+        email = firebaseUser.email
+        displayName = firebaseUser.displayName
+        photoURL = firebaseUser.photoURL
+        isEmailVerified = firebaseUser.isEmailVerified
+        creationDate = firebaseUser.metadata.creationDate
+        lastSignInDate = firebaseUser.metadata.lastSignInDate
     }
 }
 

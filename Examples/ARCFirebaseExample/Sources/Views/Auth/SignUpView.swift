@@ -1,7 +1,6 @@
 import SwiftUI
 
 struct SignUpView: View {
-
     @Environment(\.dismiss) private var dismiss
     @Environment(AuthViewModel.self) private var viewModel
 

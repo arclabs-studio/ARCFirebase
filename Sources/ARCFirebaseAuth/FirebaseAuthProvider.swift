@@ -1,7 +1,7 @@
-import Foundation
-import FirebaseAuth
 import ARCFirebaseCore
 import ARCLogger
+import FirebaseAuth
+import Foundation
 
 /// Firebase implementation of ``AuthProviding``.
 ///
@@ -48,7 +48,6 @@ import ARCLogger
 /// - ``sendPasswordReset(email:)``
 /// - ``updatePassword(_:)``
 public final class FirebaseAuthProvider: AuthProviding, @unchecked Sendable {
-
     // MARK: - Properties
 
     private let auth = Auth.auth()
@@ -149,9 +148,26 @@ public final class FirebaseAuthProvider: AuthProviding, @unchecked Sendable {
     }
 }
 
-// MARK: - Convenience
+// MARK: - Factory Methods
 
 extension FirebaseAuthProvider {
+    /// Creates a new instance with explicit error handling.
+    ///
+    /// Use this method when you want to handle initialization errors:
+    ///
+    /// ```swift
+    /// do {
+    ///     let auth = try FirebaseAuthProvider.create()
+    /// } catch {
+    ///     // Handle configuration error
+    /// }
+    /// ```
+    ///
+    /// - Returns: A configured ``FirebaseAuthProvider`` instance.
+    /// - Throws: ``FirebaseError/notConfigured`` if Firebase hasn't been initialized.
+    public static func create() throws -> FirebaseAuthProvider {
+        try FirebaseAuthProvider()
+    }
 
     /// Default live instance for production use.
     ///
@@ -164,8 +180,16 @@ extension FirebaseAuthProvider {
     /// - Important: This will crash if Firebase is not configured.
     ///              Call ``FirebaseManager/configure()`` first.
     public static var live: FirebaseAuthProvider {
-        // Force unwrap is intentional - if Firebase isn't configured,
-        // we want to crash early in development
-        try! FirebaseAuthProvider()
+        do {
+            return try create()
+        } catch {
+            fatalError(
+                """
+                FirebaseAuthProvider initialization failed.
+                Ensure FirebaseManager.shared.configure() is called before accessing .live.
+                Error: \(error.localizedDescription)
+                """
+            )
+        }
     }
 }
