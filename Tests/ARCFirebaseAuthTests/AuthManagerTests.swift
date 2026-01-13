@@ -1,25 +1,30 @@
-import XCTest
+import Testing
 @testable import ARCFirebaseAuth
 
-final class AuthManagerTests: XCTestCase {
+@Suite("AuthManager Tests")
+struct AuthManagerTests {
 
-    func testAuthManagerSingleton() {
+    @Test("AuthManager is a singleton")
+    func authManagerSingleton() {
         let manager1 = AuthManager.shared
         let manager2 = AuthManager.shared
 
-        XCTAssertTrue(manager1 === manager2, "AuthManager should be a singleton")
+        #expect(manager1 === manager2)
     }
 
-    func testIsAuthenticatedWhenNoUser() {
+    @Test("isAuthenticated property is accessible")
+    func isAuthenticatedWhenNoUser() {
         // Note: This test assumes no user is signed in
         // In a real test, you would need to mock Firebase Auth
-        XCTAssertNotNil(AuthManager.shared.isAuthenticated)
+        let isAuthenticated = AuthManager.shared.isAuthenticated
+        #expect(isAuthenticated == true || isAuthenticated == false)
     }
 
-    func testCurrentUserProperty() {
+    @Test("currentUser property is accessible")
+    func currentUserProperty() {
         // Verify the property exists and is accessible
         let currentUser = AuthManager.shared.currentUser
         // currentUser will be nil if no user is signed in
-        XCTAssertTrue(currentUser == nil || currentUser != nil)
+        #expect(currentUser == nil || currentUser != nil)
     }
 }

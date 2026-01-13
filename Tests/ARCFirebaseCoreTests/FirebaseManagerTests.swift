@@ -1,58 +1,65 @@
-import XCTest
+import Testing
 @testable import ARCFirebaseCore
 
-final class FirebaseManagerTests: XCTestCase {
+@Suite("FirebaseManager Tests")
+struct FirebaseManagerTests {
 
-    func testFirebaseManagerSingleton() {
+    @Test("FirebaseManager is a singleton")
+    func firebaseManagerSingleton() {
         let manager1 = FirebaseManager.shared
         let manager2 = FirebaseManager.shared
 
-        XCTAssertTrue(manager1 === manager2, "FirebaseManager should be a singleton")
+        #expect(manager1 === manager2)
     }
 
-    func testInitialConfigurationState() {
+    @Test("Initial configuration state exists")
+    func initialConfigurationState() {
         // Note: In a real test environment, Firebase might already be configured
         // This test verifies the property exists
-        XCTAssertNotNil(FirebaseManager.shared.isConfigured)
+        let isConfigured = FirebaseManager.shared.isConfigured
+        #expect(isConfigured == true || isConfigured == false)
     }
 
-    func testFirebaseErrorDescriptions() {
+    @Test("FirebaseError descriptions are not nil")
+    func firebaseErrorDescriptions() {
         let notConfiguredError = FirebaseError.notConfigured
-        XCTAssertNotNil(notConfiguredError.errorDescription)
-        XCTAssertTrue(notConfiguredError.errorDescription!.contains("Firebase"))
+        #expect(notConfiguredError.errorDescription != nil)
+        #expect(notConfiguredError.errorDescription!.contains("Firebase"))
 
         let authError = FirebaseError.authNotAvailable
-        XCTAssertNotNil(authError.errorDescription)
+        #expect(authError.errorDescription != nil)
 
         let firestoreError = FirebaseError.firestoreNotAvailable
-        XCTAssertNotNil(firestoreError.errorDescription)
+        #expect(firestoreError.errorDescription != nil)
 
         let storageError = FirebaseError.storageNotAvailable
-        XCTAssertNotNil(storageError.errorDescription)
+        #expect(storageError.errorDescription != nil)
 
         let analyticsError = FirebaseError.analyticsNotAvailable
-        XCTAssertNotNil(analyticsError.errorDescription)
+        #expect(analyticsError.errorDescription != nil)
 
         let documentNotFoundError = FirebaseError.documentNotFound
-        XCTAssertNotNil(documentNotFoundError.errorDescription)
+        #expect(documentNotFoundError.errorDescription != nil)
 
         let permissionDeniedError = FirebaseError.permissionDenied
-        XCTAssertNotNil(permissionDeniedError.errorDescription)
+        #expect(permissionDeniedError.errorDescription != nil)
     }
 
-    func testNetworkErrorWrapping() {
+    @Test("Network error wrapping")
+    func networkErrorWrapping() {
         let underlyingError = NSError(domain: NSURLErrorDomain, code: -1009, userInfo: nil)
         let networkError = FirebaseError.networkError(underlying: underlyingError)
 
-        XCTAssertNotNil(networkError.errorDescription)
-        XCTAssertTrue(networkError.errorDescription!.contains("Network"))
+        #expect(networkError.errorDescription != nil)
+        #expect(networkError.errorDescription!.contains("Network"))
     }
 
-    func testUnknownErrorWrapping() {
+    @Test("Unknown error wrapping")
+    func unknownErrorWrapping() {
         let underlyingError = NSError(domain: "TestDomain", code: 999, userInfo: nil)
         let unknownError = FirebaseError.unknown(underlying: underlyingError)
 
-        XCTAssertNotNil(unknownError.errorDescription)
-        XCTAssertTrue(unknownError.errorDescription!.contains("unknown"))
+        #expect(unknownError.errorDescription != nil)
+        #expect(unknownError.errorDescription!.contains("unknown"))
     }
 }

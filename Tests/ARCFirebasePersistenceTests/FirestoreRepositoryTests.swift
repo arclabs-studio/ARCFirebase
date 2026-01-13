@@ -1,14 +1,16 @@
-import XCTest
+import Testing
 @testable import ARCFirebasePersistence
 
-final class FirestoreRepositoryTests: XCTestCase {
+@Suite("FirestoreRepository Tests")
+struct FirestoreRepositoryTests {
 
     struct TestEntity: Identifiable, Codable {
         let id: String
         let name: String
     }
 
-    func testFirestoreDocumentProtocol() {
+    @Test("FirestoreDocument protocol requirements")
+    func firestoreDocumentProtocol() {
         // Verify FirestoreDocument protocol requirements
         struct TestDocument: FirestoreDocument {
             let id: String
@@ -23,12 +25,13 @@ final class FirestoreRepositoryTests: XCTestCase {
             updatedAt: now
         )
 
-        XCTAssertEqual(document.id, "test123")
-        XCTAssertEqual(document.createdAt, now)
-        XCTAssertEqual(document.updatedAt, now)
+        #expect(document.id == "test123")
+        #expect(document.createdAt == now)
+        #expect(document.updatedAt == now)
     }
 
-    func testWithTimestampsHelper() {
+    @Test("withTimestamps helper creates document with timestamps")
+    func withTimestampsHelper() {
         struct TestDocument: FirestoreDocument {
             let id: String
             let createdAt: Date
@@ -39,8 +42,8 @@ final class FirestoreRepositoryTests: XCTestCase {
             TestDocument(id: "test", createdAt: now, updatedAt: now)
         }
 
-        XCTAssertEqual(document.id, "test")
-        XCTAssertNotNil(document.createdAt)
-        XCTAssertNotNil(document.updatedAt)
+        #expect(document.id == "test")
+        #expect(document.createdAt != nil)
+        #expect(document.updatedAt != nil)
     }
 }

@@ -1,49 +1,55 @@
-import XCTest
+import Testing
 @testable import ARCFirebaseStorage
 
-final class StorageManagerTests: XCTestCase {
+@Suite("StorageManager Tests")
+struct StorageManagerTests {
 
-    func testStorageManagerSingleton() {
+    @Test("StorageManager is a singleton")
+    func storageManagerSingleton() {
         let manager1 = StorageManager.shared
         let manager2 = StorageManager.shared
 
-        XCTAssertTrue(manager1 === manager2, "StorageManager should be a singleton")
+        #expect(manager1 === manager2)
     }
 
-    func testStorageReferenceInitialization() {
+    @Test("StorageReference initialization with bucket")
+    func storageReferenceInitialization() {
         let ref = StorageReference(
             bucket: "test-bucket",
             path: "photos/image.jpg"
         )
 
-        XCTAssertEqual(ref.bucket, "test-bucket")
-        XCTAssertEqual(ref.path, "photos/image.jpg")
-        XCTAssertEqual(ref.fullPath, "test-bucket/photos/image.jpg")
+        #expect(ref.bucket == "test-bucket")
+        #expect(ref.path == "photos/image.jpg")
+        #expect(ref.fullPath == "test-bucket/photos/image.jpg")
     }
 
-    func testStorageReferenceWithoutBucket() {
+    @Test("StorageReference initialization without bucket")
+    func storageReferenceWithoutBucket() {
         let ref = StorageReference(
             bucket: nil,
             path: "photos/image.jpg"
         )
 
-        XCTAssertNil(ref.bucket)
-        XCTAssertEqual(ref.path, "photos/image.jpg")
-        XCTAssertEqual(ref.fullPath, "photos/image.jpg")
+        #expect(ref.bucket == nil)
+        #expect(ref.path == "photos/image.jpg")
+        #expect(ref.fullPath == "photos/image.jpg")
     }
 
-    func testRestaurantPhotoReference() {
+    @Test("Restaurant photo reference helper")
+    func restaurantPhotoReference() {
         let ref = StorageReference.restaurantPhoto(
             restaurantID: "abc123",
             filename: "photo.jpg"
         )
 
-        XCTAssertEqual(ref.path, "restaurants/abc123/photos/photo.jpg")
+        #expect(ref.path == "restaurants/abc123/photos/photo.jpg")
     }
 
-    func testUserProfilePhotoReference() {
+    @Test("User profile photo reference helper")
+    func userProfilePhotoReference() {
         let ref = StorageReference.userProfilePhoto(userID: "user456")
 
-        XCTAssertEqual(ref.path, "users/user456/profile.jpg")
+        #expect(ref.path == "users/user456/profile.jpg")
     }
 }

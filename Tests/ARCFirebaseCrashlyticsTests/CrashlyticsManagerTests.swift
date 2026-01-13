@@ -1,17 +1,21 @@
-import XCTest
+import Testing
 @testable import ARCFirebaseCrashlytics
 
-final class CrashlyticsManagerTests: XCTestCase {
+@Suite("CrashlyticsManager Tests")
+struct CrashlyticsManagerTests {
 
-    func testCrashlyticsManagerSingleton() {
+    @Test("CrashlyticsManager is a singleton")
+    func crashlyticsManagerSingleton() {
         let manager1 = CrashlyticsManager.shared
         let manager2 = CrashlyticsManager.shared
 
-        XCTAssertTrue(manager1 === manager2, "CrashlyticsManager should be a singleton")
+        #expect(manager1 === manager2)
     }
 
-    func testManagerExists() {
+    @Test("Manager instance exists")
+    func managerExists() {
         // Verify the manager can be accessed
-        XCTAssertNotNil(CrashlyticsManager.shared)
+        let manager = CrashlyticsManager.shared
+        #expect(manager != nil)
     }
 }
