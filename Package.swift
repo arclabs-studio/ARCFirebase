@@ -72,7 +72,8 @@ let package = Package(
                 .product(name: "FirebaseAnalytics", package: "firebase-ios-sdk"),
                 .product(name: "ARCLogger", package: "ARCLogger")
             ],
-            path: "Sources/ARCFirebaseCore"
+            path: "Sources/ARCFirebaseCore",
+            swiftSettings: [.enableExperimentalFeature("StrictConcurrency")]
         ),
 
         // MARK: - Auth
@@ -84,7 +85,8 @@ let package = Package(
                 .product(name: "FirebaseAuth", package: "firebase-ios-sdk"),
                 .product(name: "ARCLogger", package: "ARCLogger")
             ],
-            path: "Sources/ARCFirebaseAuth"
+            path: "Sources/ARCFirebaseAuth",
+            swiftSettings: [.enableExperimentalFeature("StrictConcurrency")]
         ),
 
         // MARK: - Analytics
@@ -96,7 +98,8 @@ let package = Package(
                 .product(name: "FirebaseAnalytics", package: "firebase-ios-sdk"),
                 .product(name: "ARCLogger", package: "ARCLogger")
             ],
-            path: "Sources/ARCFirebaseAnalytics"
+            path: "Sources/ARCFirebaseAnalytics",
+            swiftSettings: [.enableExperimentalFeature("StrictConcurrency")]
         ),
 
         // MARK: - Crashlytics
@@ -108,7 +111,8 @@ let package = Package(
                 .product(name: "FirebaseCrashlytics", package: "firebase-ios-sdk"),
                 .product(name: "ARCLogger", package: "ARCLogger")
             ],
-            path: "Sources/ARCFirebaseCrashlytics"
+            path: "Sources/ARCFirebaseCrashlytics",
+            swiftSettings: [.enableExperimentalFeature("StrictConcurrency")]
         ),
 
         // MARK: - Persistence
@@ -120,7 +124,8 @@ let package = Package(
                 .product(name: "FirebaseFirestore", package: "firebase-ios-sdk"),
                 .product(name: "ARCLogger", package: "ARCLogger")
             ],
-            path: "Sources/ARCFirebasePersistence"
+            path: "Sources/ARCFirebasePersistence",
+            swiftSettings: [.enableExperimentalFeature("StrictConcurrency")]
         ),
 
         // MARK: - Storage
@@ -132,7 +137,8 @@ let package = Package(
                 .product(name: "FirebaseStorage", package: "firebase-ios-sdk"),
                 .product(name: "ARCLogger", package: "ARCLogger")
             ],
-            path: "Sources/ARCFirebaseStorage"
+            path: "Sources/ARCFirebaseStorage",
+            swiftSettings: [.enableExperimentalFeature("StrictConcurrency")]
         ),
 
         // MARK: - Tests

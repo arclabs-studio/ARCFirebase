@@ -1,10 +1,23 @@
-# ARCFirebase
+# 🔥 ARCFirebase
 
-Modular Firebase integration for ARC Labs Studio apps.
+![Swift](https://img.shields.io/badge/Swift-6.0-orange.svg)
+![Platforms](https://img.shields.io/badge/Platforms-iOS%2017%20%7C%20macOS%2014%20%7C%20watchOS%2010%20%7C%20visionOS%201-blue.svg)
+![License](https://img.shields.io/badge/License-MIT-green.svg)
+![Version](https://img.shields.io/badge/Version-1.0.0-blue.svg)
+
+**Modular Firebase integration for ARC Labs Studio apps**
+
+Protocol-based design • Actor-safe concurrency • SwiftUI Environment • Full testability
+
+---
+
+## 🎯 Overview
+
+ARCFirebase provides a clean, modular architecture for integrating Firebase services into Swift applications. Each Firebase service is wrapped in a protocol-based abstraction that enables dependency injection and comprehensive testing.
 
 > Part of the ARC Labs Studio package ecosystem
 
-## Features
+### Key Features
 
 - **Modular architecture**: Import only what you need
 - **Protocol-based design**: Dependency injection for testability
@@ -15,6 +28,17 @@ Modular Firebase integration for ARC Labs Studio apps.
 - **Full DocC documentation**: Learn as you code
 - **Multi-app ready**: Reusable across all ARC Labs apps
 - **Production tested**: Used in FavRes, FavBook, and more
+
+---
+
+## 📋 Requirements
+
+- **Swift:** 6.0+
+- **Platforms:** iOS 17.0+ / macOS 14.0+ / watchOS 10.0+ / visionOS 1.0+
+- **Xcode:** 16.0+
+- **Dependencies:** Firebase iOS SDK 10.0+, ARCLogger
+
+---
 
 ## Example App
 
@@ -28,7 +52,9 @@ A complete SwiftUI example app is available in [`Examples/ARCFirebaseExample`](E
 
 Perfect for learning how to integrate ARCFirebase in your app!
 
-## Modules
+---
+
+## 📦 Modules
 
 | Module | Description | Firebase SDK |
 |--------|-------------|--------------|
@@ -39,7 +65,9 @@ Perfect for learning how to integrate ARCFirebase in your app!
 | **Persistence** | Firestore database | FirebaseFirestore |
 | **Storage** | File storage | FirebaseStorage |
 
-## Installation
+---
+
+## 🚀 Installation
 
 ### Swift Package Manager
 
@@ -61,7 +89,9 @@ import ARCFirebaseAuth
 import ARCFirebaseAnalytics
 ```
 
-## Setup
+---
+
+## ⚙️ Setup
 
 ### 1. Download GoogleService-Info.plist
 
@@ -113,7 +143,9 @@ struct FavResApp: App {
 }
 ```
 
-## Usage Examples
+---
+
+## 📖 Usage Examples
 
 ### Authentication
 
@@ -336,7 +368,9 @@ CrashlyticsManager.shared.setUserID(user.id)
 CrashlyticsManager.shared.setCustomValue("dark", forKey: "theme")
 ```
 
-## Migration Guide
+---
+
+## 🔄 Migration Guide
 
 Migrating from singleton pattern to protocol-based dependency injection.
 
@@ -487,7 +521,9 @@ try await auth.signIn(email: email, password: password)
 - **CrashlyticsManager**: Still a singleton (global logging)
 - **FirestoreRepository**: Already protocol-based, no changes needed
 
-## Documentation
+---
+
+## 📚 Documentation
 
 Full DocC documentation included. Build with:
 
@@ -497,13 +533,17 @@ swift package generate-documentation
 
 Or explore online at [docs.arclabs.studio/arcfirebase](https://docs.arclabs.studio/arcfirebase)
 
-## Testing
+---
+
+## 🧪 Testing
 
 ```bash
 swift test
 ```
 
-## Security
+---
+
+## 🔐 Security
 
 ### Production Firestore Rules
 
@@ -532,7 +572,9 @@ Add to `.gitignore`:
 GoogleService-Info.plist
 ```
 
-## Multi-App Support
+---
+
+## 🏢 Multi-App Support
 
 ARCFirebase works across multiple apps. Each app uses its own Firebase project:
 
@@ -544,23 +586,37 @@ SpatialShoes → Firebase Project "Spatial Shoes"
 
 Same package, different configs. See [Multi-App Setup Guide](Sources/ARCFirebaseCore/ARCFirebaseCore.docc/MultiAppSetup.md).
 
-## Platform Support
+---
+
+## 📱 Platform Support
 
 - iOS 17+
 - macOS 14+
 - watchOS 10+
 - visionOS 1+
 
-## License
+---
+
+## 📄 License
 
 MIT License - ARC Labs Studio
 
-## Related Packages
+---
+
+## 🔗 Related Packages
 
 - [ARCLogger](https://github.com/arclabs/ARCLogger) - Logging system
 - [ARCMetrics](https://github.com/arclabs/ARCMetrics) - MetricKit integration
 - [ARCNetworking](https://github.com/arclabs/ARCNetworking) - API client (coming soon)
+- [ARCKnowledge](https://github.com/arclabs-studio/ARCKnowledge) - Development standards
+- [ARCDevTools](https://github.com/arclabs-studio/ARCDevTools) - Quality tooling
 
 ---
 
-**Built with ❤️ by ARC Labs Studio**
+<div align="center">
+
+Made with 💛 by ARC Labs Studio
+
+[**GitHub**](https://github.com/arclabs-studio) • [**Issues**](https://github.com/arclabs-studio/ARCFirebase/issues)
+
+</div>
