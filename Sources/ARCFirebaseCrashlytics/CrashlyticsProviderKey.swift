@@ -14,7 +14,15 @@ import SwiftUI
 /// ```swift
 /// @main
 /// struct MyApp: App {
-///     let crashlytics = FirebaseCrashlyticsProvider.live
+///     let crashlytics: any CrashlyticsProviding
+///
+///     init() {
+///         do {
+///             crashlytics = try FirebaseCrashlyticsProvider.create()
+///         } catch {
+///             fatalError("Firebase not configured: \(error)")
+///         }
+///     }
 ///
 ///     var body: some Scene {
 ///         WindowGroup {
@@ -32,8 +40,11 @@ import SwiftUI
 ///     }
 /// }
 /// ```
+///
+/// - Important: You must explicitly set `.environment(\.crashlyticsProvider, provider)` in your app.
+///   The default value will crash if accessed without setting a provider first.
 public struct CrashlyticsProviderKey: EnvironmentKey {
-    public static let defaultValue: any CrashlyticsProviding = FirebaseCrashlyticsProvider.live
+    public static let defaultValue: any CrashlyticsProviding = PlaceholderCrashlyticsProvider()
 }
 
 extension EnvironmentValues {
@@ -41,5 +52,48 @@ extension EnvironmentValues {
     public var crashlyticsProvider: any CrashlyticsProviding {
         get { self[CrashlyticsProviderKey.self] }
         set { self[CrashlyticsProviderKey.self] = newValue }
+    }
+}
+
+/// Placeholder provider that crashes with helpful message when accessed.
+/// This avoids crashes at module load time while ensuring proper configuration.
+private struct PlaceholderCrashlyticsProvider: CrashlyticsProviding {
+    func record(error _: Error) {
+        placeholderCrash()
+    }
+
+    func recordNonFatal(error _: Error) {
+        placeholderCrash()
+    }
+
+    func log(_: String) {
+        placeholderCrash()
+    }
+
+    func setUserID(_: String) {
+        placeholderCrash()
+    }
+
+    func clearUserID() {
+        placeholderCrash()
+    }
+
+    func setCustomValue(_: Any, forKey _: String) {
+        placeholderCrash()
+    }
+
+    private func placeholderCrash() -> Never {
+        fatalError(
+            """
+            CrashlyticsProvider not configured.
+            You must set the crashlytics provider in your app's environment:
+
+                .environment(\\.crashlyticsProvider, crashlyticsProvider)
+
+            Or use a mock provider for previews/testing:
+
+                .environment(\\.crashlyticsProvider, MockCrashlyticsProvider())
+            """
+        )
     }
 }

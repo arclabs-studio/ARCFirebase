@@ -1,46 +1,110 @@
 # ARCFirebase Example App
 
-A complete SwiftUI example demonstrating all ARCFirebase modules in action.
+A complete SwiftUI iOS app demonstrating all ARCFirebase modules in action. This demo app follows **ARC Labs Studio standards** and serves as both a learning resource and a reference implementation.
+
+> **Project Type**: Xcode Project (generated with XcodeGen)
 
 ## Features Demonstrated
 
-- **Authentication** (`ARCFirebaseAuth`)
-  - Email/password sign up and sign in
-  - User session management
-  - Sign out functionality
+### Authentication (`ARCFirebaseAuth`)
+- Email/password sign up and sign in
+- User session management
+- Sign out functionality
+- User context for analytics and crashlytics
 
-- **Firestore** (`ARCFirebasePersistence`)
-  - CRUD operations with generic repository
-  - Real-time data synchronization
-  - Type-safe models with `FirestoreDocument`
+### Firestore (`ARCFirebasePersistence`)
+- CRUD operations with generic `FirestoreRepository<T>`
+- Type-safe models with `FirestoreDocument` protocol
+- Automatic timestamp management
+- User-owned data with `userId` field
 
-- **Analytics** (`ARCFirebaseAnalytics`)
-  - Event tracking throughout the app
-  - User property setting
-  - Screen view logging
+### Cloud Storage (`ARCFirebaseStorage`)
+- File upload with content type
+- Download URL retrieval
+- In-memory file download
+- File deletion
 
-- **Crashlytics** (`ARCFirebaseCrashlytics`)
-  - Error reporting
-  - User context tracking
-  - Custom logging
+### Analytics (`ARCFirebaseAnalytics`)
+- Event tracking throughout the app
+- User property setting
+- Screen view logging
+- User ID attribution
+
+### Crashlytics (`ARCFirebaseCrashlytics`)
+- Error recording
+- Non-fatal error logging
+- User context tracking
+- Custom logging
+
+---
+
+## Architecture
+
+This demo follows **ARC Labs Studio architecture patterns**:
+
+```
+ARCFirebaseExample/
+├── ARCFirebaseExample.xcodeproj  # Xcode project
+├── project.yml                   # XcodeGen configuration
+├── Sources/
+│   ├── ARCFirebaseExampleApp.swift   # App entry + Firebase config
+│   ├── Models/
+│   │   └── Item.swift                # FirestoreDocument example
+│   ├── ViewModels/
+│   │   ├── AuthViewModel.swift       # Authentication state
+│   │   └── ItemsViewModel.swift      # Firestore CRUD
+│   ├── Views/
+│   │   ├── ContentView.swift         # Root view + tabs
+│   │   ├── Auth/
+│   │   │   ├── SignInView.swift
+│   │   │   └── SignUpView.swift
+│   │   ├── Firestore/
+│   │   │   └── ItemsListView.swift
+│   │   └── Storage/
+│   │       └── StorageDemoView.swift
+│   └── Mocks/
+│       ├── MockAuthProvider.swift
+│       ├── MockAnalyticsProvider.swift
+│       ├── MockStorageProvider.swift
+│       ├── MockCrashlyticsProvider.swift
+│       └── PreviewHelpers.swift
+└── Resources/
+    └── GoogleService-Info-Template.plist
+```
+
+### Key Patterns
+
+1. **Protocol-based Providers**: All Firebase services are accessed through protocols
+2. **Environment Injection**: Providers distributed via SwiftUI Environment
+3. **@Observable ViewModels**: State management with Swift's Observation framework
+4. **Mock Providers**: Enable SwiftUI previews without Firebase configuration
+
+---
 
 ## Setup Instructions
 
-### 1. Create Firebase Project
+### 1. Generate Xcode Project (if needed)
+
+If you modified `project.yml`, regenerate the project:
+
+```bash
+cd Examples/ARCFirebaseExample
+xcodegen generate
+```
+
+### 2. Create Firebase Project
 
 1. Go to [Firebase Console](https://console.firebase.google.com)
 2. Create a new project (or use existing one)
 3. Add an iOS app with bundle ID: `com.arclabs.arcfirebase.example`
 
-### 2. Download Configuration File
+### 3. Download Configuration File
 
 1. In Firebase Console, go to Project Settings
 2. Download `GoogleService-Info.plist`
-3. **DO NOT** commit this file to git (it's in `.gitignore`)
+3. Add it to your Xcode project (NOT committed to git)
 
-### 3. Configure Firebase Services
-
-Enable the following services in Firebase Console:
+### 4. Enable Firebase Services
 
 #### Authentication
 - Go to Authentication → Sign-in method
@@ -49,92 +113,61 @@ Enable the following services in Firebase Console:
 #### Firestore Database
 - Go to Firestore Database → Create database
 - Start in **test mode** (for development)
-- Use default location
 
-#### Security Rules (Development)
+#### Cloud Storage
+- Go to Storage → Get started
+- Use default bucket
+
+#### Crashlytics
+- Go to Crashlytics → Get started
+- Follow setup instructions
+
+### 5. Development Security Rules
+
+**Firestore (Development Only):**
 ```javascript
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     match /{document=**} {
-      // ⚠️ WARNING: Open rules for development only!
-      // Change these before production
       allow read, write: if true;
     }
   }
 }
 ```
 
-#### Analytics
-- Automatically enabled with Firebase setup
-
-#### Crashlytics
-- Go to Crashlytics → Get started
-- Follow SDK setup instructions (ARCFirebase already includes it)
-
-### 4. Add to Your Xcode Project
-
-Option A: **Copy Example Files**
-```bash
-# Copy the example directory into your project
-cp -r Examples/ARCFirebaseExample YourProject/
-```
-
-Option B: **Create New Xcode Project**
-1. Create new SwiftUI iOS project
-2. Set bundle ID to `com.arclabs.arcfirebase.example`
-3. Add ARCFirebase as package dependency
-4. Copy source files from `Examples/ARCFirebaseExample/Sources`
-5. Add `GoogleService-Info.plist` to project
-
-### 5. Add ARCFirebase Dependency
-
-In your Xcode project:
-1. File → Add Package Dependencies
-2. Enter ARCFirebase repository URL
-3. Select the following products:
-   - ARCFirebaseCore
-   - ARCFirebaseAuth
-   - ARCFirebaseAnalytics
-   - ARCFirebaseCrashlytics
-   - ARCFirebasePersistence
-
-Or in `Package.swift`:
-```swift
-dependencies: [
-    .package(path: "../../") // Path to ARCFirebase
-]
+**Storage (Development Only):**
+```javascript
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /{allPaths=**} {
+      allow read, write: if true;
+    }
+  }
+}
 ```
 
 ### 6. Run the App
 
-1. Build and run the app
-2. Check console for "✅ Firebase configured successfully"
-3. Sign up with a test email (e.g., `test@example.com`)
-4. Start creating items!
+```bash
+# Open in Xcode
+cd Examples/ARCFirebaseExample
+open ARCFirebaseExample.xcodeproj
 
-## Code Structure
-
-```
-Sources/
-├── ARCFirebaseExampleApp.swift   # App entry point + Firebase setup
-├── Models/
-│   └── Item.swift                # Firestore model example
-├── ViewModels/
-│   ├── AuthViewModel.swift       # Authentication logic
-│   └── ItemsViewModel.swift      # Firestore CRUD logic
-└── Views/
-    ├── ContentView.swift          # Main navigation
-    ├── Auth/
-    │   ├── SignInView.swift      # Sign in screen
-    │   └── SignUpView.swift      # Sign up screen
-    └── Firestore/
-        └── ItemsListView.swift   # Items list + detail
+# Or build from command line
+xcodebuild -project ARCFirebaseExample.xcodeproj \
+           -scheme ARCFirebaseExample \
+           -destination 'platform=iOS Simulator,name=iPhone 16 Pro' \
+           build
 ```
 
-## Key Implementation Patterns
+---
+
+## Code Examples
 
 ### Firebase Configuration
+
 ```swift
 @main
 struct ARCFirebaseExampleApp: App {
@@ -142,35 +175,35 @@ struct ARCFirebaseExampleApp: App {
         // 1. Configure Firebase Core
         FirebaseManager.configure()
 
-        // 2. Configure services
-        try? AuthManager.shared.configure()
-        try? AnalyticsManager.shared.configure()
-        try? CrashlyticsManager.shared.configure()
+        // 2. Initialize providers
+        let auth = try FirebaseAuthProvider.create()
+        let analytics = try FirebaseAnalyticsProvider.create()
+        let storage = try FirebaseStorageProvider.create()
+        let crashlytics = try FirebaseCrashlyticsProvider.create()
     }
 }
 ```
 
 ### Authentication Flow
+
 ```swift
 @Observable
 final class AuthViewModel {
     func signIn() async {
-        let user = try await AuthManager.shared.signIn(
-            email: email,
-            password: password
-        )
+        let user = try await auth.signIn(email: email, password: password)
 
         // Track event
-        AnalyticsManager.shared.logEvent("user_signed_in")
+        analytics.logEvent("user_signed_in", parameters: ["method": "email"])
 
         // Set user context
-        AnalyticsManager.shared.setUserID(user.id)
-        CrashlyticsManager.shared.setUserID(user.id)
+        analytics.setUserID(user.id)
+        crashlytics.setUserID(user.id)
     }
 }
 ```
 
 ### Firestore Repository
+
 ```swift
 // Define model
 struct Item: FirestoreDocument {
@@ -184,72 +217,96 @@ struct Item: FirestoreDocument {
 let repository = try FirestoreRepository<Item>(collectionPath: "items")
 
 // CRUD operations
-try await repository.save(item)
 let items = try await repository.fetchAll()
+try await repository.save(item)
 try await repository.delete(id: itemId)
 ```
 
-### Error Handling
-```swift
-do {
-    try await repository.save(item)
-} catch {
-    // Report to Crashlytics
-    CrashlyticsManager.shared.record(error: error)
+### Storage Upload
 
-    // Show to user
-    errorMessage = error.localizedDescription
+```swift
+let storage: StorageProviding = try FirebaseStorageProvider.create()
+
+let downloadURL = try await storage.upload(
+    data: imageData,
+    path: "images/\(UUID().uuidString).jpg",
+    contentType: "image/jpeg"
+)
+```
+
+---
+
+## SwiftUI Previews
+
+All views include functional previews using mock providers:
+
+```swift
+#Preview("Sign In - Empty") {
+    let viewModel = AuthViewModel(
+        auth: MockAuthProvider.unauthenticated,
+        analytics: MockAnalyticsProvider.preview
+    )
+
+    return SignInView()
+        .environment(viewModel)
+        .previewEnvironment()
+}
+
+#Preview("Sign In - Dark Mode") {
+    SignInView()
+        .previewEnvironment()
+        .preferredColorScheme(.dark)
 }
 ```
 
-## Testing the App
+---
 
-### 1. Sign Up
-- Tap "Don't have an account? Sign Up"
-- Enter email and password (min 6 characters)
-- Tap "Sign Up"
-- You should be automatically signed in
+## XcodeGen
 
-### 2. Create Items
-- Tap "+" in the Items tab
-- Enter title and description
-- Tap "Add Item"
-- Item appears in the list
+This project uses [XcodeGen](https://github.com/yonaskolb/XcodeGen) for project generation.
 
-### 3. View Analytics
-- Go to Firebase Console → Analytics
-- Wait a few minutes for events to appear
-- See `app_opened`, `user_signed_in`, `item_created` events
+### Regenerating the Project
 
-### 4. Test Crashlytics
-- Force a test crash:
-```swift
-Button("Test Crash") {
-    fatalError("Test crash")
-}
+```bash
+# Install XcodeGen (if not installed)
+brew install xcodegen
+
+# Generate project
+cd Examples/ARCFirebaseExample
+xcodegen generate
 ```
-- Reopen app
-- Check Firebase Console → Crashlytics
+
+### Modifying the Project
+
+Edit `project.yml` to:
+- Add new source files
+- Add new dependencies
+- Change build settings
+- Add new targets
+
+Then regenerate with `xcodegen generate`.
+
+---
 
 ## Production Checklist
 
 Before deploying to production:
 
-- [ ] Update Firestore security rules (see below)
+- [ ] Update Firestore security rules for user isolation
+- [ ] Update Storage security rules
 - [ ] Enable email verification
-- [ ] Set up proper error handling
-- [ ] Add loading states
-- [ ] Implement offline support
-- [ ] Add data validation
-- [ ] Test on physical device
 - [ ] Configure Firebase App Check
+- [ ] Remove debug buttons
+- [ ] Test on physical device
+- [ ] Add proper error recovery
+- [ ] Implement offline support
 
 ### Production Firestore Rules
+
 ```javascript
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Users can only access their own items
     match /items/{itemId} {
       allow read: if request.auth != null;
       allow create: if request.auth != null
@@ -261,54 +318,32 @@ service cloud.firestore {
 }
 ```
 
+---
+
 ## Troubleshooting
 
 ### "Firebase not configured" Error
 - Ensure `GoogleService-Info.plist` is in your project
-- Check it's added to your app target
-- Verify `FirebaseManager.configure()` is called first
+- Verify it's added to your app target
+- Check `FirebaseManager.configure()` is called first
+
+### Previews Not Working
+- Make sure mock providers are properly initialized
+- Use `.previewEnvironment()` modifier
+- Check for compiler errors in mock files
 
 ### Authentication Errors
 - Check Email/Password is enabled in Firebase Console
 - Verify password is at least 6 characters
-- Check Firebase Console → Authentication for error logs
+- Check Firebase Console → Authentication for logs
 
-### Firestore Permission Denied
-- Check security rules in Firebase Console
-- For development, use open rules (see above)
-- For production, implement proper rules
+### Project Generation Issues
+- Run `xcodegen generate` to regenerate
+- Check `project.yml` for syntax errors
+- Ensure ARCFirebase package path is correct
 
-### No Analytics Events
-- Analytics can take up to 24 hours to appear
-- Use DebugView in Firebase Console for real-time events
-- Enable Analytics debug mode in scheme settings
-
-## Cost Estimate (Free Tier)
-
-Firebase offers generous free tiers:
-
-- **Authentication**: 50,000 MAU (Monthly Active Users)
-- **Firestore**: 1 GB storage, 50,000 reads/day
-- **Analytics**: Unlimited events
-- **Crashlytics**: Unlimited crash reports
-
-This example app will run **completely free** for personal use and small-scale testing.
-
-## Next Steps
-
-- Add image upload with `ARCFirebaseStorage`
-- Implement real-time listeners
-- Add push notifications
-- Create admin panel
-- Deploy to TestFlight
+---
 
 ## License
 
-This example is part of ARCFirebase and licensed under MIT License.
-
-## Support
-
-For issues or questions:
-- Check ARCFirebase documentation
-- Review Firebase Console logs
-- Consult [Firebase documentation](https://firebase.google.com/docs)
+This example is part of ARCFirebase and follows ARC Labs Studio standards.

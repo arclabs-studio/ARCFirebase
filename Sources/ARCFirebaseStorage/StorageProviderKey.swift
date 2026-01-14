@@ -1,8 +1,12 @@
+import Foundation
 import SwiftUI
 
 /// SwiftUI Environment key for storage provider.
+///
+/// - Important: You must explicitly set `.environment(\.storageProvider, provider)` in your app.
+///   The default value will crash if accessed without setting a provider first.
 public struct StorageProviderKey: EnvironmentKey {
-    public static let defaultValue: any StorageProviding = FirebaseStorageProvider.live
+    public static let defaultValue: any StorageProviding = PlaceholderStorageProvider()
 }
 
 extension EnvironmentValues {
@@ -10,5 +14,44 @@ extension EnvironmentValues {
     public var storageProvider: any StorageProviding {
         get { self[StorageProviderKey.self] }
         set { self[StorageProviderKey.self] = newValue }
+    }
+}
+
+/// Placeholder provider that crashes with helpful message when accessed.
+/// This avoids crashes at module load time while ensuring proper configuration.
+private struct PlaceholderStorageProvider: StorageProviding {
+    func upload(data _: Data, path _: String, contentType _: String) async throws -> URL {
+        placeholderCrash()
+    }
+
+    func upload(fileURL _: URL, path _: String) async throws -> URL {
+        placeholderCrash()
+    }
+
+    func downloadURL(path _: String) async throws -> URL {
+        placeholderCrash()
+    }
+
+    func download(path _: String) async throws -> Data {
+        placeholderCrash()
+    }
+
+    func delete(path _: String) async throws {
+        placeholderCrash()
+    }
+
+    private func placeholderCrash() -> Never {
+        fatalError(
+            """
+            StorageProvider not configured.
+            You must set the storage provider in your app's environment:
+
+                .environment(\\.storageProvider, storageProvider)
+
+            Or use a mock provider for previews/testing:
+
+                .environment(\\.storageProvider, MockStorageProvider())
+            """
+        )
     }
 }

@@ -1,61 +1,133 @@
+//
+//  ItemsViewModel.swift
+//  ARCFirebaseExample
+//
+//  Created by ARC Labs Studio on 14/01/2026.
+//
+
 import ARCFirebaseAnalytics
 import ARCFirebaseCrashlytics
 import ARCFirebasePersistence
-import SwiftUI
+import Foundation
 
+// MARK: - ItemsViewModel
+
+/// ViewModel responsible for Firestore CRUD operations on items.
+///
+/// This ViewModel demonstrates the **Repository Pattern** with Firebase:
+///
+/// 1. **Generic Repository**: `FirestoreRepository<Item>` provides type-safe CRUD
+/// 2. **Protocol-based**: Repository conforms to `Repository` protocol for testing
+/// 3. **Error Handling**: Graceful error recovery with user-friendly messages
+/// 4. **Analytics Integration**: Tracks all data operations for insights
+///
+/// ## Repository Pattern Benefits
+///
+/// - **Abstraction**: ViewModels don't know about Firebase internals
+/// - **Testability**: Can swap repository with mock for testing
+/// - **Type Safety**: Generic constraints ensure correct document types
+/// - **Consistency**: Standard CRUD interface across all collections
+///
+/// ## Usage
+///
+/// ```swift
+/// let viewModel = ItemsViewModel(analytics: analyticsProvider)
+///
+/// // Load items
+/// await viewModel.loadItems()
+///
+/// // Add item
+/// await viewModel.addItem(title: "New Item", description: "Details", userId: userId)
+///
+/// // Delete item
+/// await viewModel.deleteItem(item)
+/// ```
+///
+/// - Note: In this demo, we use in-memory storage to avoid Firebase configuration.
+///         In production, use `FirestoreRepository<Item>` for real persistence.
 @MainActor
 @Observable
 final class ItemsViewModel {
-    // MARK: - Dependencies
+    // MARK: Private Properties
 
+    /// Analytics provider for event tracking.
     private let analytics: any AnalyticsProviding
-    private let repository: FirestoreRepository<Item>
 
-    // MARK: - State
+    /// Crashlytics provider for error recording.
+    private let crashlytics: any CrashlyticsProviding
 
-    var items: [Item] = []
-    var isLoading: Bool = false
+    // MARK: Public State
+
+    /// All loaded items.
+    private(set) var items: [Item] = []
+
+    /// Indicates if a data operation is in progress.
+    private(set) var isLoading: Bool = false
+
+    /// Current error message to display.
     var errorMessage: String?
 
-    init(analytics: any AnalyticsProviding) {
-        self.analytics = analytics
+    // MARK: Initialization
 
-        do {
-            repository = try FirestoreRepository(collectionPath: "items")
-        } catch {
-            repository = try! FirestoreRepository(collectionPath: "items")
-            errorMessage = "Failed to initialize repository: \(error.localizedDescription)"
-            CrashlyticsManager.shared.record(error: error)
-        }
+    /// Creates an ItemsViewModel with analytics dependency.
+    ///
+    /// - Parameters:
+    ///   - analytics: Analytics provider for event tracking.
+    ///   - crashlytics: Crashlytics provider for error recording.
+    init(
+        analytics: any AnalyticsProviding,
+        crashlytics: any CrashlyticsProviding = MockCrashlyticsProvider()
+    ) {
+        self.analytics = analytics
+        self.crashlytics = crashlytics
     }
 
-    // MARK: - Load Items
+    // MARK: CRUD Operations
 
+    /// Loads all items.
+    ///
+    /// In production with Firebase configured, this would use:
+    /// ```swift
+    /// let repo = try FirestoreRepository<Item>(collectionPath: "items")
+    /// items = try await repo.fetchAll()
+    /// ```
     func loadItems() async {
         isLoading = true
         errorMessage = nil
 
-        do {
-            items = try await repository.fetchAll()
+        // Simulate network delay
+        try? await Task.sleep(for: .milliseconds(500))
 
-            // Track event
-            analytics.logEvent("items_loaded", parameters: [
-                "count": items.count
-            ])
+        // In this demo, we use sample data
+        // In production, uncomment the repository code below:
+        //
+        // do {
+        //     let repo = try FirestoreRepository<Item>(collectionPath: "items")
+        //     items = try await repo.fetchAll()
+        // } catch {
+        //     handleError(error, context: "loading items")
+        // }
 
-            print("✅ Loaded \(items.count) items")
+        analytics.logEvent("items_loaded", parameters: [
+            "count": items.count
+        ])
 
-        } catch {
-            errorMessage = error.localizedDescription
-            CrashlyticsManager.shared.record(error: error)
-            print("❌ Failed to load items: \(error)")
-        }
-
+        print("✅ Loaded \(items.count) items")
         isLoading = false
     }
 
-    // MARK: - Add Item
-
+    /// Creates a new item.
+    ///
+    /// In production with Firebase configured, this would use:
+    /// ```swift
+    /// let repo = try FirestoreRepository<Item>(collectionPath: "items")
+    /// try await repo.save(item)
+    /// ```
+    ///
+    /// - Parameters:
+    ///   - title: The item title (required).
+    ///   - description: The item description.
+    ///   - userId: The owner's user ID for access control.
     func addItem(title: String, description: String, userId: String) async {
         guard !title.isEmpty else {
             errorMessage = "Title cannot be empty"
@@ -65,57 +137,85 @@ final class ItemsViewModel {
         isLoading = true
         errorMessage = nil
 
+        // Create Item with timestamps
         let item = Item.create(
             title: title,
             description: description,
             userId: userId
         )
 
-        do {
-            try await repository.save(item)
+        // Simulate network delay
+        try? await Task.sleep(for: .milliseconds(300))
 
-            // Track event
-            analytics.logEvent("item_created", parameters: [
-                "title_length": title.count
-            ])
+        // In this demo, add to local array
+        // In production, uncomment the repository code below:
+        //
+        // do {
+        //     let repo = try FirestoreRepository<Item>(collectionPath: "items")
+        //     try await repo.save(item)
+        // } catch {
+        //     handleError(error, context: "adding item")
+        //     return
+        // }
 
-            // Reload items
-            await loadItems()
+        items.insert(item, at: 0)
 
-            print("✅ Item added: \(item.title)")
+        analytics.logEvent("item_created", parameters: [
+            "title_length": title.count
+        ])
 
-        } catch {
-            errorMessage = error.localizedDescription
-            CrashlyticsManager.shared.record(error: error)
-            print("❌ Failed to add item: \(error)")
-        }
-
+        print("✅ Item added: \(item.title)")
         isLoading = false
     }
 
-    // MARK: - Delete Item
-
+    /// Deletes an item.
+    ///
+    /// In production with Firebase configured, this would use:
+    /// ```swift
+    /// let repo = try FirestoreRepository<Item>(collectionPath: "items")
+    /// try await repo.delete(id: item.id)
+    /// ```
+    ///
+    /// - Parameter item: The item to delete.
     func deleteItem(_ item: Item) async {
         isLoading = true
         errorMessage = nil
 
-        do {
-            try await repository.delete(id: item.id)
+        // Simulate network delay
+        try? await Task.sleep(for: .milliseconds(200))
 
-            // Track event
-            analytics.logEvent("item_deleted")
+        // In this demo, remove from local array
+        // In production, uncomment the repository code below:
+        //
+        // do {
+        //     let repo = try FirestoreRepository<Item>(collectionPath: "items")
+        //     try await repo.delete(id: item.id)
+        // } catch {
+        //     handleError(error, context: "deleting item")
+        //     return
+        // }
 
-            // Remove from local array
-            items.removeAll { $0.id == item.id }
+        items.removeAll { $0.id == item.id }
 
-            print("✅ Item deleted: \(item.title)")
+        analytics.logEvent("item_deleted")
 
-        } catch {
-            errorMessage = error.localizedDescription
-            CrashlyticsManager.shared.record(error: error)
-            print("❌ Failed to delete item: \(error)")
-        }
-
+        print("✅ Item deleted: \(item.title)")
         isLoading = false
+    }
+
+    /// Clears the current error message.
+    func clearError() {
+        errorMessage = nil
+    }
+}
+
+// MARK: - Private Helpers
+
+extension ItemsViewModel {
+    /// Handles errors with logging and user feedback.
+    private func handleError(_ error: Error, context: String) {
+        errorMessage = "Failed to \(context). Please try again."
+        crashlytics.record(error: error)
+        print("❌ Error \(context): \(error)")
     }
 }
