@@ -15,3 +15,12 @@ xcuserdata/
 *.old
 /Pods
 /Carthage
+
+# Firebase (IMPORTANT!)
+GoogleService-Info.plist
+
+# Documentation
+.docc-build/
+
+# Package resolved
+Package.resolved
