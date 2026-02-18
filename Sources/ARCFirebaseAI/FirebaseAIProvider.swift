@@ -60,8 +60,9 @@ import Foundation
 public final class FirebaseAIProvider: AIProviding, @unchecked Sendable {
     // MARK: - Properties
 
-    private let modelName: String
-    private let backend: FirebaseAI
+    // Declared internal (not private) so FirebaseAIProvider+Mapping.swift can access them.
+    let modelName: String
+    let backend: FirebaseAI
     private let logger = ARCLogger(category: "FirebaseAI", subsystem: "com.arclabs-studio.arcfirebase")
 
     // MARK: - Initialization
@@ -221,89 +222,6 @@ public final class FirebaseAIProvider: AIProviding, @unchecked Sendable {
         }
     }
 
-    // MARK: - Private Helpers
-
-    private func makeModel(
-        configuration: AIConfiguration? = nil,
-        systemInstruction: String? = nil
-    ) -> GenerativeModel {
-        let genConfig = configuration.map { makeGenerationConfig(configuration: $0) }
-        return makeModel(generationConfig: genConfig, systemInstruction: systemInstruction)
-    }
-
-    private func makeModel(
-        generationConfig: GenerationConfig? = nil,
-        systemInstruction: String? = nil
-    ) -> GenerativeModel {
-        if let instruction = systemInstruction {
-            return backend.generativeModel(
-                modelName: modelName,
-                generationConfig: generationConfig,
-                systemInstruction: ModelContent(
-                    role: "system",
-                    parts: instruction
-                )
-            )
-        } else {
-            return backend.generativeModel(
-                modelName: modelName,
-                generationConfig: generationConfig
-            )
-        }
-    }
-
-    private func makeGenerationConfig(
-        configuration: AIConfiguration?,
-        responseMIMEType: String? = nil,
-        responseSchema: AISchema? = nil
-    ) -> GenerationConfig {
-        GenerationConfig(
-            temperature: configuration?.temperature,
-            topP: configuration?.topP,
-            topK: configuration?.topK,
-            maxOutputTokens: configuration?.maxOutputTokens,
-            stopSequences: configuration?.stopSequences,
-            responseMIMEType: responseMIMEType,
-            responseSchema: responseSchema
-        )
-    }
-
-    private func mapResponse(_ response: GenerateContentResponse) -> AIResponse {
-        let text = response.text ?? ""
-
-        let finishReason: AIResponse.FinishReason
-        if let candidate = response.candidates.first,
-           let reason = candidate.finishReason {
-            finishReason = mapFinishReason(reason)
-        } else {
-            finishReason = .unknown
-        }
-
-        return AIResponse(
-            content: text,
-            finishReason: finishReason,
-            promptTokenCount: response.usageMetadata?.promptTokenCount,
-            candidatesTokenCount: response.usageMetadata?.candidatesTokenCount,
-            totalTokenCount: response.usageMetadata?.totalTokenCount
-        )
-    }
-
-    private func mapFinishReason(_ reason: FinishReason) -> AIResponse.FinishReason {
-        switch reason {
-        case .stop:
-            .stop
-        case .maxTokens:
-            .maxTokens
-        case .safety:
-            .safety
-        case .recitation:
-            .recitation
-        case .other:
-            .other
-        default:
-            .unknown
-        }
-    }
 }
 
 // MARK: - Factory Methods
