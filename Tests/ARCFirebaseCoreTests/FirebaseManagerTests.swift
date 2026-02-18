@@ -71,4 +71,11 @@ struct FirebaseManagerTests {
         #expect(unknownError.errorDescription != nil)
         #expect(unknownError.errorDescription?.contains("unknown") == true)
     }
+
+    // MARK: - Helpers
+
+    @MainActor
+    private func makeSUT() -> FirebaseManager {
+        FirebaseManager.shared
+    }
 }

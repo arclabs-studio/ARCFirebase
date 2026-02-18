@@ -7,7 +7,7 @@ struct FirebaseAnalyticsProviderTests {
 
     @Test("Mock provider logs events")
     func mockLogsEvents() {
-        let mock = MockAnalyticsProvider()
+        let mock = makeSUT()
 
         mock.logEvent("test_event", parameters: ["key": "value"])
 
@@ -18,7 +18,7 @@ struct FirebaseAnalyticsProviderTests {
 
     @Test("Mock provider logs events without parameters")
     func mockLogsEventsWithoutParameters() {
-        let mock = MockAnalyticsProvider()
+        let mock = makeSUT()
 
         mock.logEvent("simple_event")
 
@@ -29,7 +29,7 @@ struct FirebaseAnalyticsProviderTests {
 
     @Test("Mock provider logs screen views")
     func mockLogsScreenViews() {
-        let mock = MockAnalyticsProvider()
+        let mock = makeSUT()
 
         mock.logScreenView("HomeScreen", screenClass: "HomeViewController")
 
@@ -40,7 +40,7 @@ struct FirebaseAnalyticsProviderTests {
 
     @Test("Mock provider logs screen views without class")
     func mockLogsScreenViewsWithoutClass() {
-        let mock = MockAnalyticsProvider()
+        let mock = makeSUT()
 
         mock.logScreenView("SettingsScreen")
 
@@ -51,7 +51,7 @@ struct FirebaseAnalyticsProviderTests {
 
     @Test("Mock provider sets user properties")
     func mockSetsUserProperties() {
-        let mock = MockAnalyticsProvider()
+        let mock = makeSUT()
 
         mock.setUserProperty("subscription_type", value: "premium")
         mock.setUserProperty("user_level", value: "5")
@@ -63,7 +63,7 @@ struct FirebaseAnalyticsProviderTests {
 
     @Test("Mock provider clears user properties")
     func mockClearsUserProperties() {
-        let mock = MockAnalyticsProvider()
+        let mock = makeSUT()
 
         mock.setUserProperty("test_property", value: "test_value")
         #expect(mock.userProperties["test_property"] == "test_value")
@@ -74,7 +74,7 @@ struct FirebaseAnalyticsProviderTests {
 
     @Test("Mock provider sets user ID")
     func mockSetsUserID() {
-        let mock = MockAnalyticsProvider()
+        let mock = makeSUT()
 
         mock.setUserID("user123")
         #expect(mock.userID == "user123")
@@ -85,7 +85,7 @@ struct FirebaseAnalyticsProviderTests {
 
     @Test("Mock provider tracks multiple events")
     func mockTracksMultipleEvents() {
-        let mock = MockAnalyticsProvider()
+        let mock = makeSUT()
 
         mock.logEvent("event1")
         mock.logEvent("event2")
@@ -98,7 +98,7 @@ struct FirebaseAnalyticsProviderTests {
 
     @Test("Mock provider retrieves last event")
     func mockRetrievesLastEvent() {
-        let mock = MockAnalyticsProvider()
+        let mock = makeSUT()
 
         mock.logEvent("first_event", parameters: ["order": "1"])
         mock.logEvent("second_event", parameters: ["order": "2"])
@@ -116,7 +116,7 @@ struct FirebaseAnalyticsProviderTests {
 
     @Test("Mock reset clears all data")
     func mockResetClearsAllData() {
-        let mock = MockAnalyticsProvider()
+        let mock = makeSUT()
 
         mock.logEvent("test_event")
         mock.logScreenView("TestScreen")
@@ -155,6 +155,12 @@ struct FirebaseAnalyticsProviderTests {
         #expect(AnalyticsParameter.filterType == "filter_type")
         #expect(AnalyticsParameter.errorMessage == "error_message")
         #expect(AnalyticsParameter.screenName == "screen_name")
+    }
+
+    // MARK: - Helpers
+
+    private func makeSUT() -> MockAnalyticsProvider {
+        MockAnalyticsProvider()
     }
 
     @Test("Event names follow naming convention")

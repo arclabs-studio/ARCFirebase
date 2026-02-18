@@ -15,7 +15,7 @@ struct FirebaseCrashlyticsProviderTests {
 
     @Test("Mock provider can record error")
     func recordError_withError_tracksCorrectly() {
-        let mock = MockCrashlyticsProvider()
+        let mock = makeSUT()
         let testError = NSError(domain: "TestDomain", code: 100, userInfo: nil)
 
         mock.record(error: testError)
@@ -26,7 +26,7 @@ struct FirebaseCrashlyticsProviderTests {
 
     @Test("Mock provider can record non-fatal error")
     func recordNonFatal_withError_tracksCorrectly() {
-        let mock = MockCrashlyticsProvider()
+        let mock = makeSUT()
         let testError = NSError(domain: "TestDomain", code: 200, userInfo: nil)
 
         mock.recordNonFatal(error: testError)
@@ -37,7 +37,7 @@ struct FirebaseCrashlyticsProviderTests {
 
     @Test("Mock provider can log messages")
     func log_withMessage_tracksCorrectly() {
-        let mock = MockCrashlyticsProvider()
+        let mock = makeSUT()
         let message = "User navigated to settings"
 
         mock.log(message)
@@ -48,7 +48,7 @@ struct FirebaseCrashlyticsProviderTests {
 
     @Test("Mock provider can set user ID")
     func setUserID_withValidID_setsCorrectly() {
-        let mock = MockCrashlyticsProvider()
+        let mock = makeSUT()
         let userID = "user-12345"
 
         mock.setUserID(userID)
@@ -59,7 +59,7 @@ struct FirebaseCrashlyticsProviderTests {
 
     @Test("Mock provider can clear user ID")
     func clearUserID_afterSetting_clearsCorrectly() {
-        let mock = MockCrashlyticsProvider()
+        let mock = makeSUT()
         mock.setUserID("user-12345")
 
         mock.clearUserID()
@@ -70,7 +70,7 @@ struct FirebaseCrashlyticsProviderTests {
 
     @Test("Mock provider can set custom values")
     func setCustomValue_withStringValue_setsCorrectly() {
-        let mock = MockCrashlyticsProvider()
+        let mock = makeSUT()
         let key = "theme"
         let value = "dark"
 
@@ -82,7 +82,7 @@ struct FirebaseCrashlyticsProviderTests {
 
     @Test("Mock provider can track multiple errors")
     func recordError_multipleTimes_tracksAllErrors() {
-        let mock = MockCrashlyticsProvider()
+        let mock = makeSUT()
         let error1 = NSError(domain: "Domain1", code: 1, userInfo: nil)
         let error2 = NSError(domain: "Domain2", code: 2, userInfo: nil)
         let error3 = NSError(domain: "Domain3", code: 3, userInfo: nil)
@@ -97,7 +97,7 @@ struct FirebaseCrashlyticsProviderTests {
 
     @Test("Mock provider can log multiple messages")
     func log_multipleTimes_tracksAllMessages() {
-        let mock = MockCrashlyticsProvider()
+        let mock = makeSUT()
 
         mock.log("Message 1")
         mock.log("Message 2")
@@ -110,7 +110,7 @@ struct FirebaseCrashlyticsProviderTests {
 
     @Test("Mock provider reset clears all state")
     func reset_afterOperations_clearsAllState() {
-        let mock = MockCrashlyticsProvider()
+        let mock = makeSUT()
 
         // Perform various operations
         mock.record(error: NSError(domain: "Test", code: 1, userInfo: nil))
@@ -137,7 +137,7 @@ struct FirebaseCrashlyticsProviderTests {
 
     @Test("Mock provider supports integer custom values")
     func setCustomValue_withIntValue_setsCorrectly() {
-        let mock = MockCrashlyticsProvider()
+        let mock = makeSUT()
 
         mock.setCustomValue(42, forKey: "retry_count")
 
@@ -146,7 +146,7 @@ struct FirebaseCrashlyticsProviderTests {
 
     @Test("Mock provider supports boolean custom values")
     func setCustomValue_withBoolValue_setsCorrectly() {
-        let mock = MockCrashlyticsProvider()
+        let mock = makeSUT()
 
         mock.setCustomValue(true, forKey: "is_premium")
 
@@ -159,5 +159,11 @@ struct FirebaseCrashlyticsProviderTests {
     func protocolExists() {
         let mock: any CrashlyticsProviding = MockCrashlyticsProvider()
         #expect(mock is CrashlyticsProviding)
+    }
+
+    // MARK: - Helpers
+
+    private func makeSUT() -> MockCrashlyticsProvider {
+        MockCrashlyticsProvider()
     }
 }

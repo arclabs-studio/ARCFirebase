@@ -60,7 +60,7 @@ struct FirestoreRepositoryTests {
 
     @Test("Mock repository can save entity")
     func save_withValidEntity_savesSuccessfully() async throws {
-        let repository = MockRepository<TestEntity>()
+        let repository = makeSUT()
         let entity = TestEntity(id: "1", name: "Test", value: 100)
 
         try await repository.save(entity)
@@ -71,7 +71,7 @@ struct FirestoreRepositoryTests {
 
     @Test("Mock repository can fetch entity by ID")
     func fetch_withExistingID_returnsEntity() async throws {
-        let repository = MockRepository<TestEntity>()
+        let repository = makeSUT()
         let entity = TestEntity(id: "1", name: "Test", value: 100)
         try await repository.save(entity)
 
@@ -84,7 +84,7 @@ struct FirestoreRepositoryTests {
 
     @Test("Mock repository returns nil for non-existent entity")
     func fetch_withNonExistentID_returnsNil() async throws {
-        let repository = MockRepository<TestEntity>()
+        let repository = makeSUT()
 
         let fetched = try await repository.fetch(id: "non-existent")
 
@@ -93,7 +93,7 @@ struct FirestoreRepositoryTests {
 
     @Test("Mock repository can fetch all entities")
     func fetchAll_withMultipleEntities_returnsAll() async throws {
-        let repository = MockRepository<TestEntity>()
+        let repository = makeSUT()
         let entities = [
             TestEntity(id: "1", name: "First", value: 1),
             TestEntity(id: "2", name: "Second", value: 2),
@@ -112,7 +112,7 @@ struct FirestoreRepositoryTests {
 
     @Test("Mock repository can update entity")
     func update_withExistingEntity_updatesSuccessfully() async throws {
-        let repository = MockRepository<TestEntity>()
+        let repository = makeSUT()
         let original = TestEntity(id: "1", name: "Original", value: 100)
         try await repository.save(original)
 
@@ -128,7 +128,7 @@ struct FirestoreRepositoryTests {
 
     @Test("Mock repository can delete entity")
     func delete_withExistingID_deletesSuccessfully() async throws {
-        let repository = MockRepository<TestEntity>()
+        let repository = makeSUT()
         let entity = TestEntity(id: "1", name: "Test", value: 100)
         try await repository.save(entity)
 
@@ -142,7 +142,7 @@ struct FirestoreRepositoryTests {
 
     @Test("Mock repository throws configured error on fetch")
     func fetch_withMockError_throwsError() async {
-        let repository = MockRepository<TestEntity>()
+        let repository = makeSUT()
         let testError = NSError(domain: "TestDomain", code: 404, userInfo: nil)
         repository.setMockError(testError)
 
@@ -156,7 +156,7 @@ struct FirestoreRepositoryTests {
 
     @Test("Mock repository throws configured error on save")
     func save_withMockError_throwsError() async {
-        let repository = MockRepository<TestEntity>()
+        let repository = makeSUT()
         let testError = NSError(domain: "TestDomain", code: 500, userInfo: nil)
         repository.setMockError(testError)
         let entity = TestEntity(id: "1", name: "Test", value: 100)
@@ -171,7 +171,7 @@ struct FirestoreRepositoryTests {
 
     @Test("Mock repository reset clears all state")
     func reset_afterOperations_clearsAllState() async throws {
-        let repository = MockRepository<TestEntity>()
+        let repository = makeSUT()
         let entity = TestEntity(id: "1", name: "Test", value: 100)
 
         try await repository.save(entity)
@@ -188,7 +188,7 @@ struct FirestoreRepositoryTests {
 
     @Test("Mock repository setStorage initializes with entities")
     func setStorage_withEntities_initializesCorrectly() async throws {
-        let repository = MockRepository<TestEntity>()
+        let repository = makeSUT()
         let entities = [
             TestEntity(id: "1", name: "First", value: 1),
             TestEntity(id: "2", name: "Second", value: 2)
@@ -206,5 +206,11 @@ struct FirestoreRepositoryTests {
     func repositoryProtocolExists() {
         let repository: any Repository = MockRepository<TestEntity>()
         #expect(repository is MockRepository<TestEntity>)
+    }
+
+    // MARK: - Helpers
+
+    private func makeSUT() -> MockRepository<TestEntity> {
+        MockRepository<TestEntity>()
     }
 }
