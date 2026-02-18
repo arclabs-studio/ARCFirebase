@@ -2,7 +2,7 @@ import Foundation
 @testable import ARCFirebaseStorage
 
 /// Mock storage provider for testing.
-actor MockStorageProvider: StorageProviding {
+final class MockStorageProvider: StorageProviding, @unchecked Sendable {
     // MARK: - Mock State
 
     var uploadedFiles: [String: Data] = [:]

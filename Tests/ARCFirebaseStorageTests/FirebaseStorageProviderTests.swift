@@ -8,7 +8,7 @@ struct FirebaseStorageProviderTests {
 
     @Test("Mock provider uploads data")
     func mockUploadsData() async throws {
-        let mock = MockStorageProvider()
+        let mock = makeSUT()
         guard let testData = "Hello, World!".data(using: .utf8) else {
             Issue.record("Failed to create test data")
             return
@@ -20,17 +20,17 @@ struct FirebaseStorageProviderTests {
             contentType: "text/plain"
         )
 
-        #expect(await mock.uploadDataCallCount == 1)
+        #expect(mock.uploadDataCallCount == 1)
         #expect(url.absoluteString == "https://example.com/file.jpg")
-        #expect(await mock.hasFile(at: "test/file.txt"))
+        #expect(mock.hasFile(at: "test/file.txt"))
 
-        let storedData = await mock.uploadedFiles["test/file.txt"]
+        let storedData = mock.uploadedFiles["test/file.txt"]
         #expect(storedData == testData)
     }
 
     @Test("Mock provider uploads file from URL")
     func mockUploadsFileFromURL() async throws {
-        let mock = MockStorageProvider()
+        let mock = makeSUT()
 
         // Create a temporary file
         let tempDir = FileManager.default.temporaryDirectory
@@ -47,17 +47,17 @@ struct FirebaseStorageProviderTests {
 
         let url = try await mock.upload(fileURL: fileURL, path: "uploads/file.txt")
 
-        #expect(await mock.uploadFileCallCount == 1)
+        #expect(mock.uploadFileCallCount == 1)
         #expect(url.absoluteString == "https://example.com/file.jpg")
-        #expect(await mock.hasFile(at: "uploads/file.txt"))
+        #expect(mock.hasFile(at: "uploads/file.txt"))
 
-        let storedData = await mock.uploadedFiles["uploads/file.txt"]
+        let storedData = mock.uploadedFiles["uploads/file.txt"]
         #expect(storedData == testData)
     }
 
     @Test("Mock provider gets download URL")
     func mockGetsDownloadURL() async throws {
-        let mock = MockStorageProvider()
+        let mock = makeSUT()
         guard let testData = "test".data(using: .utf8) else {
             Issue.record("Failed to create test data")
             return
@@ -69,13 +69,13 @@ struct FirebaseStorageProviderTests {
         // Get download URL
         let url = try await mock.downloadURL(path: "test/file.txt")
 
-        #expect(await mock.downloadURLCallCount == 1)
+        #expect(mock.downloadURLCallCount == 1)
         #expect(url.absoluteString == "https://example.com/file.jpg")
     }
 
     @Test("Mock provider downloads data")
     func mockDownloadsData() async throws {
-        let mock = MockStorageProvider()
+        let mock = makeSUT()
         guard let testData = "Download test".data(using: .utf8) else {
             Issue.record("Failed to create test data")
             return
@@ -87,13 +87,13 @@ struct FirebaseStorageProviderTests {
         // Download
         let downloadedData = try await mock.download(path: "downloads/file.txt")
 
-        #expect(await mock.downloadCallCount == 1)
+        #expect(mock.downloadCallCount == 1)
         #expect(downloadedData == testData)
     }
 
     @Test("Mock provider deletes files")
     func mockDeletesFiles() async throws {
-        let mock = MockStorageProvider()
+        let mock = makeSUT()
         guard let testData = "Delete test".data(using: .utf8) else {
             Issue.record("Failed to create test data")
             return
@@ -101,18 +101,18 @@ struct FirebaseStorageProviderTests {
 
         // Upload first
         _ = try await mock.upload(data: testData, path: "temp/file.txt", contentType: "text/plain")
-        #expect(await mock.hasFile(at: "temp/file.txt"))
+        #expect(mock.hasFile(at: "temp/file.txt"))
 
         // Delete
         try await mock.delete(path: "temp/file.txt")
 
-        #expect(await mock.deleteCallCount == 1)
-        #expect(await mock.hasFile(at: "temp/file.txt") == false)
+        #expect(mock.deleteCallCount == 1)
+        #expect(mock.hasFile(at: "temp/file.txt") == false)
     }
 
     @Test("Mock provider throws error when file not found")
     func mockThrowsErrorWhenFileNotFound() async throws {
-        let mock = MockStorageProvider()
+        let mock = makeSUT()
 
         do {
             _ = try await mock.downloadURL(path: "nonexistent/file.txt")
@@ -138,10 +138,10 @@ struct FirebaseStorageProviderTests {
 
     @Test("Mock provider throws configured error")
     func mockThrowsConfiguredError() async throws {
-        let mock = MockStorageProvider()
+        let mock = makeSUT()
 
-        await mock.reset()
-        await mock.setMockError(MockStorageError.uploadFailed)
+        mock.reset()
+        mock.setMockError(MockStorageError.uploadFailed)
 
         do {
             _ = try await mock.upload(
@@ -157,38 +157,38 @@ struct FirebaseStorageProviderTests {
 
     @Test("Mock provider tracks file count")
     func mockTracksFileCount() async throws {
-        let mock = MockStorageProvider()
+        let mock = makeSUT()
 
-        #expect(await mock.fileCount() == 0)
+        #expect(mock.fileCount() == 0)
 
         _ = try await mock.upload(data: Data(), path: "file1.txt", contentType: "text/plain")
-        #expect(await mock.fileCount() == 1)
+        #expect(mock.fileCount() == 1)
 
         _ = try await mock.upload(data: Data(), path: "file2.txt", contentType: "text/plain")
-        #expect(await mock.fileCount() == 2)
+        #expect(mock.fileCount() == 2)
 
         try await mock.delete(path: "file1.txt")
-        #expect(await mock.fileCount() == 1)
+        #expect(mock.fileCount() == 1)
     }
 
     @Test("Mock reset clears all state")
     func mockResetClearsAllState() async throws {
-        let mock = MockStorageProvider()
+        let mock = makeSUT()
 
         // Perform operations
         _ = try await mock.upload(data: Data(), path: "test.txt", contentType: "text/plain")
         _ = try await mock.download(path: "test.txt")
 
-        #expect(await mock.uploadDataCallCount == 1)
-        #expect(await mock.downloadCallCount == 1)
-        #expect(await mock.fileCount() == 1)
+        #expect(mock.uploadDataCallCount == 1)
+        #expect(mock.downloadCallCount == 1)
+        #expect(mock.fileCount() == 1)
 
         // Reset
-        await mock.reset()
+        mock.reset()
 
-        #expect(await mock.uploadDataCallCount == 0)
-        #expect(await mock.downloadCallCount == 0)
-        #expect(await mock.fileCount() == 0)
+        #expect(mock.uploadDataCallCount == 0)
+        #expect(mock.downloadCallCount == 0)
+        #expect(mock.fileCount() == 0)
     }
 
     // MARK: - StorageReference Tests
@@ -232,5 +232,11 @@ struct FirebaseStorageProviderTests {
         let ref = StorageReference.userProfilePhoto(userID: "user456")
 
         #expect(ref.path == "users/user456/profile.jpg")
+    }
+
+    // MARK: - Helpers
+
+    private func makeSUT() -> MockStorageProvider {
+        MockStorageProvider()
     }
 }
