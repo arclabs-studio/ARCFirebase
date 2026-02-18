@@ -78,7 +78,7 @@ private struct PlaceholderCrashlyticsProvider: CrashlyticsProviding {
         placeholderCrash()
     }
 
-    func setCustomValue(_: Any, forKey _: String) {
+    func setCustomValue(_: any Sendable, forKey _: String) {
         placeholderCrash()
     }
 

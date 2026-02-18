@@ -99,7 +99,7 @@ public final class FirebaseCrashlyticsProvider: CrashlyticsProviding, @unchecked
         logger.debug("Cleared Crashlytics user ID")
     }
 
-    public func setCustomValue(_ value: Any, forKey key: String) {
+    public func setCustomValue(_ value: any Sendable, forKey key: String) {
         crashlytics.setCustomValue(value, forKey: key)
         logger.debug("Set custom value: \(key) = \(value)")
     }
