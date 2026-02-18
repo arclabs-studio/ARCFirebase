@@ -6,8 +6,12 @@ final class MockStorageProvider: StorageProviding, @unchecked Sendable {
     // MARK: - Mock State
 
     var uploadedFiles: [String: Data] = [:]
-    // swiftlint:disable:next force_unwrapping
-    var mockDownloadURL = URL(string: "https://example.com/file.jpg")!
+    var mockDownloadURL: URL = {
+        guard let url = URL(string: "https://example.com/file.jpg") else {
+            preconditionFailure("MockStorageProvider: invalid mock URL constant")
+        }
+        return url
+    }()
     var mockError: Error?
     var uploadDataCallCount = 0
     var uploadFileCallCount = 0
