@@ -1,4 +1,10 @@
-import FirebaseCore
+//
+//  Error+Firebase.swift
+//  ARCFirebase
+//
+//  Created by ARC Labs Studio on 2026-01-13.
+//
+
 import Foundation
 
 extension Error {
@@ -15,45 +21,37 @@ extension Error {
     /// ```
     public func asFirebaseError() -> FirebaseError {
         let nsError = self as NSError
-
         switch nsError.domain {
-        case "FIRFirestoreErrorDomain":
-            switch nsError.code {
-            case 5: // NOT_FOUND
-                return .documentNotFound
-            case 7: // PERMISSION_DENIED
-                return .permissionDenied
-            default:
-                return .unknown(underlying: self)
-            }
+        case "FIRFirestoreErrorDomain": return firestoreError(code: nsError.code)
+        case "FIRAuthErrorDomain": return authError(code: nsError.code)
+        case "FIRStorageErrorDomain": return storageError(code: nsError.code)
+        case NSURLErrorDomain: return .networkError(underlying: self)
+        default: return .unknown(underlying: self)
+        }
+    }
 
-        case "FIRAuthErrorDomain":
-            switch nsError.code {
-            case 17_011: // ERROR_USER_NOT_FOUND
-                return .userNotFound
-            case 17_009: // ERROR_WRONG_PASSWORD
-                return .permissionDenied
-            case 17_020: // ERROR_NETWORK_REQUEST_FAILED
-                return .networkError(underlying: self)
-            default:
-                return .unknown(underlying: self)
-            }
+    private func firestoreError(code: Int) -> FirebaseError {
+        switch code {
+        case 5: .documentNotFound // NOT_FOUND
+        case 7: .permissionDenied // PERMISSION_DENIED
+        default: .unknown(underlying: self)
+        }
+    }
 
-        case "FIRStorageErrorDomain":
-            switch nsError.code {
-            case -13_010: // OBJECT_NOT_FOUND
-                return .documentNotFound
-            case -13_021: // UNAUTHORIZED
-                return .permissionDenied
-            default:
-                return .unknown(underlying: self)
-            }
+    private func authError(code: Int) -> FirebaseError {
+        switch code {
+        case 17_011: .userNotFound        // ERROR_USER_NOT_FOUND
+        case 17_009: .permissionDenied    // ERROR_WRONG_PASSWORD
+        case 17_020: .networkError(underlying: self) // ERROR_NETWORK_REQUEST_FAILED
+        default: .unknown(underlying: self)
+        }
+    }
 
-        case NSURLErrorDomain:
-            return .networkError(underlying: self)
-
-        default:
-            return .unknown(underlying: self)
+    private func storageError(code: Int) -> FirebaseError {
+        switch code {
+        case -13_010: .documentNotFound // OBJECT_NOT_FOUND
+        case -13_021: .permissionDenied // UNAUTHORIZED
+        default: .unknown(underlying: self)
         }
     }
 }
