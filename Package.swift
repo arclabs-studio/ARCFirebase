@@ -39,6 +39,10 @@ let package = Package(
             name: "ARCFirebaseStorage",
             targets: ["ARCFirebaseStorage"]
         ),
+        .library(
+            name: "ARCFirebaseAI",
+            targets: ["ARCFirebaseAI"]
+        ),
 
         // Convenience: All modules in one
         .library(
@@ -49,7 +53,8 @@ let package = Package(
                 "ARCFirebaseAnalytics",
                 "ARCFirebaseCrashlytics",
                 "ARCFirebasePersistence",
-                "ARCFirebaseStorage"
+                "ARCFirebaseStorage",
+                "ARCFirebaseAI"
             ]
         )
     ],
@@ -57,7 +62,7 @@ let package = Package(
         // Firebase iOS SDK
         .package(
             url: "https://github.com/firebase/firebase-ios-sdk.git",
-            from: "10.0.0"
+            from: "11.13.0"
         ),
 
         // ARC Labs Logger
@@ -141,6 +146,19 @@ let package = Package(
             swiftSettings: [.enableExperimentalFeature("StrictConcurrency")]
         ),
 
+        // MARK: - AI
+
+        .target(
+            name: "ARCFirebaseAI",
+            dependencies: [
+                "ARCFirebaseCore",
+                .product(name: "FirebaseAI", package: "firebase-ios-sdk"),
+                .product(name: "ARCLogger", package: "ARCLogger")
+            ],
+            path: "Sources/ARCFirebaseAI",
+            swiftSettings: [.enableExperimentalFeature("StrictConcurrency")]
+        ),
+
         // MARK: - Tests
 
         .testTarget(
@@ -166,6 +184,10 @@ let package = Package(
         .testTarget(
             name: "ARCFirebaseStorageTests",
             dependencies: ["ARCFirebaseStorage"]
+        ),
+        .testTarget(
+            name: "ARCFirebaseAITests",
+            dependencies: ["ARCFirebaseAI"]
         )
     ]
 )
