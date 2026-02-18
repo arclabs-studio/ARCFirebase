@@ -68,6 +68,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+#### ARCFirebaseAI
+- `AIProviding` protocol for dependency injection of AI content generation
+- `FirebaseAIProvider` class using Firebase AI (Gemini) for production use
+- `AIProviderKey` for SwiftUI Environment integration
+- `AIConfiguration` struct with presets: `.default`, `.creative`, `.factual`, `.structured`
+- `AIResponse` model with finish reason and token usage metadata
+- `AIMessage` model for multi-turn chat conversations
+- Streaming content generation via `AsyncThrowingStream`
+- Structured output generation with Firebase `Schema` type
+- System instruction support for guided model behavior
+- Factory methods: `create(model:)` and `live` property
+- DocC documentation with Getting Started guide
+
+#### ARCFirebaseCore
+- Added `case aiNotAvailable` to `FirebaseError`
+
+### Changed
+
+#### Package
+- Bumped firebase-ios-sdk minimum from `10.0.0` to `11.13.0` (required for Firebase AI)
+
 ### Changed
 
 #### ARCFirebaseAnalytics
