@@ -85,7 +85,7 @@ public final class FirebaseManager: FirebaseConfiguring, Sendable {
 
     // MARK: - Properties
 
-    private let logger = ARCLogger(subsystem: "com.arclabs-studio.arcfirebase", category: "Firebase")
+    private let logger = ARCLogger(category: "Firebase", subsystem: "com.arclabs-studio.arcfirebase")
 
     /// Indicates whether Firebase has been configured.
     ///

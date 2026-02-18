@@ -61,7 +61,7 @@ public final class FirebaseAIProvider: AIProviding, @unchecked Sendable {
     // MARK: - Properties
 
     private let modelName: String
-    private let logger = ARCLogger(subsystem: "com.arclabs-studio.arcfirebase", category: "FirebaseAI")
+    private let logger = ARCLogger(category: "FirebaseAI", subsystem: "com.arclabs-studio.arcfirebase")
 
     // MARK: - Initialization
 

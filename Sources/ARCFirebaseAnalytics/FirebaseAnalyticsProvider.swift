@@ -26,7 +26,7 @@ import Foundation
 public actor FirebaseAnalyticsProvider: AnalyticsProviding {
     // MARK: - Properties
 
-    private let logger = ARCLogger(subsystem: "com.arclabs-studio.arcfirebase", category: "FirebaseAnalytics")
+    private let logger = ARCLogger(category: "FirebaseAnalytics", subsystem: "com.arclabs-studio.arcfirebase")
 
     // MARK: - Initialization
 
