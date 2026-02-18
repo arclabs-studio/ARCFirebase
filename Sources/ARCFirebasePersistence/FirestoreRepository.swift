@@ -173,7 +173,7 @@ public final class FirestoreRepository<Entity: Identifiable & Codable>: Reposito
     ///   - value: The value to match.
     /// - Returns: Array of matching entities.
     /// - Throws: Firestore errors.
-    public func query(where field: String, isEqualTo value: Any) async throws -> [Entity] {
+    public func query(where field: String, isEqualTo value: any Sendable) async throws -> [Entity] {
         logger.debug("Querying where \(field) == \(value)")
 
         do {
