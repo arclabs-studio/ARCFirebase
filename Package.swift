@@ -78,7 +78,7 @@ let package = Package(
                 .product(name: "ARCLogger", package: "ARCLogger")
             ],
             path: "Sources/ARCFirebaseCore",
-            swiftSettings: [.enableExperimentalFeature("StrictConcurrency")]
+            swiftSettings: [.swiftLanguageMode(.v6)]
         ),
 
         // MARK: - Auth
@@ -91,7 +91,7 @@ let package = Package(
                 .product(name: "ARCLogger", package: "ARCLogger")
             ],
             path: "Sources/ARCFirebaseAuth",
-            swiftSettings: [.enableExperimentalFeature("StrictConcurrency")]
+            swiftSettings: [.swiftLanguageMode(.v6)]
         ),
 
         // MARK: - Analytics
@@ -104,7 +104,7 @@ let package = Package(
                 .product(name: "ARCLogger", package: "ARCLogger")
             ],
             path: "Sources/ARCFirebaseAnalytics",
-            swiftSettings: [.enableExperimentalFeature("StrictConcurrency")]
+            swiftSettings: [.swiftLanguageMode(.v6)]
         ),
 
         // MARK: - Crashlytics
@@ -117,7 +117,7 @@ let package = Package(
                 .product(name: "ARCLogger", package: "ARCLogger")
             ],
             path: "Sources/ARCFirebaseCrashlytics",
-            swiftSettings: [.enableExperimentalFeature("StrictConcurrency")]
+            swiftSettings: [.swiftLanguageMode(.v6)]
         ),
 
         // MARK: - Persistence
@@ -130,7 +130,7 @@ let package = Package(
                 .product(name: "ARCLogger", package: "ARCLogger")
             ],
             path: "Sources/ARCFirebasePersistence",
-            swiftSettings: [.enableExperimentalFeature("StrictConcurrency")]
+            swiftSettings: [.swiftLanguageMode(.v6)]
         ),
 
         // MARK: - Storage
@@ -143,7 +143,7 @@ let package = Package(
                 .product(name: "ARCLogger", package: "ARCLogger")
             ],
             path: "Sources/ARCFirebaseStorage",
-            swiftSettings: [.enableExperimentalFeature("StrictConcurrency")]
+            swiftSettings: [.swiftLanguageMode(.v6)]
         ),
 
         // MARK: - AI
@@ -156,7 +156,7 @@ let package = Package(
                 .product(name: "ARCLogger", package: "ARCLogger")
             ],
             path: "Sources/ARCFirebaseAI",
-            swiftSettings: [.enableExperimentalFeature("StrictConcurrency")]
+            swiftSettings: [.swiftLanguageMode(.v6)]
         ),
 
         // MARK: - Tests
