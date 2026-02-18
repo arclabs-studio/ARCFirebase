@@ -1,3 +1,10 @@
+//
+//  FirestoreRepository.swift
+//  ARCFirebase
+//
+//  Created by ARC Labs Studio on 2026-01-13.
+//
+
 import ARCFirebaseCore
 import ARCLogger
 import FirebaseFirestore

@@ -1,3 +1,10 @@
+//
+//  Repository.swift
+//  ARCFirebase
+//
+//  Created by ARC Labs Studio on 2026-01-13.
+//
+
 import Foundation
 
 /// Generic repository protocol for data persistence.

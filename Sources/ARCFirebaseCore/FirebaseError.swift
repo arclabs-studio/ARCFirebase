@@ -1,3 +1,10 @@
+//
+//  FirebaseError.swift
+//  ARCFirebase
+//
+//  Created by ARC Labs Studio on 2026-01-13.
+//
+
 import Foundation
 
 /// Errors that can occur when using Firebase services.
