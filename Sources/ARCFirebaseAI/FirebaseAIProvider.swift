@@ -214,12 +214,8 @@ public final class FirebaseAIProvider: AIProviding, @unchecked Sendable {
     }
 
     public func isAvailable() async -> Bool {
-        do {
-            try FirebaseManager.ensureConfigured()
-            return true
-        } catch {
-            return false
-        }
+        // Firebase was validated at init time; a live instance is always configured.
+        true
     }
 
 }
