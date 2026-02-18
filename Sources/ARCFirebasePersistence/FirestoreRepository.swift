@@ -47,7 +47,7 @@ import Foundation
 ///
 /// ### Guide
 /// - <doc:FirestorePatterns>
-public final class FirestoreRepository<Entity: Identifiable & Codable>: Repository where Entity.ID == String {
+public final class FirestoreRepository<Entity: Identifiable & Codable>: Repository, @unchecked Sendable where Entity.ID == String {
     // MARK: - Properties
 
     private let collectionPath: String

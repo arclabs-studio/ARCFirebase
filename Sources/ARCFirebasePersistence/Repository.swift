@@ -12,7 +12,7 @@ import Foundation
 /// - ``save(_:)``
 /// - ``update(_:)``
 /// - ``delete(id:)``
-public protocol Repository {
+public protocol Repository: Sendable {
     /// The type of entity this repository manages.
     associatedtype Entity: Identifiable & Codable
 
