@@ -2,7 +2,7 @@ import Foundation
 @testable import ARCFirebaseAuth
 
 /// Mock authentication provider for testing.
-actor MockAuthProvider: AuthProviding {
+final class MockAuthProvider: AuthProviding, @unchecked Sendable {
     // MARK: - Mock State
 
     var mockUser: User?

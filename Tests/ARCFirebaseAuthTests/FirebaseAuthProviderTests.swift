@@ -5,7 +5,7 @@ import Testing
 struct FirebaseAuthProviderTests {
     @Test("Mock provider can authenticate user")
     func mockAuthenticationFlow() async throws {
-        let mock = MockAuthProvider()
+        let mock = makeSUT()
 
         // Initially no user
         let isAuthenticatedBefore = await mock.isAuthenticated
@@ -14,7 +14,7 @@ struct FirebaseAuthProviderTests {
         // Sign in
         let user = try await mock.signIn(email: "test@example.com", password: "password123")
         #expect(user.email == "test@example.com")
-        #expect(await mock.signInCallCount == 1)
+        #expect(mock.signInCallCount == 1)
 
         // Now authenticated
         let isAuthenticatedAfter = await mock.isAuthenticated
@@ -27,17 +27,17 @@ struct FirebaseAuthProviderTests {
 
     @Test("Mock provider can sign up new user")
     func mockSignUpFlow() async throws {
-        let mock = MockAuthProvider()
+        let mock = makeSUT()
 
         let user = try await mock.signUp(email: "newuser@example.com", password: "password123")
         #expect(user.email == "newuser@example.com")
-        #expect(await mock.signUpCallCount == 1)
+        #expect(mock.signUpCallCount == 1)
         #expect(await mock.isAuthenticated == true)
     }
 
     @Test("Mock provider can sign out user")
     func mockSignOutFlow() async throws {
-        let mock = MockAuthProvider()
+        let mock = makeSUT()
 
         // Sign in first
         _ = try await mock.signIn(email: "test@example.com", password: "password123")
@@ -45,41 +45,41 @@ struct FirebaseAuthProviderTests {
 
         // Sign out
         try await mock.signOut()
-        #expect(await mock.signOutCallCount == 1)
+        #expect(mock.signOutCallCount == 1)
         #expect(await mock.isAuthenticated == false)
         #expect(await mock.currentUser == nil)
     }
 
     @Test("Mock provider can send password reset")
     func mockPasswordResetFlow() async throws {
-        let mock = MockAuthProvider()
+        let mock = makeSUT()
 
         try await mock.sendPasswordReset(email: "test@example.com")
-        #expect(await mock.passwordResetCallCount == 1)
+        #expect(mock.passwordResetCallCount == 1)
     }
 
     @Test("Mock provider can update password")
     func mockUpdatePasswordFlow() async throws {
-        let mock = MockAuthProvider()
+        let mock = makeSUT()
 
         // Sign in first
         _ = try await mock.signIn(email: "test@example.com", password: "oldpassword")
 
         // Update password
         try await mock.updatePassword("newpassword")
-        #expect(await mock.updatePasswordCallCount == 1)
+        #expect(mock.updatePasswordCallCount == 1)
     }
 
     @Test("Mock provider throws errors when configured")
     func mockErrorHandling() async throws {
-        let mock = MockAuthProvider()
+        let mock = makeSUT()
 
         enum TestError: Error {
             case mockFailure
         }
 
-        await mock.reset()
-        await mock.setMockError(TestError.mockFailure)
+        mock.reset()
+        mock.setMockError(TestError.mockFailure)
 
         // Test sign in error
         do {
@@ -108,22 +108,28 @@ struct FirebaseAuthProviderTests {
 
     @Test("Mock reset clears all state")
     func mockResetFunctionality() async throws {
-        let mock = MockAuthProvider()
+        let mock = makeSUT()
 
         // Perform some operations
         _ = try await mock.signIn(email: "test@example.com", password: "password")
         try await mock.sendPasswordReset(email: "test@example.com")
 
-        #expect(await mock.signInCallCount == 1)
-        #expect(await mock.passwordResetCallCount == 1)
+        #expect(mock.signInCallCount == 1)
+        #expect(mock.passwordResetCallCount == 1)
         #expect(await mock.isAuthenticated == true)
 
         // Reset
-        await mock.reset()
+        mock.reset()
 
-        #expect(await mock.signInCallCount == 0)
-        #expect(await mock.passwordResetCallCount == 0)
+        #expect(mock.signInCallCount == 0)
+        #expect(mock.passwordResetCallCount == 0)
         #expect(await mock.isAuthenticated == false)
         #expect(await mock.currentUser == nil)
+    }
+
+    // MARK: - Helpers
+
+    private func makeSUT() -> MockAuthProvider {
+        MockAuthProvider()
     }
 }
