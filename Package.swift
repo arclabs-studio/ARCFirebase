@@ -66,7 +66,7 @@ let package = Package(
         ),
 
         // ARC Labs Logger
-        .package(path: "../ARCLogger")
+        .package(url: "https://github.com/arclabs-studio/ARCLogger.git", from: "1.0.0")
     ],
     targets: [
         // MARK: - Core
