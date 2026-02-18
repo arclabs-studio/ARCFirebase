@@ -163,31 +163,38 @@ let package = Package(
 
         .testTarget(
             name: "ARCFirebaseCoreTests",
-            dependencies: ["ARCFirebaseCore"]
+            dependencies: ["ARCFirebaseCore"],
+            swiftSettings: [.swiftLanguageMode(.v6)]
         ),
         .testTarget(
             name: "ARCFirebaseAuthTests",
-            dependencies: ["ARCFirebaseAuth"]
+            dependencies: ["ARCFirebaseAuth"],
+            swiftSettings: [.swiftLanguageMode(.v6)]
         ),
         .testTarget(
             name: "ARCFirebaseAnalyticsTests",
-            dependencies: ["ARCFirebaseAnalytics"]
+            dependencies: ["ARCFirebaseAnalytics"],
+            swiftSettings: [.swiftLanguageMode(.v6)]
         ),
         .testTarget(
             name: "ARCFirebaseCrashlyticsTests",
-            dependencies: ["ARCFirebaseCrashlytics"]
+            dependencies: ["ARCFirebaseCrashlytics"],
+            swiftSettings: [.swiftLanguageMode(.v6)]
         ),
         .testTarget(
             name: "ARCFirebasePersistenceTests",
-            dependencies: ["ARCFirebasePersistence"]
+            dependencies: ["ARCFirebasePersistence"],
+            swiftSettings: [.swiftLanguageMode(.v6)]
         ),
         .testTarget(
             name: "ARCFirebaseStorageTests",
-            dependencies: ["ARCFirebaseStorage"]
+            dependencies: ["ARCFirebaseStorage"],
+            swiftSettings: [.swiftLanguageMode(.v6)]
         ),
         .testTarget(
             name: "ARCFirebaseAITests",
-            dependencies: ["ARCFirebaseAI"]
+            dependencies: ["ARCFirebaseAI"],
+            swiftSettings: [.swiftLanguageMode(.v6)]
         )
     ]
 )
