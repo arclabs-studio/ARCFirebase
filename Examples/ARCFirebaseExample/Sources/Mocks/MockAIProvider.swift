@@ -6,7 +6,6 @@
 //
 
 import ARCFirebaseAI
-import FirebaseAI
 import Foundation
 
 // MARK: - MockAIProvider
@@ -75,7 +74,7 @@ final class MockAIProvider: AIProviding, @unchecked Sendable {
 
     func generateStructuredContent(
         prompt: String,
-        responseSchema _: Schema,
+        responseSchema _: AISchema,
         systemInstruction _: String?,
         configuration _: AIConfiguration?
     ) async throws -> AIResponse {

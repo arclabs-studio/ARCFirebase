@@ -74,11 +74,11 @@ let package = Package(
         .target(
             name: "ARCFirebaseCore",
             dependencies: [
-                .product(name: "FirebaseAnalytics", package: "firebase-ios-sdk"),
+                .product(name: "FirebaseCore", package: "firebase-ios-sdk"),
                 .product(name: "ARCLogger", package: "ARCLogger")
             ],
             path: "Sources/ARCFirebaseCore",
-            swiftSettings: [.enableExperimentalFeature("StrictConcurrency")]
+            swiftSettings: [.swiftLanguageMode(.v6)]
         ),
 
         // MARK: - Auth
@@ -91,7 +91,7 @@ let package = Package(
                 .product(name: "ARCLogger", package: "ARCLogger")
             ],
             path: "Sources/ARCFirebaseAuth",
-            swiftSettings: [.enableExperimentalFeature("StrictConcurrency")]
+            swiftSettings: [.swiftLanguageMode(.v6)]
         ),
 
         // MARK: - Analytics
@@ -104,7 +104,7 @@ let package = Package(
                 .product(name: "ARCLogger", package: "ARCLogger")
             ],
             path: "Sources/ARCFirebaseAnalytics",
-            swiftSettings: [.enableExperimentalFeature("StrictConcurrency")]
+            swiftSettings: [.swiftLanguageMode(.v6)]
         ),
 
         // MARK: - Crashlytics
@@ -117,7 +117,7 @@ let package = Package(
                 .product(name: "ARCLogger", package: "ARCLogger")
             ],
             path: "Sources/ARCFirebaseCrashlytics",
-            swiftSettings: [.enableExperimentalFeature("StrictConcurrency")]
+            swiftSettings: [.swiftLanguageMode(.v6)]
         ),
 
         // MARK: - Persistence
@@ -130,7 +130,7 @@ let package = Package(
                 .product(name: "ARCLogger", package: "ARCLogger")
             ],
             path: "Sources/ARCFirebasePersistence",
-            swiftSettings: [.enableExperimentalFeature("StrictConcurrency")]
+            swiftSettings: [.swiftLanguageMode(.v6)]
         ),
 
         // MARK: - Storage
@@ -143,7 +143,7 @@ let package = Package(
                 .product(name: "ARCLogger", package: "ARCLogger")
             ],
             path: "Sources/ARCFirebaseStorage",
-            swiftSettings: [.enableExperimentalFeature("StrictConcurrency")]
+            swiftSettings: [.swiftLanguageMode(.v6)]
         ),
 
         // MARK: - AI
@@ -156,38 +156,45 @@ let package = Package(
                 .product(name: "ARCLogger", package: "ARCLogger")
             ],
             path: "Sources/ARCFirebaseAI",
-            swiftSettings: [.enableExperimentalFeature("StrictConcurrency")]
+            swiftSettings: [.swiftLanguageMode(.v6)]
         ),
 
         // MARK: - Tests
 
         .testTarget(
             name: "ARCFirebaseCoreTests",
-            dependencies: ["ARCFirebaseCore"]
+            dependencies: ["ARCFirebaseCore"],
+            swiftSettings: [.swiftLanguageMode(.v6)]
         ),
         .testTarget(
             name: "ARCFirebaseAuthTests",
-            dependencies: ["ARCFirebaseAuth"]
+            dependencies: ["ARCFirebaseAuth"],
+            swiftSettings: [.swiftLanguageMode(.v6)]
         ),
         .testTarget(
             name: "ARCFirebaseAnalyticsTests",
-            dependencies: ["ARCFirebaseAnalytics"]
+            dependencies: ["ARCFirebaseAnalytics"],
+            swiftSettings: [.swiftLanguageMode(.v6)]
         ),
         .testTarget(
             name: "ARCFirebaseCrashlyticsTests",
-            dependencies: ["ARCFirebaseCrashlytics"]
+            dependencies: ["ARCFirebaseCrashlytics"],
+            swiftSettings: [.swiftLanguageMode(.v6)]
         ),
         .testTarget(
             name: "ARCFirebasePersistenceTests",
-            dependencies: ["ARCFirebasePersistence"]
+            dependencies: ["ARCFirebasePersistence"],
+            swiftSettings: [.swiftLanguageMode(.v6)]
         ),
         .testTarget(
             name: "ARCFirebaseStorageTests",
-            dependencies: ["ARCFirebaseStorage"]
+            dependencies: ["ARCFirebaseStorage"],
+            swiftSettings: [.swiftLanguageMode(.v6)]
         ),
         .testTarget(
             name: "ARCFirebaseAITests",
-            dependencies: ["ARCFirebaseAI"]
+            dependencies: ["ARCFirebaseAI"],
+            swiftSettings: [.swiftLanguageMode(.v6)]
         )
     ]
 )

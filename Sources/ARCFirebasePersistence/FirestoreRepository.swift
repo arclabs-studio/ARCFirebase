@@ -1,3 +1,10 @@
+//
+//  FirestoreRepository.swift
+//  ARCFirebase
+//
+//  Created by ARC Labs Studio on 2026-01-13.
+//
+
 import ARCFirebaseCore
 import ARCLogger
 import FirebaseFirestore
@@ -47,7 +54,8 @@ import Foundation
 ///
 /// ### Guide
 /// - <doc:FirestorePatterns>
-public final class FirestoreRepository<Entity: Identifiable & Codable>: Repository where Entity.ID == String {
+public final class FirestoreRepository<Entity: Identifiable & Codable>: Repository, @unchecked Sendable
+where Entity.ID == String {
     // MARK: - Properties
 
     private let collectionPath: String
@@ -102,7 +110,7 @@ public final class FirestoreRepository<Entity: Identifiable & Codable>: Reposito
 
         do {
             let snapshot = try await collection.getDocuments()
-            let entities = try snapshot.documents.compactMap { document in
+            let entities = try snapshot.documents.map { document in
                 try document.data(as: Entity.self)
             }
 
@@ -166,12 +174,12 @@ public final class FirestoreRepository<Entity: Identifiable & Codable>: Reposito
     ///   - value: The value to match.
     /// - Returns: Array of matching entities.
     /// - Throws: Firestore errors.
-    public func query(where field: String, isEqualTo value: Any) async throws -> [Entity] {
+    public func query(where field: String, isEqualTo value: any Sendable) async throws -> [Entity] {
         logger.debug("Querying where \(field) == \(value)")
 
         do {
             let snapshot = try await collection.whereField(field, isEqualTo: value).getDocuments()
-            let entities = try snapshot.documents.compactMap { document in
+            let entities = try snapshot.documents.map { document in
                 try document.data(as: Entity.self)
             }
 
@@ -210,7 +218,7 @@ public final class FirestoreRepository<Entity: Identifiable & Codable>: Reposito
             }
 
             let snapshot = try await query.getDocuments()
-            let entities = try snapshot.documents.compactMap { document in
+            let entities = try snapshot.documents.map { document in
                 try document.data(as: Entity.self)
             }
 

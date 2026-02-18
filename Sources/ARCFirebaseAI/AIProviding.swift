@@ -5,7 +5,6 @@
 //  Created by ARC Labs Studio on 2026-02-17.
 //
 
-import FirebaseAI
 import Foundation
 
 /// Protocol defining AI content generation capabilities.
@@ -16,8 +15,7 @@ import Foundation
 /// ## Usage in Production
 ///
 /// ```swift
-/// @Observable
-/// final class ChatViewModel {
+/// @Observable final class ChatViewModel {
 ///     private let ai: any AIProviding
 ///
 ///     var response: String = ""
@@ -36,7 +34,7 @@ import Foundation
 /// ## Usage in Tests
 ///
 /// ```swift
-/// actor MockAIProvider: AIProviding {
+/// final class MockAIProvider: AIProviding, @unchecked Sendable {
 ///     var mockResponse = AIResponse(content: "Mock response")
 ///
 ///     func generateContent(
@@ -103,14 +101,14 @@ public protocol AIProviding: Sendable {
     ///
     /// - Parameters:
     ///   - prompt: The text prompt to send to the model.
-    ///   - responseSchema: A Firebase AI `Schema` defining the expected response structure.
+    ///   - responseSchema: An ``AISchema`` defining the expected response structure.
     ///   - systemInstruction: Optional system-level instruction.
     ///   - configuration: Optional generation configuration. Uses model defaults if nil.
     /// - Returns: The generated response with structured content.
     /// - Throws: Generation errors or ``FirebaseError/aiNotAvailable``.
     func generateStructuredContent(
         prompt: String,
-        responseSchema: Schema,
+        responseSchema: AISchema,
         systemInstruction: String?,
         configuration: AIConfiguration?
     ) async throws -> AIResponse
@@ -160,65 +158,29 @@ public protocol AIProviding: Sendable {
     func isAvailable() async -> Bool
 }
 
-// MARK: - Default Parameter Values
+// MARK: - Convenience Methods
 
 extension AIProviding {
     /// Generates content with default configuration.
-    public func generateContent(
-        prompt: String,
-        configuration: AIConfiguration? = nil
-    ) async throws -> AIResponse {
-        try await generateContent(prompt: prompt, configuration: configuration)
-    }
-
-    /// Generates content with a system instruction and default configuration.
-    public func generateContent(
-        prompt: String,
-        systemInstruction: String,
-        configuration: AIConfiguration? = nil
-    ) async throws -> AIResponse {
-        try await generateContent(
-            prompt: prompt,
-            systemInstruction: systemInstruction,
-            configuration: configuration
-        )
-    }
-
-    /// Generates structured content with default configuration.
-    public func generateStructuredContent(
-        prompt: String,
-        responseSchema: Schema,
-        systemInstruction: String? = nil,
-        configuration: AIConfiguration? = nil
-    ) async throws -> AIResponse {
-        try await generateStructuredContent(
-            prompt: prompt,
-            responseSchema: responseSchema,
-            systemInstruction: systemInstruction,
-            configuration: configuration
-        )
+    public func generateContent(prompt: String) async throws -> AIResponse {
+        try await generateContent(prompt: prompt, configuration: nil)
     }
 
     /// Streams content with default configuration.
-    public func streamContent(
-        prompt: String,
-        configuration: AIConfiguration? = nil
-    ) -> AsyncThrowingStream<String, Error> {
-        streamContent(prompt: prompt, configuration: configuration)
+    public func streamContent(prompt: String) -> AsyncThrowingStream<String, Error> {
+        streamContent(prompt: prompt, configuration: nil)
     }
 
     /// Sends a message with default parameters.
+    public func sendMessage(_ message: String) async throws -> AIResponse {
+        try await sendMessage(message, history: [], systemInstruction: nil, configuration: nil)
+    }
+
+    /// Sends a message with history.
     public func sendMessage(
         _ message: String,
-        history: [AIMessage] = [],
-        systemInstruction: String? = nil,
-        configuration: AIConfiguration? = nil
+        history: [AIMessage]
     ) async throws -> AIResponse {
-        try await sendMessage(
-            message,
-            history: history,
-            systemInstruction: systemInstruction,
-            configuration: configuration
-        )
+        try await sendMessage(message, history: history, systemInstruction: nil, configuration: nil)
     }
 }

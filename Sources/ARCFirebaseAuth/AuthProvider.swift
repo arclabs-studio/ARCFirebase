@@ -1,3 +1,10 @@
+//
+//  AuthProvider.swift
+//  ARCFirebase
+//
+//  Created by ARC Labs Studio on 2026-01-13.
+//
+
 import Foundation
 
 /// Protocol defining authentication capabilities.
@@ -9,7 +16,7 @@ import Foundation
 ///
 /// ```swift
 /// @MainActor
-/// class MyViewModel: ObservableObject {
+/// @Observable final class MyViewModel {
 ///     private let auth: AuthProviding
 ///
 ///     init(auth: AuthProviding) {

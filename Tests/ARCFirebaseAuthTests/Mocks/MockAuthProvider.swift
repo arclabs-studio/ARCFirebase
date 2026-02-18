@@ -2,16 +2,16 @@ import Foundation
 @testable import ARCFirebaseAuth
 
 /// Mock authentication provider for testing.
-actor MockAuthProvider: AuthProviding {
+final class MockAuthProvider: AuthProviding, @unchecked Sendable {
     // MARK: - Mock State
 
     var mockUser: User?
     var mockError: Error?
-    var signInCallCount = 0
-    var signUpCallCount = 0
-    var signOutCallCount = 0
-    var passwordResetCallCount = 0
-    var updatePasswordCallCount = 0
+    private(set) var signInCallCount = 0
+    private(set) var signUpCallCount = 0
+    private(set) var signOutCallCount = 0
+    private(set) var passwordResetCallCount = 0
+    private(set) var updatePasswordCallCount = 0
 
     // MARK: - AuthProviding Implementation
 

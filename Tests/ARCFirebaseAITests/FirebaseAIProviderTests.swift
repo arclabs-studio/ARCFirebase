@@ -5,7 +5,6 @@
 //  Created by ARC Labs Studio on 2026-02-17.
 //
 
-import FirebaseAI
 import Testing
 @testable import ARCFirebaseAI
 
@@ -51,7 +50,7 @@ struct FirebaseAIProviderTests {
     func generateStructuredContent() async throws {
         // Given
         let sut = makeSUT()
-        let schema = Schema.object(properties: [
+        let schema = AISchema.object(properties: [
             "name": .string(),
             "rating": .integer()
         ])
@@ -150,19 +149,6 @@ struct FirebaseAIProviderTests {
     @Test("Mock provider reports unavailable when configured")
     func isUnavailable() async {
         // Given
-        let sut = makeSUT()
-        sut.mockAvailable = false
-
-        // When
-        let available = await sut.isAvailable()
-
-        // Then
-        #expect(available == false)
-    }
-
-    @Test("isAvailable returns false without Firebase configuration")
-    func isAvailableWithoutFirebase() async {
-        // Given — Firebase is not configured in test environment
         let sut = makeSUT()
         sut.mockAvailable = false
 

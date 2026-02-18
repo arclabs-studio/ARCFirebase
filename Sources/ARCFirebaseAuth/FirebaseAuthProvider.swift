@@ -1,3 +1,10 @@
+//
+//  FirebaseAuthProvider.swift
+//  ARCFirebase
+//
+//  Created by ARC Labs Studio on 2026-01-13.
+//
+
 import ARCFirebaseCore
 import ARCLogger
 import FirebaseAuth
@@ -79,7 +86,7 @@ public final class FirebaseAuthProvider: AuthProviding, @unchecked Sendable {
     }
 
     public func signIn(email: String, password: String) async throws -> User {
-        logger.info("Attempting sign in for email: \(email)")
+        logger.info("Attempting sign in")
 
         do {
             let result = try await auth.signIn(withEmail: email, password: password)
@@ -93,7 +100,7 @@ public final class FirebaseAuthProvider: AuthProviding, @unchecked Sendable {
     }
 
     public func signUp(email: String, password: String) async throws -> User {
-        logger.info("Attempting sign up for email: \(email)")
+        logger.info("Attempting sign up")
 
         do {
             let result = try await auth.createUser(withEmail: email, password: password)
@@ -119,7 +126,7 @@ public final class FirebaseAuthProvider: AuthProviding, @unchecked Sendable {
     }
 
     public func sendPasswordReset(email: String) async throws {
-        logger.info("Sending password reset email to: \(email)")
+        logger.info("Sending password reset email")
 
         do {
             try await auth.sendPasswordReset(withEmail: email)
@@ -145,6 +152,22 @@ public final class FirebaseAuthProvider: AuthProviding, @unchecked Sendable {
             logger.error("Failed to update password: \(error.localizedDescription)")
             throw error.asFirebaseError()
         }
+    }
+}
+
+// MARK: - Firebase User Mapping
+
+extension User {
+    fileprivate init(from firebaseUser: FirebaseAuth.User) {
+        self.init(
+            id: firebaseUser.uid,
+            email: firebaseUser.email,
+            displayName: firebaseUser.displayName,
+            photoURL: firebaseUser.photoURL,
+            isEmailVerified: firebaseUser.isEmailVerified,
+            creationDate: firebaseUser.metadata.creationDate,
+            lastSignInDate: firebaseUser.metadata.lastSignInDate
+        )
     }
 }
 

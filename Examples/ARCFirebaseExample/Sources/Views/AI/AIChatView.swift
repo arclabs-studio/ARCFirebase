@@ -227,7 +227,9 @@ final class AIChatViewModel {
         case stream = "Stream"
         case chat = "Chat"
 
-        var id: String { rawValue }
+        var id: String {
+            rawValue
+        }
     }
 
     // MARK: Private Properties
@@ -349,7 +351,8 @@ final class AIChatViewModel {
 
         let response = try await ai.sendMessage(
             text,
-            history: chatHistory.dropLast().map { $0 },
+            history: chatHistory.dropLast().map(\.self),
+            systemInstruction: nil,
             configuration: configuration
         )
 

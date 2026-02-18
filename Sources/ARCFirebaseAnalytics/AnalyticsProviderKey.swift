@@ -1,25 +1,21 @@
+//
+//  AnalyticsProviderKey.swift
+//  ARCFirebase
+//
+//  Created by ARC Labs Studio on 2026-01-13.
+//
+
 import SwiftUI
 
-/// SwiftUI Environment key for analytics provider.
-///
-/// - Important: You must explicitly set `.environment(\.analyticsProvider, provider)` in your app.
-///   The default value will crash if accessed without setting a provider first.
-public struct AnalyticsProviderKey: EnvironmentKey {
-    public static let defaultValue: any AnalyticsProviding = PlaceholderAnalyticsProvider()
-}
-
 extension EnvironmentValues {
-    /// The analytics provider in the environment.
-    public var analyticsProvider: any AnalyticsProviding {
-        get { self[AnalyticsProviderKey.self] }
-        set { self[AnalyticsProviderKey.self] = newValue }
-    }
+    // The analytics provider in the environment.
+    @Entry public var analyticsProvider: any AnalyticsProviding = PlaceholderAnalyticsProvider()
 }
 
 /// Placeholder provider that crashes with helpful message when accessed.
 /// This avoids crashes at module load time while ensuring proper configuration.
-private struct PlaceholderAnalyticsProvider: AnalyticsProviding {
-    func logEvent(_: String, parameters _: [String: Any]?) {
+private struct PlaceholderAnalyticsProvider: AnalyticsProviding, @unchecked Sendable {
+    func logEvent(_: String, parameters _: [String: any Sendable]?) {
         placeholderCrash()
     }
 

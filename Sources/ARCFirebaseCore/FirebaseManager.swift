@@ -1,63 +1,13 @@
+//
+//  FirebaseManager.swift
+//  ARCFirebase
+//
+//  Created by ARC Labs Studio on 2026-01-13.
+//
+
 import ARCLogger
-import FirebaseAnalytics
 import FirebaseCore
 import Foundation
-
-// MARK: - FirebaseConfiguring Protocol
-
-/// Protocol defining Firebase configuration capabilities.
-///
-/// Use this protocol for dependency injection to make your code testable
-/// and decoupled from the Firebase singleton.
-///
-/// ## Usage in Production
-///
-/// ```swift
-/// @MainActor
-/// class AppCoordinator {
-///     private let firebase: FirebaseConfiguring
-///
-///     init(firebase: FirebaseConfiguring = FirebaseManager.shared) {
-///         self.firebase = firebase
-///     }
-///
-///     func setup() {
-///         firebase.configure()
-///     }
-/// }
-/// ```
-///
-/// ## Usage in Tests
-///
-/// ```swift
-/// @MainActor
-/// final class MockFirebaseManager: FirebaseConfiguring {
-///     var configureCallCount = 0
-///     var isConfigured = false
-///
-///     func configure() {
-///         configureCallCount += 1
-///         isConfigured = true
-///     }
-/// }
-/// ```
-///
-/// ## Topics
-///
-/// ### Configuration
-/// - ``configure()``
-/// - ``isConfigured``
-///
-/// ### Implementations
-/// - ``FirebaseManager``
-@MainActor
-public protocol FirebaseConfiguring: AnyObject, Sendable {
-    /// Indicates whether Firebase has been configured.
-    var isConfigured: Bool { get }
-
-    /// Configures Firebase using the GoogleService-Info.plist file.
-    func configure()
-}
 
 // MARK: - FirebaseManager
 
@@ -77,7 +27,7 @@ public protocol FirebaseConfiguring: AnyObject, Sendable {
 /// - <doc:GettingStarted>
 /// - <doc:MultiAppSetup>
 @MainActor
-public final class FirebaseManager: FirebaseConfiguring, Sendable {
+public final class FirebaseManager: FirebaseConfiguring {
     // MARK: - Singleton
 
     /// Shared singleton instance.
@@ -121,11 +71,11 @@ public final class FirebaseManager: FirebaseConfiguring, Sendable {
         // Safe to call multiple times - Firebase handles this
         if FirebaseApp.app() == nil {
             FirebaseApp.configure()
-            isConfigured = true
             logger.info("Firebase configured successfully")
         } else {
             logger.debug("Firebase already configured")
         }
+        isConfigured = true
     }
 
     // MARK: - Static Convenience Methods

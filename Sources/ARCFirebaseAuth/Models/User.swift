@@ -1,4 +1,10 @@
-import FirebaseAuth
+//
+//  User.swift
+//  ARCFirebase
+//
+//  Created by ARC Labs Studio on 2026-01-13.
+//
+
 import Foundation
 
 /// Represents an authenticated user.
@@ -54,19 +60,6 @@ public struct User: Sendable, Identifiable {
         self.isEmailVerified = isEmailVerified
         self.creationDate = creationDate
         self.lastSignInDate = lastSignInDate
-    }
-
-    /// Creates a user from a Firebase user object.
-    ///
-    /// - Parameter firebaseUser: The Firebase user to convert.
-    public init(from firebaseUser: FirebaseAuth.User) {
-        id = firebaseUser.uid
-        email = firebaseUser.email
-        displayName = firebaseUser.displayName
-        photoURL = firebaseUser.photoURL
-        isEmailVerified = firebaseUser.isEmailVerified
-        creationDate = firebaseUser.metadata.creationDate
-        lastSignInDate = firebaseUser.metadata.lastSignInDate
     }
 }
 

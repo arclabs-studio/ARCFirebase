@@ -60,7 +60,12 @@ import Foundation
 public final class FirebaseAIProvider: AIProviding, @unchecked Sendable {
     // MARK: - Properties
 
-    private let modelName: String
+    /// Default Gemini model name used when no model is specified.
+    public static let defaultModelName = "gemini-2.0-flash"
+
+    // Declared internal (not private) so FirebaseAIProvider+Mapping.swift can access them.
+    let modelName: String
+    let backend: FirebaseAI
     private let logger = ARCLogger(subsystem: "com.arclabs-studio.arcfirebase", category: "FirebaseAI")
 
     // MARK: - Initialization
@@ -69,9 +74,10 @@ public final class FirebaseAIProvider: AIProviding, @unchecked Sendable {
     ///
     /// - Parameter model: The Gemini model name. Default: `"gemini-2.0-flash"`.
     /// - Throws: ``FirebaseError/notConfigured`` if Firebase hasn't been initialized.
-    public init(model: String = "gemini-2.0-flash") throws {
+    public init(model: String = FirebaseAIProvider.defaultModelName) throws {
         try FirebaseManager.ensureConfigured()
-        self.modelName = model
+        modelName = model
+        backend = FirebaseAI.firebaseAI(backend: .googleAI())
         logger.info("FirebaseAIProvider initialized with model: \(model)")
     }
 
@@ -119,7 +125,7 @@ public final class FirebaseAIProvider: AIProviding, @unchecked Sendable {
 
     public func generateStructuredContent(
         prompt: String,
-        responseSchema: Schema,
+        responseSchema: AISchema,
         systemInstruction: String?,
         configuration: AIConfiguration?
     ) async throws -> AIResponse {
@@ -155,7 +161,7 @@ public final class FirebaseAIProvider: AIProviding, @unchecked Sendable {
         let model = makeModel(configuration: configuration)
 
         return AsyncThrowingStream { continuation in
-            Task {
+            let task = Task {
                 do {
                     let stream = try model.generateContentStream(prompt)
                     for try await chunk in stream {
@@ -164,11 +170,15 @@ public final class FirebaseAIProvider: AIProviding, @unchecked Sendable {
                         }
                     }
                     continuation.finish()
-                    self.logger.info("Stream completed successfully")
+                    logger.info("Stream completed successfully")
                 } catch {
-                    self.logger.error("Stream failed: \(error.localizedDescription)")
+                    logger.error("Stream failed: \(error.localizedDescription)")
                     continuation.finish(throwing: error)
                 }
+            }
+
+            continuation.onTermination = { _ in
+                task.cancel()
             }
         }
     }
@@ -206,98 +216,8 @@ public final class FirebaseAIProvider: AIProviding, @unchecked Sendable {
     }
 
     public func isAvailable() async -> Bool {
-        do {
-            try FirebaseManager.ensureConfigured()
-            return true
-        } catch {
-            return false
-        }
-    }
-
-    // MARK: - Private Helpers
-
-    private func makeModel(
-        configuration: AIConfiguration? = nil,
-        systemInstruction: String? = nil
-    ) -> GenerativeModel {
-        let genConfig = configuration.map { makeGenerationConfig(configuration: $0) }
-        return makeModel(generationConfig: genConfig, systemInstruction: systemInstruction)
-    }
-
-    private func makeModel(
-        generationConfig: GenerationConfig? = nil,
-        systemInstruction: String? = nil
-    ) -> GenerativeModel {
-        let ai = FirebaseAI.firebaseAI(backend: .googleAI())
-
-        if let instruction = systemInstruction {
-            return ai.generativeModel(
-                modelName: modelName,
-                generationConfig: generationConfig,
-                systemInstruction: ModelContent(
-                    role: "system",
-                    parts: instruction
-                )
-            )
-        } else {
-            return ai.generativeModel(
-                modelName: modelName,
-                generationConfig: generationConfig
-            )
-        }
-    }
-
-    private func makeGenerationConfig(
-        configuration: AIConfiguration?,
-        responseMIMEType: String? = nil,
-        responseSchema: Schema? = nil
-    ) -> GenerationConfig {
-        GenerationConfig(
-            temperature: configuration?.temperature,
-            topP: configuration?.topP,
-            topK: configuration?.topK,
-            maxOutputTokens: configuration?.maxOutputTokens,
-            stopSequences: configuration?.stopSequences,
-            responseMIMEType: responseMIMEType,
-            responseSchema: responseSchema
-        )
-    }
-
-    private func mapResponse(_ response: GenerateContentResponse) -> AIResponse {
-        let text = response.text ?? ""
-
-        let finishReason: AIResponse.FinishReason
-        if let candidate = response.candidates.first,
-           let reason = candidate.finishReason {
-            finishReason = mapFinishReason(reason)
-        } else {
-            finishReason = .unknown
-        }
-
-        return AIResponse(
-            content: text,
-            finishReason: finishReason,
-            promptTokenCount: response.usageMetadata?.promptTokenCount,
-            candidatesTokenCount: response.usageMetadata?.candidatesTokenCount,
-            totalTokenCount: response.usageMetadata?.totalTokenCount
-        )
-    }
-
-    private func mapFinishReason(_ reason: FinishReason) -> AIResponse.FinishReason {
-        switch reason {
-        case .stop:
-            .stop
-        case .maxTokens:
-            .maxTokens
-        case .safety:
-            .safety
-        case .recitation:
-            .recitation
-        case .other:
-            .other
-        default:
-            .unknown
-        }
+        // Firebase was validated at init time; a live instance is always configured.
+        true
     }
 }
 
@@ -317,7 +237,7 @@ extension FirebaseAIProvider {
     /// - Parameter model: The Gemini model name. Default: `"gemini-2.0-flash"`.
     /// - Returns: A configured ``FirebaseAIProvider`` instance.
     /// - Throws: ``FirebaseError/notConfigured`` if Firebase hasn't been initialized.
-    public static func create(model: String = "gemini-2.0-flash") throws -> FirebaseAIProvider {
+    public static func create(model: String = FirebaseAIProvider.defaultModelName) throws -> FirebaseAIProvider {
         try FirebaseAIProvider(model: model)
     }
 
