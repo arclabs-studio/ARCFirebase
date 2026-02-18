@@ -6,7 +6,7 @@ import Foundation
 /// Firebase implementation of ``AnalyticsProviding``.
 ///
 /// This is the production analytics provider that uses Firebase Analytics.
-/// Implemented as an actor for thread-safe access in concurrent environments.
+/// All Firebase Analytics methods are thread-safe and can be called from any context.
 ///
 /// ## Initialization
 ///
@@ -23,7 +23,7 @@ import Foundation
 /// ### Initialization
 /// - ``init()``
 /// - ``live``
-public actor FirebaseAnalyticsProvider: AnalyticsProviding {
+public final class FirebaseAnalyticsProvider: AnalyticsProviding, @unchecked Sendable {
     // MARK: - Properties
 
     private let logger = ARCLogger(category: "FirebaseAnalytics", subsystem: "com.arclabs-studio.arcfirebase")
@@ -41,12 +41,12 @@ public actor FirebaseAnalyticsProvider: AnalyticsProviding {
     // MARK: - AnalyticsProviding Implementation
 
     /// Firebase Analytics methods are thread-safe and can be called from any context.
-    public nonisolated func logEvent(_ name: String, parameters: [String: Any]? = nil) {
+    public func logEvent(_ name: String, parameters: [String: any Sendable]? = nil) {
         Analytics.logEvent(name, parameters: parameters)
     }
 
     /// Firebase Analytics methods are thread-safe and can be called from any context.
-    public nonisolated func logScreenView(_ screenName: String, screenClass: String? = nil) {
+    public func logScreenView(_ screenName: String, screenClass: String? = nil) {
         Analytics.logEvent(AnalyticsEventScreenView, parameters: [
             AnalyticsParameterScreenName: screenName,
             AnalyticsParameterScreenClass: screenClass ?? screenName
@@ -54,12 +54,12 @@ public actor FirebaseAnalyticsProvider: AnalyticsProviding {
     }
 
     /// Firebase Analytics methods are thread-safe and can be called from any context.
-    public nonisolated func setUserProperty(_ name: String, value: String?) {
+    public func setUserProperty(_ name: String, value: String?) {
         Analytics.setUserProperty(value, forName: name)
     }
 
     /// Firebase Analytics methods are thread-safe and can be called from any context.
-    public nonisolated func setUserID(_ userID: String?) {
+    public func setUserID(_ userID: String?) {
         Analytics.setUserID(userID)
     }
 }
