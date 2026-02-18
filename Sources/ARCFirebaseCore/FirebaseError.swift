@@ -21,6 +21,9 @@ public enum FirebaseError: LocalizedError {
     /// Analytics service is not available.
     case analyticsNotAvailable
 
+    /// AI service is not available.
+    case aiNotAvailable
+
     /// A network error occurred.
     case networkError(underlying: Error)
 
@@ -47,6 +50,8 @@ public enum FirebaseError: LocalizedError {
             "Firebase Storage is not available."
         case .analyticsNotAvailable:
             "Firebase Analytics is not available."
+        case .aiNotAvailable:
+            "Firebase AI is not available."
         case let .networkError(error):
             "Network error: \(error.localizedDescription)"
         case .documentNotFound:

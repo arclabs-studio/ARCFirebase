@@ -5,6 +5,7 @@
 //  Created by ARC Labs Studio on 14/01/2026.
 //
 
+import ARCFirebaseAI
 import ARCFirebaseAnalytics
 import ARCFirebaseAuth
 import ARCFirebaseCrashlytics
@@ -40,6 +41,9 @@ enum PreviewEnvironment {
 
     /// Mock crashlytics provider for previews.
     static let crashlyticsProvider = MockCrashlyticsProvider.preview
+
+    /// Mock AI provider for previews.
+    static let aiProvider = MockAIProvider.preview
 }
 
 // MARK: - View Extension for Preview Environment
@@ -70,6 +74,7 @@ extension View {
             .environment(\.analyticsProvider, PreviewEnvironment.analyticsProvider)
             .environment(\.storageProvider, PreviewEnvironment.storageProvider)
             .environment(\.crashlyticsProvider, PreviewEnvironment.crashlyticsProvider)
+            .environment(\.aiProvider, PreviewEnvironment.aiProvider)
     }
 }
 

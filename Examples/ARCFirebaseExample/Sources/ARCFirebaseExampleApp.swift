@@ -28,6 +28,7 @@
 // - ARCFirebaseCrashlytics: Error recording and crash reporting
 // - ARCFirebasePersistence: Firestore CRUD operations
 // - ARCFirebaseStorage: File upload/download
+// - ARCFirebaseAI: Gemini content generation via Firebase AI
 //
 // ARCHITECTURE PATTERN:
 // - Protocol-based providers for dependency injection
@@ -37,6 +38,7 @@
 //
 // ============================================================================
 
+import ARCFirebaseAI
 import ARCFirebaseAnalytics
 import ARCFirebaseAuth
 import ARCFirebaseCore
@@ -75,6 +77,9 @@ struct ARCFirebaseExampleApp: App {
     /// Crashlytics provider - records errors and crashes.
     private let crashlyticsProvider: any CrashlyticsProviding
 
+    /// AI provider - generates content via Gemini.
+    private let aiProvider: any AIProviding
+
     /// Indicates if running in demo mode (without Firebase).
     private let isDemoMode: Bool
 
@@ -89,6 +94,7 @@ struct ARCFirebaseExampleApp: App {
         analyticsProvider = config.analytics
         storageProvider = config.storage
         crashlyticsProvider = config.crashlytics
+        aiProvider = config.ai
         isDemoMode = config.isDemoMode
     }
 
@@ -100,6 +106,7 @@ struct ARCFirebaseExampleApp: App {
         analytics: any AnalyticsProviding,
         storage: any StorageProviding,
         crashlytics: any CrashlyticsProviding,
+        ai: any AIProviding,
         isDemoMode: Bool
     ) {
         // Check for GoogleService-Info.plist
@@ -129,6 +136,7 @@ struct ARCFirebaseExampleApp: App {
                 analytics: MockAnalyticsProvider(),
                 storage: MockStorageProvider(),
                 crashlytics: MockCrashlyticsProvider(),
+                ai: MockAIProvider(),
                 isDemoMode: true
             )
         }
@@ -143,6 +151,7 @@ struct ARCFirebaseExampleApp: App {
             let analytics = try FirebaseAnalyticsProvider.create()
             let storage = try FirebaseStorageProvider.create()
             let crashlytics = try FirebaseCrashlyticsProvider.create()
+            let ai = try FirebaseAIProvider.create()
 
             print("✅ Firebase configured successfully (Production Mode)")
 
@@ -160,6 +169,7 @@ struct ARCFirebaseExampleApp: App {
                 analytics: analytics,
                 storage: storage,
                 crashlytics: crashlytics,
+                ai: ai,
                 isDemoMode: false
             )
 
@@ -171,6 +181,7 @@ struct ARCFirebaseExampleApp: App {
                 analytics: MockAnalyticsProvider(),
                 storage: MockStorageProvider(),
                 crashlytics: MockCrashlyticsProvider(),
+                ai: MockAIProvider(),
                 isDemoMode: true
             )
         }
@@ -200,6 +211,7 @@ struct ARCFirebaseExampleApp: App {
             .environment(\.analyticsProvider, analyticsProvider)
             .environment(\.storageProvider, storageProvider)
             .environment(\.crashlyticsProvider, crashlyticsProvider)
+            .environment(\.aiProvider, aiProvider)
         }
     }
 }

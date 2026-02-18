@@ -70,7 +70,7 @@ public final class FirestoreRepository<Entity: Identifiable & Codable>: Reposito
 
         self.collectionPath = collectionPath
         db = Firestore.firestore()
-        logger = ARCLogger(category: "Firestore[\(collectionPath)]")
+        logger = ARCLogger(subsystem: "com.arclabs-studio.arcfirebase", category: "Firestore[\(collectionPath)]")
 
         logger.info("Repository initialized for collection: \(collectionPath)")
     }

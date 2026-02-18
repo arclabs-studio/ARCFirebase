@@ -36,7 +36,7 @@ ARCFirebase provides a clean, modular architecture for integrating Firebase serv
 - **Swift:** 6.0+
 - **Platforms:** iOS 17.0+ / macOS 14.0+ / watchOS 10.0+ / visionOS 1.0+
 - **Xcode:** 16.0+
-- **Dependencies:** Firebase iOS SDK 10.0+, ARCLogger
+- **Dependencies:** Firebase iOS SDK 11.13.0+, ARCLogger
 
 ---
 
@@ -64,6 +64,7 @@ Perfect for learning how to integrate ARCFirebase in your app!
 | **Crashlytics** | Crash reporting | FirebaseCrashlytics |
 | **Persistence** | Firestore database | FirebaseFirestore |
 | **Storage** | File storage | FirebaseStorage |
+| **AI** | Gemini content generation | FirebaseAI |
 
 ---
 
@@ -109,6 +110,7 @@ import ARCFirebaseAuth
 import ARCFirebaseAnalytics
 import ARCFirebaseStorage
 import ARCFirebaseCrashlytics
+import ARCFirebaseAI
 
 @main
 struct FavResApp: App {
@@ -116,6 +118,7 @@ struct FavResApp: App {
     private let auth: FirebaseAuthProvider
     private let analytics: FirebaseAnalyticsProvider
     private let storage: FirebaseStorageProvider
+    private let ai: FirebaseAIProvider
 
     init() {
         // Configure Firebase Core
@@ -126,6 +129,7 @@ struct FavResApp: App {
             auth = try FirebaseAuthProvider()
             analytics = FirebaseAnalyticsProvider()
             storage = try FirebaseStorageProvider()
+            ai = try FirebaseAIProvider()
             try CrashlyticsManager.shared.configure()
         } catch {
             fatalError("Firebase configuration failed: \(error)")
@@ -138,6 +142,7 @@ struct FavResApp: App {
                 .environment(\.authProvider, auth)
                 .environment(\.analyticsProvider, analytics)
                 .environment(\.storageProvider, storage)
+                .environment(\.aiProvider, ai)
         }
     }
 }
@@ -366,6 +371,69 @@ CrashlyticsManager.shared.log("User action: \(action)")
 // User context
 CrashlyticsManager.shared.setUserID(user.id)
 CrashlyticsManager.shared.setCustomValue("dark", forKey: "theme")
+```
+
+### AI (Gemini via Firebase)
+
+#### SwiftUI with Environment
+
+```swift
+import SwiftUI
+import ARCFirebaseAI
+
+struct ChatView: View {
+    @Environment(\.aiProvider) var ai
+    @State private var response = ""
+
+    var body: some View {
+        VStack {
+            Text(response)
+            Button("Generate") {
+                Task {
+                    let result = try await ai.generateContent(
+                        prompt: "Suggest a restaurant"
+                    )
+                    response = result.content
+                }
+            }
+        }
+    }
+}
+```
+
+#### Streaming
+
+```swift
+for try await chunk in ai.streamContent(prompt: "Tell me about sushi") {
+    text += chunk
+}
+```
+
+#### Dependency Injection
+
+```swift
+import ARCFirebaseAI
+
+@Observable
+final class ChatViewModel {
+    private let ai: any AIProviding
+    var response: String = ""
+
+    init(ai: any AIProviding) {
+        self.ai = ai
+    }
+
+    func generate(prompt: String) async throws {
+        let result = try await ai.generateContent(prompt: prompt)
+        response = result.content
+    }
+}
+
+// Production
+let viewModel = ChatViewModel(ai: FirebaseAIProvider.live)
+
+// Testing
+let viewModel = ChatViewModel(ai: MockAIProvider())
 ```
 
 ---

@@ -5,6 +5,7 @@
 //  Created by ARC Labs Studio on 14/01/2026.
 //
 
+import ARCFirebaseAI
 import ARCFirebaseAnalytics
 import ARCFirebaseAuth
 import SwiftUI
@@ -128,6 +129,17 @@ struct MainTabView: View {
                 .tag(1)
 
             // ==============================================================
+            // AI Chat Tab - Firebase AI (Gemini) Demo
+            // ==============================================================
+            // Demonstrates content generation, streaming, and multi-turn chat.
+
+            AIChatView()
+                .tabItem {
+                    Label("AI Chat", systemImage: "sparkles")
+                }
+                .tag(2)
+
+            // ==============================================================
             // Profile Tab - User Info & Sign Out
             // ==============================================================
             // Shows current user info and sign out functionality.
@@ -136,11 +148,11 @@ struct MainTabView: View {
                 .tabItem {
                     Label("Profile", systemImage: "person.circle")
                 }
-                .tag(2)
+                .tag(3)
         }
         .onChange(of: selectedTab) { _, newTab in
             // Track tab changes for analytics
-            let tabNames = ["items", "storage", "profile"]
+            let tabNames = ["items", "storage", "ai_chat", "profile"]
             analytics.logScreenView(tabNames[newTab])
         }
     }
