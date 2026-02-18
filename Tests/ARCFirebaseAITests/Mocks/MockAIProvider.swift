@@ -5,7 +5,6 @@
 //  Created by ARC Labs Studio on 2026-02-17.
 //
 
-import FirebaseAI
 import Foundation
 @testable import ARCFirebaseAI
 
@@ -67,7 +66,7 @@ final class MockAIProvider: AIProviding, @unchecked Sendable {
 
     func generateStructuredContent(
         prompt: String,
-        responseSchema _: Schema,
+        responseSchema _: AISchema,
         systemInstruction: String?,
         configuration: AIConfiguration?
     ) async throws -> AIResponse {

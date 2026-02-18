@@ -5,7 +5,6 @@
 //  Created by ARC Labs Studio on 2026-02-17.
 //
 
-import FirebaseAI
 import Testing
 @testable import ARCFirebaseAI
 
@@ -51,7 +50,7 @@ struct FirebaseAIProviderTests {
     func generateStructuredContent() async throws {
         // Given
         let sut = makeSUT()
-        let schema = Schema.object(properties: [
+        let schema = AISchema.object(properties: [
             "name": .string(),
             "rating": .integer()
         ])
