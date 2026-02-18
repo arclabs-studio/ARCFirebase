@@ -27,6 +27,28 @@ extension Error {
                 return .unknown(underlying: self)
             }
 
+        case "FIRAuthErrorDomain":
+            switch nsError.code {
+            case 17_011: // ERROR_USER_NOT_FOUND
+                return .authNotAvailable
+            case 17_009: // ERROR_WRONG_PASSWORD
+                return .permissionDenied
+            case 17_020: // ERROR_NETWORK_REQUEST_FAILED
+                return .networkError(underlying: self)
+            default:
+                return .unknown(underlying: self)
+            }
+
+        case "FIRStorageErrorDomain":
+            switch nsError.code {
+            case -13_010: // OBJECT_NOT_FOUND
+                return .documentNotFound
+            case -13_021: // UNAUTHORIZED
+                return .permissionDenied
+            default:
+                return .unknown(underlying: self)
+            }
+
         case NSURLErrorDomain:
             return .networkError(underlying: self)
 
