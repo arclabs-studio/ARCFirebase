@@ -1,3 +1,10 @@
+//
+//  StorageProviderKey.swift
+//  ARCFirebase
+//
+//  Created by ARC Labs Studio on 2026-01-13.
+//
+
 import Foundation
 import SwiftUI
 
@@ -19,7 +26,7 @@ extension EnvironmentValues {
 
 /// Placeholder provider that crashes with helpful message when accessed.
 /// This avoids crashes at module load time while ensuring proper configuration.
-private struct PlaceholderStorageProvider: StorageProviding {
+private struct PlaceholderStorageProvider: StorageProviding, @unchecked Sendable {
     func upload(data _: Data, path _: String, contentType _: String) async throws -> URL {
         placeholderCrash()
     }
