@@ -27,6 +27,9 @@ public enum FirebaseError: LocalizedError {
     /// A network error occurred.
     case networkError(underlying: Error)
 
+    /// The requested user was not found.
+    case userNotFound
+
     /// The requested document was not found.
     case documentNotFound
 
@@ -54,6 +57,8 @@ public enum FirebaseError: LocalizedError {
             "Firebase AI is not available."
         case let .networkError(error):
             "Network error: \(error.localizedDescription)"
+        case .userNotFound:
+            "The requested user was not found."
         case .documentNotFound:
             "The requested document was not found."
         case .permissionDenied:

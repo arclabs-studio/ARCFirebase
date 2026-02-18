@@ -30,7 +30,7 @@ extension Error {
         case "FIRAuthErrorDomain":
             switch nsError.code {
             case 17_011: // ERROR_USER_NOT_FOUND
-                return .authNotAvailable
+                return .userNotFound
             case 17_009: // ERROR_WRONG_PASSWORD
                 return .permissionDenied
             case 17_020: // ERROR_NETWORK_REQUEST_FAILED

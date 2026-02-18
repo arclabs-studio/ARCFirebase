@@ -120,11 +120,11 @@ public final class FirebaseManager: FirebaseConfiguring, Sendable {
         // Safe to call multiple times - Firebase handles this
         if FirebaseApp.app() == nil {
             FirebaseApp.configure()
-            isConfigured = true
             logger.info("Firebase configured successfully")
         } else {
             logger.debug("Firebase already configured")
         }
+        isConfigured = true
     }
 
     // MARK: - Static Convenience Methods
