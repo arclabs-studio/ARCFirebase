@@ -8,8 +8,9 @@ import Foundation
 /// ## Usage in Production
 ///
 /// ```swift
+/// @Observable
 /// @MainActor
-/// class MyViewModel: ObservableObject {
+/// final class MyViewModel {
 ///     private let auth: AuthProviding
 ///
 ///     init(auth: AuthProviding) {
