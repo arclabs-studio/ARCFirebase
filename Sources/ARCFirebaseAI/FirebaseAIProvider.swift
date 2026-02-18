@@ -61,6 +61,7 @@ public final class FirebaseAIProvider: AIProviding, @unchecked Sendable {
     // MARK: - Properties
 
     private let modelName: String
+    private let backend: FirebaseAI
     private let logger = ARCLogger(category: "FirebaseAI", subsystem: "com.arclabs-studio.arcfirebase")
 
     // MARK: - Initialization
@@ -72,6 +73,7 @@ public final class FirebaseAIProvider: AIProviding, @unchecked Sendable {
     public init(model: String = "gemini-2.0-flash") throws {
         try FirebaseManager.ensureConfigured()
         self.modelName = model
+        self.backend = FirebaseAI.firebaseAI(backend: .googleAI())
         logger.info("FirebaseAIProvider initialized with model: \(model)")
     }
 
@@ -119,7 +121,7 @@ public final class FirebaseAIProvider: AIProviding, @unchecked Sendable {
 
     public func generateStructuredContent(
         prompt: String,
-        responseSchema: Schema,
+        responseSchema: AISchema,
         systemInstruction: String?,
         configuration: AIConfiguration?
     ) async throws -> AIResponse {
@@ -153,9 +155,10 @@ public final class FirebaseAIProvider: AIProviding, @unchecked Sendable {
         logger.info("Streaming content for prompt (\(prompt.prefix(50))...)")
 
         let model = makeModel(configuration: configuration)
+        let logger = self.logger
 
         return AsyncThrowingStream { continuation in
-            Task {
+            let task = Task {
                 do {
                     let stream = try model.generateContentStream(prompt)
                     for try await chunk in stream {
@@ -164,11 +167,15 @@ public final class FirebaseAIProvider: AIProviding, @unchecked Sendable {
                         }
                     }
                     continuation.finish()
-                    self.logger.info("Stream completed successfully")
+                    logger.info("Stream completed successfully")
                 } catch {
-                    self.logger.error("Stream failed: \(error.localizedDescription)")
+                    logger.error("Stream failed: \(error.localizedDescription)")
                     continuation.finish(throwing: error)
                 }
+            }
+
+            continuation.onTermination = { _ in
+                task.cancel()
             }
         }
     }
@@ -228,10 +235,8 @@ public final class FirebaseAIProvider: AIProviding, @unchecked Sendable {
         generationConfig: GenerationConfig? = nil,
         systemInstruction: String? = nil
     ) -> GenerativeModel {
-        let ai = FirebaseAI.firebaseAI(backend: .googleAI())
-
         if let instruction = systemInstruction {
-            return ai.generativeModel(
+            return backend.generativeModel(
                 modelName: modelName,
                 generationConfig: generationConfig,
                 systemInstruction: ModelContent(
@@ -240,7 +245,7 @@ public final class FirebaseAIProvider: AIProviding, @unchecked Sendable {
                 )
             )
         } else {
-            return ai.generativeModel(
+            return backend.generativeModel(
                 modelName: modelName,
                 generationConfig: generationConfig
             )
@@ -250,7 +255,7 @@ public final class FirebaseAIProvider: AIProviding, @unchecked Sendable {
     private func makeGenerationConfig(
         configuration: AIConfiguration?,
         responseMIMEType: String? = nil,
-        responseSchema: Schema? = nil
+        responseSchema: AISchema? = nil
     ) -> GenerationConfig {
         GenerationConfig(
             temperature: configuration?.temperature,
