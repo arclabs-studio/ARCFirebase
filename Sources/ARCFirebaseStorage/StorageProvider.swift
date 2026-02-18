@@ -78,21 +78,26 @@ public struct StorageConfiguration: Sendable {
 /// ## Usage in Tests
 ///
 /// ```swift
-/// actor MockStorageProvider: StorageProviding {
+/// final class MockStorageProvider: StorageProviding, @unchecked Sendable {
 ///     var uploadedFiles: [String: Data] = [:]
-///     var mockURL = URL(string: "https://example.com/image.jpg")!
+///     var mockDownloadURL: URL = {
+///         guard let url = URL(string: "https://example.com/image.jpg") else {
+///             preconditionFailure("MockStorageProvider: invalid mock URL constant")
+///         }
+///         return url
+///     }()
 ///
 ///     func upload(data: Data, path: String, contentType: String) async throws -> URL {
 ///         uploadedFiles[path] = data
-///         return mockURL
+///         return mockDownloadURL
 ///     }
 ///
 ///     func upload(fileURL: URL, path: String) async throws -> URL {
-///         return mockURL
+///         return mockDownloadURL
 ///     }
 ///
 ///     func downloadURL(path: String) async throws -> URL {
-///         return mockURL
+///         return mockDownloadURL
 ///     }
 ///
 ///     func download(path: String) async throws -> Data {
@@ -110,7 +115,7 @@ public struct StorageConfiguration: Sendable {
 ///
 ///     let url = try await uploader.upload(image: testImageData)
 ///
-///     #expect(url == mock.mockURL)
+///     #expect(url == mock.mockDownloadURL)
 /// }
 /// ```
 ///
