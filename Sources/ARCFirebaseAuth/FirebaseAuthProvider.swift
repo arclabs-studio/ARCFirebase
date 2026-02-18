@@ -148,6 +148,22 @@ public final class FirebaseAuthProvider: AuthProviding, @unchecked Sendable {
     }
 }
 
+// MARK: - Firebase User Mapping
+
+private extension User {
+    init(from firebaseUser: FirebaseAuth.User) {
+        self.init(
+            id: firebaseUser.uid,
+            email: firebaseUser.email,
+            displayName: firebaseUser.displayName,
+            photoURL: firebaseUser.photoURL,
+            isEmailVerified: firebaseUser.isEmailVerified,
+            creationDate: firebaseUser.metadata.creationDate,
+            lastSignInDate: firebaseUser.metadata.lastSignInDate
+        )
+    }
+}
+
 // MARK: - Factory Methods
 
 extension FirebaseAuthProvider {
