@@ -159,19 +159,6 @@ struct FirebaseAIProviderTests {
         #expect(available == false)
     }
 
-    @Test("isAvailable returns false without Firebase configuration")
-    func isAvailableWithoutFirebase() async {
-        // Given — Firebase is not configured in test environment
-        let sut = makeSUT()
-        sut.mockAvailable = false
-
-        // When
-        let available = await sut.isAvailable()
-
-        // Then
-        #expect(available == false)
-    }
-
     // MARK: - Error Handling
 
     @Test("Mock provider throws errors when configured")
