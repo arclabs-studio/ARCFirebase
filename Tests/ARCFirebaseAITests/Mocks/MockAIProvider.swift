@@ -17,18 +17,18 @@ final class MockAIProvider: AIProviding, @unchecked Sendable {
     var mockStreamChunks: [String] = ["Hello", " World"]
     var mockAvailable = true
 
-    var generateContentCallCount = 0
-    var generateContentWithSystemCallCount = 0
-    var generateStructuredContentCallCount = 0
-    var streamContentCallCount = 0
-    var sendMessageCallCount = 0
-    var isAvailableCallCount = 0
+    private(set) var generateContentCallCount = 0
+    private(set) var generateContentWithSystemCallCount = 0
+    private(set) var generateStructuredContentCallCount = 0
+    private(set) var streamContentCallCount = 0
+    private(set) var sendMessageCallCount = 0
+    private(set) var isAvailableCallCount = 0
 
-    var lastPrompt: String?
-    var lastSystemInstruction: String?
-    var lastConfiguration: AIConfiguration?
-    var lastMessage: String?
-    var lastHistory: [AIMessage]?
+    private(set) var lastPrompt: String?
+    private(set) var lastSystemInstruction: String?
+    private(set) var lastConfiguration: AIConfiguration?
+    private(set) var lastMessage: String?
+    private(set) var lastHistory: [AIMessage]?
 
     // MARK: - AIProviding Implementation
 

@@ -5,7 +5,7 @@ import Foundation
 final class MockStorageProvider: StorageProviding, @unchecked Sendable {
     // MARK: - Mock State
 
-    var uploadedFiles: [String: Data] = [:]
+    private(set) var uploadedFiles: [String: Data] = [:]
     var mockDownloadURL: URL = {
         guard let url = URL(string: "https://example.com/file.jpg") else {
             preconditionFailure("MockStorageProvider: invalid mock URL constant")
@@ -13,11 +13,11 @@ final class MockStorageProvider: StorageProviding, @unchecked Sendable {
         return url
     }()
     var mockError: Error?
-    var uploadDataCallCount = 0
-    var uploadFileCallCount = 0
-    var downloadURLCallCount = 0
-    var downloadCallCount = 0
-    var deleteCallCount = 0
+    private(set) var uploadDataCallCount = 0
+    private(set) var uploadFileCallCount = 0
+    private(set) var downloadURLCallCount = 0
+    private(set) var downloadCallCount = 0
+    private(set) var deleteCallCount = 0
 
     // MARK: - StorageProviding Implementation
 

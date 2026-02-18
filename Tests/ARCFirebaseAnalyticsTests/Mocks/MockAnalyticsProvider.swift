@@ -5,10 +5,10 @@ import Foundation
 final class MockAnalyticsProvider: AnalyticsProviding, @unchecked Sendable {
     // MARK: - Mock State
 
-    var loggedEvents: [(name: String, parameters: [String: any Sendable]?)] = []
-    var screenViews: [(screenName: String, screenClass: String?)] = []
-    var userProperties: [String: String] = [:]
-    var userID: String?
+    private(set) var loggedEvents: [(name: String, parameters: [String: any Sendable]?)] = []
+    private(set) var screenViews: [(screenName: String, screenClass: String?)] = []
+    private(set) var userProperties: [String: String] = [:]
+    private(set) var userID: String?
 
     // MARK: - AnalyticsProviding Implementation
 
