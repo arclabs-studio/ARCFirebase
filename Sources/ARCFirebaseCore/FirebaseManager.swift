@@ -1,5 +1,4 @@
 import ARCLogger
-import FirebaseAnalytics
 import FirebaseCore
 import Foundation
 
