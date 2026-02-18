@@ -102,7 +102,7 @@ public final class FirestoreRepository<Entity: Identifiable & Codable>: Reposito
 
         do {
             let snapshot = try await collection.getDocuments()
-            let entities = try snapshot.documents.compactMap { document in
+            let entities = try snapshot.documents.map { document in
                 try document.data(as: Entity.self)
             }
 
@@ -171,7 +171,7 @@ public final class FirestoreRepository<Entity: Identifiable & Codable>: Reposito
 
         do {
             let snapshot = try await collection.whereField(field, isEqualTo: value).getDocuments()
-            let entities = try snapshot.documents.compactMap { document in
+            let entities = try snapshot.documents.map { document in
                 try document.data(as: Entity.self)
             }
 
@@ -210,7 +210,7 @@ public final class FirestoreRepository<Entity: Identifiable & Codable>: Reposito
             }
 
             let snapshot = try await query.getDocuments()
-            let entities = try snapshot.documents.compactMap { document in
+            let entities = try snapshot.documents.map { document in
                 try document.data(as: Entity.self)
             }
 
