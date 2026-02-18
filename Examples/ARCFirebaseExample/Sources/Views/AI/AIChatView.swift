@@ -350,6 +350,7 @@ final class AIChatViewModel {
         let response = try await ai.sendMessage(
             text,
             history: chatHistory.dropLast().map { $0 },
+            systemInstruction: nil,
             configuration: configuration
         )
 
