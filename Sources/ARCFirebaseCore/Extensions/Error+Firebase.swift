@@ -40,17 +40,17 @@ extension Error {
 
     private func authError(code: Int) -> FirebaseError {
         switch code {
-        case 17_011: .userNotFound        // ERROR_USER_NOT_FOUND
-        case 17_009: .permissionDenied    // ERROR_WRONG_PASSWORD
-        case 17_020: .networkError(underlying: self) // ERROR_NETWORK_REQUEST_FAILED
+        case 17011: .userNotFound // ERROR_USER_NOT_FOUND
+        case 17009: .permissionDenied // ERROR_WRONG_PASSWORD
+        case 17020: .networkError(underlying: self) // ERROR_NETWORK_REQUEST_FAILED
         default: .unknown(underlying: self)
         }
     }
 
     private func storageError(code: Int) -> FirebaseError {
         switch code {
-        case -13_010: .documentNotFound // OBJECT_NOT_FOUND
-        case -13_021: .permissionDenied // UNAUTHORIZED
+        case -13010: .documentNotFound // OBJECT_NOT_FOUND
+        case -13021: .permissionDenied // UNAUTHORIZED
         default: .unknown(underlying: self)
         }
     }

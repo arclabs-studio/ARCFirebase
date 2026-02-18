@@ -76,8 +76,8 @@ public final class FirebaseAIProvider: AIProviding, @unchecked Sendable {
     /// - Throws: ``FirebaseError/notConfigured`` if Firebase hasn't been initialized.
     public init(model: String = FirebaseAIProvider.defaultModelName) throws {
         try FirebaseManager.ensureConfigured()
-        self.modelName = model
-        self.backend = FirebaseAI.firebaseAI(backend: .googleAI())
+        modelName = model
+        backend = FirebaseAI.firebaseAI(backend: .googleAI())
         logger.info("FirebaseAIProvider initialized with model: \(model)")
     }
 
@@ -219,7 +219,6 @@ public final class FirebaseAIProvider: AIProviding, @unchecked Sendable {
         // Firebase was validated at init time; a live instance is always configured.
         true
     }
-
 }
 
 // MARK: - Factory Methods

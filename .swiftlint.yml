@@ -115,6 +115,10 @@ custom_rules:
   observable_viewmodel:
     name: "ViewModels should use @Observable"
     regex: "final\\s+class\\s+\\w+ViewModel(?!.*@Observable)"
+    match_kinds:
+      - keyword
+      - typeidentifier
+      - identifier
     message: "ViewModels must use @Observable in Swift 6"
     severity: warning
 

@@ -67,31 +67,31 @@ struct AIResponseTests {
     @Test("Equal responses are equal")
     func equalityHolds() {
         // Given
-        let a = AIResponse(content: "Hello", finishReason: .stop, promptTokenCount: 5)
-        let b = AIResponse(content: "Hello", finishReason: .stop, promptTokenCount: 5)
+        let lhs = AIResponse(content: "Hello", finishReason: .stop, promptTokenCount: 5)
+        let rhs = AIResponse(content: "Hello", finishReason: .stop, promptTokenCount: 5)
 
         // Then
-        #expect(a == b)
+        #expect(lhs == rhs)
     }
 
     @Test("Responses with different content are not equal")
     func inequalityOnContent() {
         // Given
-        let a = makeSUT(content: "Hello")
-        let b = makeSUT(content: "World")
+        let lhs = makeSUT(content: "Hello")
+        let rhs = makeSUT(content: "World")
 
         // Then
-        #expect(a != b)
+        #expect(lhs != rhs)
     }
 
     @Test("Responses with different finishReason are not equal")
     func inequalityOnFinishReason() {
         // Given
-        let a = AIResponse(content: "Hi", finishReason: .stop)
-        let b = AIResponse(content: "Hi", finishReason: .maxTokens)
+        let lhs = AIResponse(content: "Hi", finishReason: .stop)
+        let rhs = AIResponse(content: "Hi", finishReason: .maxTokens)
 
         // Then
-        #expect(a != b)
+        #expect(lhs != rhs)
     }
 
     // MARK: - FinishReason cases

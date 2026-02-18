@@ -9,10 +9,7 @@ struct FirebaseStorageProviderTests {
     @Test("Mock provider uploads data")
     func mockUploadsData() async throws {
         let mock = makeSUT()
-        guard let testData = "Hello, World!".data(using: .utf8) else {
-            Issue.record("Failed to create test data")
-            return
-        }
+        let testData = Data("Hello, World!".utf8)
 
         let url = try await mock.upload(
             data: testData,
@@ -35,10 +32,7 @@ struct FirebaseStorageProviderTests {
         // Create a temporary file
         let tempDir = FileManager.default.temporaryDirectory
         let fileURL = tempDir.appendingPathComponent("test-\(UUID().uuidString).txt")
-        guard let testData = "Test file content".data(using: .utf8) else {
-            Issue.record("Failed to create test data")
-            return
-        }
+        let testData = Data("Test file content".utf8)
         try testData.write(to: fileURL)
 
         defer {
@@ -58,10 +52,7 @@ struct FirebaseStorageProviderTests {
     @Test("Mock provider gets download URL")
     func mockGetsDownloadURL() async throws {
         let mock = makeSUT()
-        guard let testData = "test".data(using: .utf8) else {
-            Issue.record("Failed to create test data")
-            return
-        }
+        let testData = Data("test".utf8)
 
         // Upload first
         _ = try await mock.upload(data: testData, path: "test/file.txt", contentType: "text/plain")
@@ -76,10 +67,7 @@ struct FirebaseStorageProviderTests {
     @Test("Mock provider downloads data")
     func mockDownloadsData() async throws {
         let mock = makeSUT()
-        guard let testData = "Download test".data(using: .utf8) else {
-            Issue.record("Failed to create test data")
-            return
-        }
+        let testData = Data("Download test".utf8)
 
         // Upload first
         _ = try await mock.upload(data: testData, path: "downloads/file.txt", contentType: "text/plain")
@@ -94,10 +82,7 @@ struct FirebaseStorageProviderTests {
     @Test("Mock provider deletes files")
     func mockDeletesFiles() async throws {
         let mock = makeSUT()
-        guard let testData = "Delete test".data(using: .utf8) else {
-            Issue.record("Failed to create test data")
-            return
-        }
+        let testData = Data("Delete test".utf8)
 
         // Upload first
         _ = try await mock.upload(data: testData, path: "temp/file.txt", contentType: "text/plain")

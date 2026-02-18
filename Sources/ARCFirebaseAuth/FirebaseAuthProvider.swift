@@ -157,8 +157,8 @@ public final class FirebaseAuthProvider: AuthProviding, @unchecked Sendable {
 
 // MARK: - Firebase User Mapping
 
-private extension User {
-    init(from firebaseUser: FirebaseAuth.User) {
+extension User {
+    fileprivate init(from firebaseUser: FirebaseAuth.User) {
         self.init(
             id: firebaseUser.uid,
             email: firebaseUser.email,

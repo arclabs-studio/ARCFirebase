@@ -27,7 +27,7 @@ import Foundation
 /// - <doc:GettingStarted>
 /// - <doc:MultiAppSetup>
 @MainActor
-public final class FirebaseManager: FirebaseConfiguring, Sendable {
+public final class FirebaseManager: FirebaseConfiguring {
     // MARK: - Singleton
 
     /// Shared singleton instance.

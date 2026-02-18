@@ -15,9 +15,8 @@ import Foundation
 /// ## Usage in Production
 ///
 /// ```swift
-/// @Observable
 /// @MainActor
-/// final class MyViewModel {
+/// @Observable final class MyViewModel {
 ///     private let crashlytics: CrashlyticsProviding
 ///
 ///     init(crashlytics: CrashlyticsProviding) {

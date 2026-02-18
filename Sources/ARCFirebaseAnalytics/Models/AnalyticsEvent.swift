@@ -53,4 +53,3 @@ public enum AnalyticsEvent {
     /// An error occurred
     public static let errorOccurred = "error_occurred"
 }
-

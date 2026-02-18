@@ -12,6 +12,7 @@ final class MockStorageProvider: StorageProviding, @unchecked Sendable {
         }
         return url
     }()
+
     var mockError: Error?
     private(set) var uploadDataCallCount = 0
     private(set) var uploadFileCallCount = 0

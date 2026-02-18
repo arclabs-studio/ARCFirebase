@@ -24,7 +24,7 @@ extension FirebaseAIProvider {
         systemInstruction: String? = nil
     ) -> GenerativeModel {
         if let instruction = systemInstruction {
-            return backend.generativeModel(
+            backend.generativeModel(
                 modelName: modelName,
                 generationConfig: generationConfig,
                 systemInstruction: ModelContent(
@@ -33,7 +33,7 @@ extension FirebaseAIProvider {
                 )
             )
         } else {
-            return backend.generativeModel(
+            backend.generativeModel(
                 modelName: modelName,
                 generationConfig: generationConfig
             )
@@ -63,12 +63,11 @@ extension FirebaseAIProvider {
     func mapResponse(_ response: GenerateContentResponse) -> AIResponse {
         let text = response.text ?? ""
 
-        let finishReason: AIResponse.FinishReason
-        if let candidate = response.candidates.first,
-           let reason = candidate.finishReason {
-            finishReason = mapFinishReason(reason)
+        let finishReason: AIResponse.FinishReason = if let candidate = response.candidates.first,
+                                                       let reason = candidate.finishReason {
+            mapFinishReason(reason)
         } else {
-            finishReason = .unknown
+            .unknown
         }
 
         return AIResponse(

@@ -65,7 +65,6 @@ struct StorageDemoView: View {
 // MARK: - Private Views
 
 extension StorageDemoView {
-    @ViewBuilder
     private func storageContent(_ viewModel: StorageDemoViewModel) -> some View {
         List {
             // ==============================================================

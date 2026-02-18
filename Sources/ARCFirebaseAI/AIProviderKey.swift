@@ -7,51 +7,6 @@
 
 import SwiftUI
 
-/// SwiftUI Environment key for AI provider.
-///
-/// This allows passing the AI provider through the SwiftUI environment:
-///
-/// ```swift
-/// @main
-/// struct MyApp: App {
-///     let ai: any AIProviding
-///
-///     init() {
-///         do {
-///             ai = try FirebaseAIProvider.create()
-///         } catch {
-///             fatalError("Firebase not configured: \(error)")
-///         }
-///     }
-///
-///     var body: some Scene {
-///         WindowGroup {
-///             ContentView()
-///                 .environment(\.aiProvider, ai)
-///         }
-///     }
-/// }
-///
-/// struct ChatView: View {
-///     @Environment(\.aiProvider) var ai
-///
-///     var body: some View {
-///         Button("Generate") {
-///             Task {
-///                 let response = try await ai.generateContent(prompt: "Hello")
-///                 print(response.content)
-///             }
-///         }
-///     }
-/// }
-/// ```
-///
-/// - Important: You must explicitly set `.environment(\.aiProvider, provider)` in your app.
-///   The default value will crash if accessed without setting a provider first.
-public struct AIProviderKey: EnvironmentKey {
-    public static let defaultValue: any AIProviding = PlaceholderAIProvider()
-}
-
 /// Placeholder provider that crashes with helpful message when accessed.
 /// This avoids crashes at module load time while ensuring proper configuration.
 private struct PlaceholderAIProvider: AIProviding, @unchecked Sendable {
@@ -116,9 +71,6 @@ private struct PlaceholderAIProvider: AIProviding, @unchecked Sendable {
 }
 
 extension EnvironmentValues {
-    /// The AI provider in the environment.
-    public var aiProvider: any AIProviding {
-        get { self[AIProviderKey.self] }
-        set { self[AIProviderKey.self] = newValue }
-    }
+    // The AI provider in the environment.
+    @Entry public var aiProvider: any AIProviding = PlaceholderAIProvider()
 }

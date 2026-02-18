@@ -15,8 +15,7 @@ import Foundation
 /// ## Usage in Production
 ///
 /// ```swift
-/// @Observable
-/// final class ChatViewModel {
+/// @Observable final class ChatViewModel {
 ///     private let ai: any AIProviding
 ///
 ///     var response: String = ""

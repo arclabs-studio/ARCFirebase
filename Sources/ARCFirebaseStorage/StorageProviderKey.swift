@@ -8,20 +8,9 @@
 import Foundation
 import SwiftUI
 
-/// SwiftUI Environment key for storage provider.
-///
-/// - Important: You must explicitly set `.environment(\.storageProvider, provider)` in your app.
-///   The default value will crash if accessed without setting a provider first.
-public struct StorageProviderKey: EnvironmentKey {
-    public static let defaultValue: any StorageProviding = PlaceholderStorageProvider()
-}
-
 extension EnvironmentValues {
-    /// The storage provider in the environment.
-    public var storageProvider: any StorageProviding {
-        get { self[StorageProviderKey.self] }
-        set { self[StorageProviderKey.self] = newValue }
-    }
+    // The storage provider in the environment.
+    @Entry public var storageProvider: any StorageProviding = PlaceholderStorageProvider()
 }
 
 /// Placeholder provider that crashes with helpful message when accessed.
