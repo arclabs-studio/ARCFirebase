@@ -68,7 +68,7 @@ public final class FirebaseCrashlyticsProvider: CrashlyticsProviding, @unchecked
     public init() throws {
         try FirebaseManager.ensureConfigured()
         crashlytics = Crashlytics.crashlytics()
-        logger = ARCLogger(category: "Crashlytics")
+        logger = ARCLogger(category: "Crashlytics", subsystem: "com.arclabs-studio.arcfirebase")
         logger.info("FirebaseCrashlyticsProvider initialized")
     }
 

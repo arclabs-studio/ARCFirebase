@@ -26,7 +26,7 @@ public final class FirebaseStorageProvider: StorageProviding, @unchecked Sendabl
     // MARK: - Properties
 
     private let storage = Storage.storage()
-    private let logger = ARCLogger(category: "FirebaseStorage")
+    private let logger = ARCLogger(category: "FirebaseStorage", subsystem: "com.arclabs-studio.arcfirebase")
     private let configuration: StorageConfiguration
 
     // MARK: - Initialization

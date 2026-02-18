@@ -51,7 +51,7 @@ public final class FirebaseAuthProvider: AuthProviding, @unchecked Sendable {
     // MARK: - Properties
 
     private let auth = Auth.auth()
-    private let logger = ARCLogger(category: "FirebaseAuth")
+    private let logger = ARCLogger(category: "FirebaseAuth", subsystem: "com.arclabs-studio.arcfirebase")
 
     // MARK: - Initialization
 
