@@ -5,7 +5,6 @@
 //  Created by ARC Labs Studio on 2026-02-17.
 //
 
-import FirebaseAI
 import SwiftUI
 
 /// SwiftUI Environment key for AI provider.
@@ -73,7 +72,7 @@ private struct PlaceholderAIProvider: AIProviding, @unchecked Sendable {
 
     func generateStructuredContent(
         prompt _: String,
-        responseSchema _: Schema,
+        responseSchema _: AISchema,
         systemInstruction _: String?,
         configuration _: AIConfiguration?
     ) async throws -> AIResponse {
