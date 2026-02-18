@@ -63,12 +63,9 @@ extension FirebaseAIProvider {
     func mapResponse(_ response: GenerateContentResponse) -> AIResponse {
         let text = response.text ?? ""
 
-        let finishReason: AIResponse.FinishReason = if let candidate = response.candidates.first,
-                                                       let reason = candidate.finishReason {
-            mapFinishReason(reason)
-        } else {
-            .unknown
-        }
+        let finishReason: AIResponse.FinishReason = response.candidates.first
+            .flatMap(\.finishReason)
+            .map(mapFinishReason) ?? .unknown
 
         return AIResponse(
             content: text,
