@@ -37,3 +37,17 @@ Package.resolved# ARC Labs Security - Archivos sensibles
 # Archivos de configuración local
 .claude-code/
 *.local
+
+
+# ARCKnowledge skills (symlinks)
+.claude/skills/arc-audit
+.claude/skills/arc-data-layer
+.claude/skills/arc-final-review
+.claude/skills/arc-memory
+.claude/skills/arc-presentation-layer
+.claude/skills/arc-project-setup
+.claude/skills/arc-quality-standards
+.claude/skills/arc-swift-architecture
+.claude/skills/arc-tdd-patterns
+.claude/skills/arc-workflow
+.claude/skills/arc-worktrees-workflow

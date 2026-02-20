@@ -9,8 +9,6 @@ included:
 # Excluded directories
 excluded:
   - .build
-  - .claude
-  - Examples
   - DerivedData
   - Pods
   - Carthage
@@ -52,9 +50,11 @@ opt_in_rules:
   - last_where
   - literal_expression_end_indentation
   - multiline_arguments
+  - multiline_arguments_brackets
   - multiline_function_chains
   - multiline_literal_brackets
   - multiline_parameters
+  - multiline_parameters_brackets
   - operator_usage_whitespace
   - overridden_super_call
   - prefer_self_type_over_type_of_self
@@ -115,10 +115,6 @@ custom_rules:
   observable_viewmodel:
     name: "ViewModels should use @Observable"
     regex: "final\\s+class\\s+\\w+ViewModel(?!.*@Observable)"
-    match_kinds:
-      - keyword
-      - typeidentifier
-      - identifier
     message: "ViewModels must use @Observable in Swift 6"
     severity: warning
 
@@ -142,6 +138,13 @@ custom_rules:
     regex: 'try!'
     message: "Avoid force try. Use proper error handling"
     severity: error
+
+# Multiline declarations - first param on same line as opening paren (ARC Labs style)
+multiline_arguments:
+  first_argument_location: same_line
+
+multiline_parameters:
+  first_argument_location: same_line
 
 # Reporter (output format)
 reporter: "xcode"
