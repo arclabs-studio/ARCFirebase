@@ -25,6 +25,7 @@ extension Error {
         case "FIRFirestoreErrorDomain": return firestoreError(code: nsError.code)
         case "FIRAuthErrorDomain": return authError(code: nsError.code)
         case "FIRStorageErrorDomain": return storageError(code: nsError.code)
+        case "FIRRemoteConfigErrorDomain": return remoteConfigError(code: nsError.code)
         case NSURLErrorDomain: return .networkError(underlying: self)
         default: return .unknown(underlying: self)
         }
@@ -51,6 +52,13 @@ extension Error {
         switch code {
         case -13010: .documentNotFound // OBJECT_NOT_FOUND
         case -13021: .permissionDenied // UNAUTHORIZED
+        default: .unknown(underlying: self)
+        }
+    }
+
+    private func remoteConfigError(code: Int) -> FirebaseError {
+        switch code {
+        case 8003: .fetchThrottled // THROTTLED
         default: .unknown(underlying: self)
         }
     }
