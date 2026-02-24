@@ -8,6 +8,7 @@
 import ARCFirebaseAI
 import ARCFirebaseAnalytics
 import ARCFirebaseAuth
+import ARCFirebaseFeatureFlags
 import SwiftUI
 
 // MARK: - ContentView
@@ -140,6 +141,17 @@ struct MainTabView: View {
                 .tag(2)
 
             // ==============================================================
+            // Feature Flags Tab - Remote Config Demo
+            // ==============================================================
+            // Demonstrates feature flags, typed config values, and real-time updates.
+
+            FeatureFlagsDemoView()
+                .tabItem {
+                    Label("Flags", systemImage: "flag.fill")
+                }
+                .tag(3)
+
+            // ==============================================================
             // Profile Tab - User Info & Sign Out
             // ==============================================================
             // Shows current user info and sign out functionality.
@@ -148,11 +160,11 @@ struct MainTabView: View {
                 .tabItem {
                     Label("Profile", systemImage: "person.circle")
                 }
-                .tag(3)
+                .tag(4)
         }
         .onChange(of: selectedTab) { _, newTab in
             // Track tab changes for analytics
-            let tabNames = ["items", "storage", "ai_chat", "profile"]
+            let tabNames = ["items", "storage", "ai_chat", "feature_flags", "profile"]
             analytics.logScreenView(tabNames[newTab])
         }
     }
@@ -236,10 +248,8 @@ struct ProfileView: View {
 
 #Preview("Main Tab View") {
     let mockAuth = MockAuthProvider.authenticated
-    let viewModel = AuthViewModel(
-        auth: mockAuth,
-        analytics: MockAnalyticsProvider.preview
-    )
+    let viewModel = AuthViewModel(auth: mockAuth,
+                                  analytics: MockAnalyticsProvider.preview)
     viewModel.mockAuthenticate()
 
     return MainTabView()
@@ -249,10 +259,8 @@ struct ProfileView: View {
 
 #Preview("Profile View - Light") {
     let mockAuth = MockAuthProvider.authenticated
-    let viewModel = AuthViewModel(
-        auth: mockAuth,
-        analytics: MockAnalyticsProvider.preview
-    )
+    let viewModel = AuthViewModel(auth: mockAuth,
+                                  analytics: MockAnalyticsProvider.preview)
     viewModel.mockAuthenticate()
 
     return NavigationStack {
@@ -264,10 +272,8 @@ struct ProfileView: View {
 
 #Preview("Profile View - Dark") {
     let mockAuth = MockAuthProvider.authenticated
-    let viewModel = AuthViewModel(
-        auth: mockAuth,
-        analytics: MockAnalyticsProvider.preview
-    )
+    let viewModel = AuthViewModel(auth: mockAuth,
+                                  analytics: MockAnalyticsProvider.preview)
     viewModel.mockAuthenticate()
 
     return NavigationStack {

@@ -16,6 +16,7 @@ excluded:
   - "*/Generated/*"
   - "*.generated.swift"
   - Package.swift
+  - Examples
 
 # Disabled rules
 disabled_rules:

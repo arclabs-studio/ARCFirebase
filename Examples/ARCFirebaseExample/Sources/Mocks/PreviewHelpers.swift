@@ -9,6 +9,7 @@ import ARCFirebaseAI
 import ARCFirebaseAnalytics
 import ARCFirebaseAuth
 import ARCFirebaseCrashlytics
+import ARCFirebaseFeatureFlags
 import ARCFirebaseStorage
 import SwiftUI
 
@@ -44,6 +45,9 @@ enum PreviewEnvironment {
 
     /// Mock AI provider for previews.
     static let aiProvider = MockAIProvider.preview
+
+    /// Mock feature flag provider for previews.
+    static let featureFlagProvider = MockFeatureFlagProvider.preview
 }
 
 // MARK: - View Extension for Preview Environment
@@ -68,13 +72,13 @@ extension View {
     ///         .preferredColorScheme(.dark)
     /// }
     /// ```
-    @MainActor
-    func previewEnvironment() -> some View {
+    @MainActor func previewEnvironment() -> some View {
         environment(\.authProvider, PreviewEnvironment.authProvider)
             .environment(\.analyticsProvider, PreviewEnvironment.analyticsProvider)
             .environment(\.storageProvider, PreviewEnvironment.storageProvider)
             .environment(\.crashlyticsProvider, PreviewEnvironment.crashlyticsProvider)
             .environment(\.aiProvider, PreviewEnvironment.aiProvider)
+            .environment(\.featureFlagProvider, PreviewEnvironment.featureFlagProvider)
     }
 }
 
@@ -85,32 +89,24 @@ extension View {
 /// Provides realistic mock data for all models used in the demo app.
 enum SampleData {
     /// Sample items for Firestore demos.
-    static let items: [Item] = [
-        Item(
-            id: "item-1",
-            title: "Learn SwiftUI",
-            description: "Complete the SwiftUI tutorial and build a sample app",
-            createdAt: Date().addingTimeInterval(-86400 * 7), // 7 days ago
-            updatedAt: Date().addingTimeInterval(-86400), // 1 day ago
-            userId: "mock-user-123"
-        ),
-        Item(
-            id: "item-2",
-            title: "Integrate Firebase",
-            description: "Set up Firebase Auth, Firestore, and Analytics",
-            createdAt: Date().addingTimeInterval(-86400 * 3), // 3 days ago
-            updatedAt: Date().addingTimeInterval(-3600), // 1 hour ago
-            userId: "mock-user-123"
-        ),
-        Item(
-            id: "item-3",
-            title: "Write Unit Tests",
-            description: "Add comprehensive tests for ViewModels and UseCases",
-            createdAt: Date().addingTimeInterval(-86400), // 1 day ago
-            updatedAt: Date(), // now
-            userId: "mock-user-123"
-        )
-    ]
+    static let items: [Item] = [Item(id: "item-1",
+                                     title: "Learn SwiftUI",
+                                     description: "Complete the SwiftUI tutorial and build a sample app",
+                                     createdAt: Date().addingTimeInterval(-86400 * 7), // 7 days ago
+                                     updatedAt: Date().addingTimeInterval(-86400), // 1 day ago
+                                     userId: "mock-user-123"),
+                                Item(id: "item-2",
+                                     title: "Integrate Firebase",
+                                     description: "Set up Firebase Auth, Firestore, and Analytics",
+                                     createdAt: Date().addingTimeInterval(-86400 * 3), // 3 days ago
+                                     updatedAt: Date().addingTimeInterval(-3600), // 1 hour ago
+                                     userId: "mock-user-123"),
+                                Item(id: "item-3",
+                                     title: "Write Unit Tests",
+                                     description: "Add comprehensive tests for ViewModels and UseCases",
+                                     createdAt: Date().addingTimeInterval(-86400), // 1 day ago
+                                     updatedAt: Date(), // now
+                                     userId: "mock-user-123")]
 
     /// A single sample item.
     static var singleItem: Item {
