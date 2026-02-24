@@ -31,6 +31,12 @@ public enum FirebaseError: LocalizedError {
     /// AI service is not available.
     case aiNotAvailable
 
+    /// Remote Config service is not available.
+    case remoteConfigNotAvailable
+
+    /// Remote Config fetch was throttled by the server.
+    case fetchThrottled
+
     /// A network error occurred.
     case networkError(underlying: Error)
 
@@ -62,6 +68,10 @@ public enum FirebaseError: LocalizedError {
             "Firebase Analytics is not available."
         case .aiNotAvailable:
             "Firebase AI is not available."
+        case .remoteConfigNotAvailable:
+            "Firebase Remote Config is not available."
+        case .fetchThrottled:
+            "Remote Config fetch was throttled. Try again later."
         case let .networkError(error):
             "Network error: \(error.localizedDescription)"
         case .userNotFound:

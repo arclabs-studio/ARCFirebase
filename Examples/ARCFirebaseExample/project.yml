@@ -55,6 +55,8 @@ targets:
         product: ARCFirebaseStorage
       - package: ARCFirebase
         product: ARCFirebaseAI
+      - package: ARCFirebase
+        product: ARCFirebaseFeatureFlags
 
 schemes:
   ARCFirebaseExample:

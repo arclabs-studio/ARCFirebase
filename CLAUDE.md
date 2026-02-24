@@ -19,6 +19,7 @@ swift test --filter ARCFirebaseCrashlyticsTests
 swift test --filter ARCFirebasePersistenceTests
 swift test --filter ARCFirebaseStorageTests
 swift test --filter ARCFirebaseAITests
+swift test --filter ARCFirebaseFeatureFlagsTests
 
 # Generate DocC documentation
 swift package generate-documentation
@@ -38,7 +39,8 @@ ARCFirebaseCore          ← Required by all modules (FirebaseManager, FirebaseE
     ├── ARCFirebaseCrashlytics  ← CrashlyticsManager singleton
     ├── ARCFirebasePersistence  ← Repository protocol + FirestoreRepository<T>
     ├── ARCFirebaseStorage      ← StorageProviding protocol + FirebaseStorageProvider actor
-    └── ARCFirebaseAI           ← AIProviding protocol + FirebaseAIProvider (Gemini via Firebase AI)
+    ├── ARCFirebaseAI           ← AIProviding protocol + FirebaseAIProvider (Gemini via Firebase AI)
+    └── ARCFirebaseFeatureFlags ← FeatureFlagProviding protocol + FirebaseFeatureFlagProvider (Remote Config)
 ```
 
 ### Design Pattern
