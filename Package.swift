@@ -43,6 +43,10 @@ let package = Package(
             name: "ARCFirebaseAI",
             targets: ["ARCFirebaseAI"]
         ),
+        .library(
+            name: "ARCFirebaseFeatureFlags",
+            targets: ["ARCFirebaseFeatureFlags"]
+        ),
 
         // Convenience: All modules in one
         .library(
@@ -54,7 +58,8 @@ let package = Package(
                 "ARCFirebaseCrashlytics",
                 "ARCFirebasePersistence",
                 "ARCFirebaseStorage",
-                "ARCFirebaseAI"
+                "ARCFirebaseAI",
+                "ARCFirebaseFeatureFlags"
             ]
         )
     ],
@@ -159,6 +164,19 @@ let package = Package(
             swiftSettings: [.swiftLanguageMode(.v6)]
         ),
 
+        // MARK: - Feature Flags
+
+        .target(
+            name: "ARCFirebaseFeatureFlags",
+            dependencies: [
+                "ARCFirebaseCore",
+                .product(name: "FirebaseRemoteConfig", package: "firebase-ios-sdk"),
+                .product(name: "ARCLogger", package: "ARCLogger")
+            ],
+            path: "Sources/ARCFirebaseFeatureFlags",
+            swiftSettings: [.swiftLanguageMode(.v6)]
+        ),
+
         // MARK: - Tests
 
         .testTarget(
@@ -194,6 +212,11 @@ let package = Package(
         .testTarget(
             name: "ARCFirebaseAITests",
             dependencies: ["ARCFirebaseAI"],
+            swiftSettings: [.swiftLanguageMode(.v6)]
+        ),
+        .testTarget(
+            name: "ARCFirebaseFeatureFlagsTests",
+            dependencies: ["ARCFirebaseFeatureFlags"],
             swiftSettings: [.swiftLanguageMode(.v6)]
         )
     ]

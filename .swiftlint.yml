@@ -15,6 +15,7 @@ excluded:
   - ARCDevTools
   - "*/Generated/*"
   - "*.generated.swift"
+  - Package.swift
 
 # Disabled rules
 disabled_rules:
