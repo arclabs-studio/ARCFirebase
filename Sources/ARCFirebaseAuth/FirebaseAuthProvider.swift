@@ -54,6 +54,12 @@ import Foundation
 /// - ``signOut()``
 /// - ``sendPasswordReset(email:)``
 /// - ``updatePassword(_:)``
+/// - ``signIn(with:)``
+/// - ``authStateChanges()``
+/// - ``deleteAccount()``
+/// - ``linkAccount(with:)``
+/// - ``unlinkProvider(_:)``
+/// - ``linkedProviders()``
 public final class FirebaseAuthProvider: AuthProviding, @unchecked Sendable {
     // MARK: - Properties
 
@@ -153,6 +159,134 @@ public final class FirebaseAuthProvider: AuthProviding, @unchecked Sendable {
             throw error.asFirebaseError()
         }
     }
+
+    // MARK: - OAuth Sign-In
+
+    public func signIn(with credential: OAuthCredentialData) async throws -> User {
+        logger.info("Attempting OAuth sign in with provider: \(credential.providerID)")
+
+        do {
+            let authCredential = Self.makeOAuthCredential(from: credential)
+            let result = try await auth.signIn(with: authCredential)
+            let user = User(from: result.user)
+            logger.info("OAuth sign in successful: \(user.id)")
+            return user
+        } catch {
+            logger.error("OAuth sign in failed: \(error.localizedDescription)")
+            throw error.asFirebaseError()
+        }
+    }
+
+    // MARK: - Auth State Observation
+
+    public func authStateChanges() -> AsyncStream<User?> {
+        let auth = self.auth
+        return AsyncStream { continuation in
+            let handle = auth.addStateDidChangeListener { _, firebaseUser in
+                let user = firebaseUser.map { User(from: $0) }
+                continuation.yield(user)
+            }
+
+            let sendableHandle = UncheckedSendableBox(handle)
+            continuation.onTermination = { _ in
+                auth.removeStateDidChangeListener(sendableHandle.value)
+            }
+        }
+    }
+
+    // MARK: - Account Management
+
+    public func deleteAccount() async throws {
+        logger.info("Attempting to delete account")
+
+        guard let currentUser = auth.currentUser else {
+            logger.error("No user signed in")
+            throw FirebaseError.userNotFound
+        }
+
+        do {
+            try await currentUser.delete()
+            logger.info("Account deleted successfully")
+        } catch {
+            logger.error("Account deletion failed: \(error.localizedDescription)")
+            throw error.asFirebaseError()
+        }
+    }
+
+    public func linkAccount(with credential: OAuthCredentialData) async throws -> User {
+        logger.info("Attempting to link provider: \(credential.providerID)")
+
+        guard let currentUser = auth.currentUser else {
+            logger.error("No user signed in")
+            throw FirebaseError.userNotFound
+        }
+
+        do {
+            let authCredential = Self.makeOAuthCredential(from: credential)
+            let result = try await currentUser.link(with: authCredential)
+            let user = User(from: result.user)
+            logger.info("Provider linked successfully: \(credential.providerID)")
+            return user
+        } catch {
+            logger.error("Provider linking failed: \(error.localizedDescription)")
+            throw error.asFirebaseError()
+        }
+    }
+
+    public func unlinkProvider(_ providerID: String) async throws -> User {
+        logger.info("Attempting to unlink provider: \(providerID)")
+
+        guard let currentUser = auth.currentUser else {
+            logger.error("No user signed in")
+            throw FirebaseError.userNotFound
+        }
+
+        do {
+            let firebaseUser = try await currentUser.unlink(fromProvider: providerID)
+            let user = User(from: firebaseUser)
+            logger.info("Provider unlinked successfully: \(providerID)")
+            return user
+        } catch {
+            logger.error("Provider unlinking failed: \(error.localizedDescription)")
+            throw error.asFirebaseError()
+        }
+    }
+
+    public func linkedProviders() async -> [String] {
+        auth.currentUser?.providerData.map(\.providerID) ?? []
+    }
+
+    // MARK: - Private Helpers
+
+    private static func makeOAuthCredential(from credential: OAuthCredentialData) -> OAuthCredential {
+        let providerID = AuthProviderID.custom(credential.providerID)
+
+        if let rawNonce = credential.rawNonce, let idToken = credential.idToken {
+            return OAuthProvider.credential(
+                providerID: providerID,
+                idToken: idToken,
+                rawNonce: rawNonce,
+                accessToken: credential.accessToken
+            )
+        } else if let idToken = credential.idToken {
+            return OAuthProvider.credential(
+                providerID: providerID,
+                idToken: idToken,
+                accessToken: credential.accessToken
+            )
+        } else if let accessToken = credential.accessToken {
+            return OAuthProvider.credential(
+                providerID: providerID,
+                accessToken: accessToken
+            )
+        } else {
+            return OAuthProvider.credential(
+                providerID: providerID,
+                idToken: "",
+                accessToken: nil
+            )
+        }
+    }
 }
 
 // MARK: - Firebase User Mapping
@@ -166,7 +300,9 @@ extension User {
             photoURL: firebaseUser.photoURL,
             isEmailVerified: firebaseUser.isEmailVerified,
             creationDate: firebaseUser.metadata.creationDate,
-            lastSignInDate: firebaseUser.metadata.lastSignInDate
+            lastSignInDate: firebaseUser.metadata.lastSignInDate,
+            providerID: firebaseUser.providerID,
+            linkedProviderIDs: firebaseUser.providerData.map(\.providerID)
         )
     }
 }
@@ -214,5 +350,15 @@ extension FirebaseAuthProvider {
                 """
             )
         }
+    }
+}
+
+// MARK: - Sendable Wrapper
+
+/// Wraps a non-Sendable value for use in `@Sendable` closures where safety is guaranteed by design.
+private struct UncheckedSendableBox<T>: @unchecked Sendable {
+    let value: T
+    init(_ value: T) {
+        self.value = value
     }
 }
