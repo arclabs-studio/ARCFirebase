@@ -82,6 +82,18 @@ import Foundation
 /// - ``sendPasswordReset(email:)``
 /// - ``updatePassword(_:)``
 ///
+/// ### OAuth Sign-In
+/// - ``signIn(with:)``
+///
+/// ### Auth State
+/// - ``authStateChanges()``
+///
+/// ### Account Management
+/// - ``deleteAccount()``
+/// - ``linkAccount(with:)``
+/// - ``unlinkProvider(_:)``
+/// - ``linkedProviders()``
+///
 /// ### Implementations
 /// - ``FirebaseAuthProvider``
 public protocol AuthProviding: Sendable {
@@ -125,4 +137,53 @@ public protocol AuthProviding: Sendable {
     /// - Parameter newPassword: The new password.
     /// - Throws: Password update errors.
     func updatePassword(_ newPassword: String) async throws
+
+    // MARK: - OAuth Sign-In
+
+    /// Signs in a user with OAuth credentials from an identity provider.
+    ///
+    /// Use this for third-party authentication (e.g., Google, Apple).
+    /// The caller is responsible for obtaining the credential data from the provider SDK.
+    ///
+    /// - Parameter credential: The OAuth credential data from the identity provider.
+    /// - Returns: The authenticated user.
+    /// - Throws: ``FirebaseError/invalidCredential`` if the credential is invalid.
+    func signIn(with credential: OAuthCredentialData) async throws -> User
+
+    // MARK: - Auth State Observation
+
+    /// Returns an asynchronous stream of authentication state changes.
+    ///
+    /// The stream emits the current user whenever the auth state changes
+    /// (sign in, sign out, token refresh). Emits `nil` when no user is signed in.
+    ///
+    /// - Returns: An `AsyncStream` that emits `User?` on each auth state change.
+    func authStateChanges() -> AsyncStream<User?>
+
+    // MARK: - Account Management
+
+    /// Deletes the currently authenticated user's account.
+    ///
+    /// - Throws: ``FirebaseError/userNotFound`` if no user is signed in.
+    /// - Throws: ``FirebaseError/requiresRecentLogin`` if re-authentication is needed.
+    func deleteAccount() async throws
+
+    /// Links an OAuth credential to the current user's account.
+    ///
+    /// - Parameter credential: The OAuth credential data to link.
+    /// - Returns: The updated user with the new provider linked.
+    /// - Throws: ``FirebaseError/providerAlreadyLinked`` if the provider is already linked.
+    func linkAccount(with credential: OAuthCredentialData) async throws -> User
+
+    /// Unlinks a provider from the current user's account.
+    ///
+    /// - Parameter providerID: The provider ID to unlink (e.g., "google.com").
+    /// - Returns: The updated user after unlinking.
+    /// - Throws: ``FirebaseError/noSuchProvider`` if the provider is not linked.
+    func unlinkProvider(_ providerID: String) async throws -> User
+
+    /// Returns the IDs of all providers linked to the current user.
+    ///
+    /// - Returns: An array of provider IDs, or an empty array if no user is signed in.
+    func linkedProviders() async -> [String]
 }
