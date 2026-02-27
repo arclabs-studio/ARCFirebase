@@ -38,6 +38,30 @@ private struct PlaceholderAuthProvider: AuthProviding, @unchecked Sendable {
         placeholderCrash()
     }
 
+    func signIn(with _: OAuthCredentialData) async throws -> User {
+        placeholderCrash()
+    }
+
+    func authStateChanges() -> AsyncStream<User?> {
+        placeholderCrash()
+    }
+
+    func deleteAccount() async throws {
+        placeholderCrash()
+    }
+
+    func linkAccount(with _: OAuthCredentialData) async throws -> User {
+        placeholderCrash()
+    }
+
+    func unlinkProvider(_: String) async throws -> User {
+        placeholderCrash()
+    }
+
+    func linkedProviders() async -> [String] {
+        placeholderCrash()
+    }
+
     private func placeholderCrash() -> Never {
         fatalError(
             """
