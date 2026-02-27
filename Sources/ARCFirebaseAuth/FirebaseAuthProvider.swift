@@ -180,7 +180,7 @@ public final class FirebaseAuthProvider: AuthProviding, @unchecked Sendable {
     // MARK: - Auth State Observation
 
     public func authStateChanges() -> AsyncStream<User?> {
-        let auth = self.auth
+        let auth = auth
         return AsyncStream { continuation in
             let handle = auth.addStateDidChangeListener { _, firebaseUser in
                 let user = firebaseUser.map { User(from: $0) }
@@ -262,29 +262,21 @@ public final class FirebaseAuthProvider: AuthProviding, @unchecked Sendable {
         let providerID = AuthProviderID.custom(credential.providerID)
 
         if let rawNonce = credential.rawNonce, let idToken = credential.idToken {
-            return OAuthProvider.credential(
-                providerID: providerID,
-                idToken: idToken,
-                rawNonce: rawNonce,
-                accessToken: credential.accessToken
-            )
+            return OAuthProvider.credential(providerID: providerID,
+                                            idToken: idToken,
+                                            rawNonce: rawNonce,
+                                            accessToken: credential.accessToken)
         } else if let idToken = credential.idToken {
-            return OAuthProvider.credential(
-                providerID: providerID,
-                idToken: idToken,
-                accessToken: credential.accessToken
-            )
+            return OAuthProvider.credential(providerID: providerID,
+                                            idToken: idToken,
+                                            accessToken: credential.accessToken)
         } else if let accessToken = credential.accessToken {
-            return OAuthProvider.credential(
-                providerID: providerID,
-                accessToken: accessToken
-            )
+            return OAuthProvider.credential(providerID: providerID,
+                                            accessToken: accessToken)
         } else {
-            return OAuthProvider.credential(
-                providerID: providerID,
-                idToken: "",
-                accessToken: nil
-            )
+            return OAuthProvider.credential(providerID: providerID,
+                                            idToken: "",
+                                            accessToken: nil)
         }
     }
 }
@@ -293,17 +285,15 @@ public final class FirebaseAuthProvider: AuthProviding, @unchecked Sendable {
 
 extension User {
     fileprivate init(from firebaseUser: FirebaseAuth.User) {
-        self.init(
-            id: firebaseUser.uid,
-            email: firebaseUser.email,
-            displayName: firebaseUser.displayName,
-            photoURL: firebaseUser.photoURL,
-            isEmailVerified: firebaseUser.isEmailVerified,
-            creationDate: firebaseUser.metadata.creationDate,
-            lastSignInDate: firebaseUser.metadata.lastSignInDate,
-            providerID: firebaseUser.providerID,
-            linkedProviderIDs: firebaseUser.providerData.map(\.providerID)
-        )
+        self.init(id: firebaseUser.uid,
+                  email: firebaseUser.email,
+                  displayName: firebaseUser.displayName,
+                  photoURL: firebaseUser.photoURL,
+                  isEmailVerified: firebaseUser.isEmailVerified,
+                  creationDate: firebaseUser.metadata.creationDate,
+                  lastSignInDate: firebaseUser.metadata.lastSignInDate,
+                  providerID: firebaseUser.providerID,
+                  linkedProviderIDs: firebaseUser.providerData.map(\.providerID))
     }
 }
 
@@ -342,13 +332,11 @@ extension FirebaseAuthProvider {
         do {
             return try create()
         } catch {
-            fatalError(
-                """
-                FirebaseAuthProvider initialization failed.
-                Ensure FirebaseManager.shared.configure() is called before accessing .live.
-                Error: \(error.localizedDescription)
-                """
-            )
+            fatalError("""
+            FirebaseAuthProvider initialization failed.
+            Ensure FirebaseManager.shared.configure() is called before accessing .live.
+            Error: \(error.localizedDescription)
+            """)
         }
     }
 }

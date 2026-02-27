@@ -134,13 +134,11 @@ extension FirebaseCrashlyticsProvider {
         do {
             return try create()
         } catch {
-            fatalError(
-                """
-                FirebaseCrashlyticsProvider initialization failed.
-                Ensure FirebaseManager.shared.configure() is called before accessing .live.
-                Error: \(error.localizedDescription)
-                """
-            )
+            fatalError("""
+            FirebaseCrashlyticsProvider initialization failed.
+            Ensure FirebaseManager.shared.configure() is called before accessing .live.
+            Error: \(error.localizedDescription)
+            """)
         }
     }
 }

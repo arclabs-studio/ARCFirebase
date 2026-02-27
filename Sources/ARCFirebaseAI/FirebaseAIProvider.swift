@@ -83,10 +83,9 @@ public final class FirebaseAIProvider: AIProviding, @unchecked Sendable {
 
     // MARK: - AIProviding Implementation
 
-    public func generateContent(
-        prompt: String,
-        configuration: AIConfiguration?
-    ) async throws -> AIResponse {
+    public func generateContent(prompt: String,
+                                configuration: AIConfiguration?) async throws -> AIResponse
+    {
         logger.info("Generating content for prompt (\(prompt.prefix(50))...)")
 
         let model = makeModel(configuration: configuration)
@@ -101,17 +100,14 @@ public final class FirebaseAIProvider: AIProviding, @unchecked Sendable {
         }
     }
 
-    public func generateContent(
-        prompt: String,
-        systemInstruction: String,
-        configuration: AIConfiguration?
-    ) async throws -> AIResponse {
+    public func generateContent(prompt: String,
+                                systemInstruction: String,
+                                configuration: AIConfiguration?) async throws -> AIResponse
+    {
         logger.info("Generating content with system instruction")
 
-        let model = makeModel(
-            configuration: configuration,
-            systemInstruction: systemInstruction
-        )
+        let model = makeModel(configuration: configuration,
+                              systemInstruction: systemInstruction)
 
         do {
             let response = try await model.generateContent(prompt)
@@ -123,24 +119,19 @@ public final class FirebaseAIProvider: AIProviding, @unchecked Sendable {
         }
     }
 
-    public func generateStructuredContent(
-        prompt: String,
-        responseSchema: AISchema,
-        systemInstruction: String?,
-        configuration: AIConfiguration?
-    ) async throws -> AIResponse {
+    public func generateStructuredContent(prompt: String,
+                                          responseSchema: AISchema,
+                                          systemInstruction: String?,
+                                          configuration: AIConfiguration?) async throws -> AIResponse
+    {
         logger.info("Generating structured content")
 
-        let genConfig = makeGenerationConfig(
-            configuration: configuration,
-            responseMIMEType: "application/json",
-            responseSchema: responseSchema
-        )
+        let genConfig = makeGenerationConfig(configuration: configuration,
+                                             responseMIMEType: "application/json",
+                                             responseSchema: responseSchema)
 
-        let model = makeModel(
-            generationConfig: genConfig,
-            systemInstruction: systemInstruction
-        )
+        let model = makeModel(generationConfig: genConfig,
+                              systemInstruction: systemInstruction)
 
         do {
             let response = try await model.generateContent(prompt)
@@ -152,10 +143,9 @@ public final class FirebaseAIProvider: AIProviding, @unchecked Sendable {
         }
     }
 
-    public func streamContent(
-        prompt: String,
-        configuration: AIConfiguration?
-    ) -> AsyncThrowingStream<String, Error> {
+    public func streamContent(prompt: String,
+                              configuration: AIConfiguration?) -> AsyncThrowingStream<String, Error>
+    {
         logger.info("Streaming content for prompt (\(prompt.prefix(50))...)")
 
         let model = makeModel(configuration: configuration)
@@ -183,24 +173,19 @@ public final class FirebaseAIProvider: AIProviding, @unchecked Sendable {
         }
     }
 
-    public func sendMessage(
-        _ message: String,
-        history: [AIMessage],
-        systemInstruction: String?,
-        configuration: AIConfiguration?
-    ) async throws -> AIResponse {
+    public func sendMessage(_ message: String,
+                            history: [AIMessage],
+                            systemInstruction: String?,
+                            configuration: AIConfiguration?) async throws -> AIResponse
+    {
         logger.info("Sending message with \(history.count) history items")
 
-        let model = makeModel(
-            configuration: configuration,
-            systemInstruction: systemInstruction
-        )
+        let model = makeModel(configuration: configuration,
+                              systemInstruction: systemInstruction)
 
         let modelHistory = history.map { msg in
-            ModelContent(
-                role: msg.role.rawValue,
-                parts: msg.content
-            )
+            ModelContent(role: msg.role.rawValue,
+                         parts: msg.content)
         }
 
         let chat = model.startChat(history: modelHistory)
@@ -253,13 +238,11 @@ extension FirebaseAIProvider {
         do {
             return try create()
         } catch {
-            fatalError(
-                """
-                FirebaseAIProvider initialization failed.
-                Ensure FirebaseManager.shared.configure() is called before accessing .live.
-                Error: \(error.localizedDescription)
-                """
-            )
+            fatalError("""
+            FirebaseAIProvider initialization failed.
+            Ensure FirebaseManager.shared.configure() is called before accessing .live.
+            Error: \(error.localizedDescription)
+            """)
         }
     }
 }

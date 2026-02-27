@@ -32,10 +32,9 @@ final class MockAIProvider: AIProviding, @unchecked Sendable {
 
     // MARK: - AIProviding Implementation
 
-    func generateContent(
-        prompt: String,
-        configuration: AIConfiguration?
-    ) async throws -> AIResponse {
+    func generateContent(prompt: String,
+                         configuration: AIConfiguration?) async throws -> AIResponse
+    {
         generateContentCallCount += 1
         lastPrompt = prompt
         lastConfiguration = configuration
@@ -47,11 +46,10 @@ final class MockAIProvider: AIProviding, @unchecked Sendable {
         return mockResponse
     }
 
-    func generateContent(
-        prompt: String,
-        systemInstruction: String,
-        configuration: AIConfiguration?
-    ) async throws -> AIResponse {
+    func generateContent(prompt: String,
+                         systemInstruction: String,
+                         configuration: AIConfiguration?) async throws -> AIResponse
+    {
         generateContentWithSystemCallCount += 1
         lastPrompt = prompt
         lastSystemInstruction = systemInstruction
@@ -64,12 +62,11 @@ final class MockAIProvider: AIProviding, @unchecked Sendable {
         return mockResponse
     }
 
-    func generateStructuredContent(
-        prompt: String,
-        responseSchema _: AISchema,
-        systemInstruction: String?,
-        configuration: AIConfiguration?
-    ) async throws -> AIResponse {
+    func generateStructuredContent(prompt: String,
+                                   responseSchema _: AISchema,
+                                   systemInstruction: String?,
+                                   configuration: AIConfiguration?) async throws -> AIResponse
+    {
         generateStructuredContentCallCount += 1
         lastPrompt = prompt
         lastSystemInstruction = systemInstruction
@@ -82,10 +79,9 @@ final class MockAIProvider: AIProviding, @unchecked Sendable {
         return mockResponse
     }
 
-    func streamContent(
-        prompt: String,
-        configuration: AIConfiguration?
-    ) -> AsyncThrowingStream<String, Error> {
+    func streamContent(prompt: String,
+                       configuration: AIConfiguration?) -> AsyncThrowingStream<String, Error>
+    {
         streamContentCallCount += 1
         lastPrompt = prompt
         lastConfiguration = configuration
@@ -106,12 +102,11 @@ final class MockAIProvider: AIProviding, @unchecked Sendable {
         }
     }
 
-    func sendMessage(
-        _ message: String,
-        history: [AIMessage],
-        systemInstruction: String?,
-        configuration: AIConfiguration?
-    ) async throws -> AIResponse {
+    func sendMessage(_ message: String,
+                     history: [AIMessage],
+                     systemInstruction: String?,
+                     configuration: AIConfiguration?) async throws -> AIResponse
+    {
         sendMessageCallCount += 1
         lastMessage = message
         lastHistory = history

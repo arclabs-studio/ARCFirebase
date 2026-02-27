@@ -54,13 +54,12 @@ public struct AIResponse: Sendable, Equatable {
     ///   - promptTokenCount: Number of tokens in the prompt.
     ///   - candidatesTokenCount: Number of tokens in the response.
     ///   - totalTokenCount: Total tokens used.
-    public init(
-        content: String,
-        finishReason: FinishReason = .stop,
-        promptTokenCount: Int? = nil,
-        candidatesTokenCount: Int? = nil,
-        totalTokenCount: Int? = nil
-    ) {
+    public init(content: String,
+                finishReason: FinishReason = .stop,
+                promptTokenCount: Int? = nil,
+                candidatesTokenCount: Int? = nil,
+                totalTokenCount: Int? = nil)
+    {
         self.content = content
         self.finishReason = finishReason
         self.promptTokenCount = promptTokenCount

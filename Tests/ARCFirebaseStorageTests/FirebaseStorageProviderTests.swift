@@ -2,20 +2,16 @@ import Foundation
 import Testing
 @testable import ARCFirebaseStorage
 
-@Suite("FirebaseStorageProvider Tests")
-struct FirebaseStorageProviderTests {
+@Suite("FirebaseStorageProvider Tests") struct FirebaseStorageProviderTests {
     // MARK: - Mock Provider Tests
 
-    @Test("Mock provider uploads data")
-    func mockUploadsData() async throws {
+    @Test("Mock provider uploads data") func mockUploadsData() async throws {
         let mock = makeSUT()
         let testData = Data("Hello, World!".utf8)
 
-        let url = try await mock.upload(
-            data: testData,
-            path: "test/file.txt",
-            contentType: "text/plain"
-        )
+        let url = try await mock.upload(data: testData,
+                                        path: "test/file.txt",
+                                        contentType: "text/plain")
 
         #expect(mock.uploadDataCallCount == 1)
         #expect(url.absoluteString == "https://example.com/file.jpg")
@@ -25,8 +21,7 @@ struct FirebaseStorageProviderTests {
         #expect(storedData == testData)
     }
 
-    @Test("Mock provider uploads file from URL")
-    func mockUploadsFileFromURL() async throws {
+    @Test("Mock provider uploads file from URL") func mockUploadsFileFromURL() async throws {
         let mock = makeSUT()
 
         // Create a temporary file
@@ -49,8 +44,7 @@ struct FirebaseStorageProviderTests {
         #expect(storedData == testData)
     }
 
-    @Test("Mock provider gets download URL")
-    func mockGetsDownloadURL() async throws {
+    @Test("Mock provider gets download URL") func mockGetsDownloadURL() async throws {
         let mock = makeSUT()
         let testData = Data("test".utf8)
 
@@ -64,8 +58,7 @@ struct FirebaseStorageProviderTests {
         #expect(url.absoluteString == "https://example.com/file.jpg")
     }
 
-    @Test("Mock provider downloads data")
-    func mockDownloadsData() async throws {
+    @Test("Mock provider downloads data") func mockDownloadsData() async throws {
         let mock = makeSUT()
         let testData = Data("Download test".utf8)
 
@@ -79,8 +72,7 @@ struct FirebaseStorageProviderTests {
         #expect(downloadedData == testData)
     }
 
-    @Test("Mock provider deletes files")
-    func mockDeletesFiles() async throws {
+    @Test("Mock provider deletes files") func mockDeletesFiles() async throws {
         let mock = makeSUT()
         let testData = Data("Delete test".utf8)
 
@@ -95,8 +87,7 @@ struct FirebaseStorageProviderTests {
         #expect(mock.hasFile(at: "temp/file.txt") == false)
     }
 
-    @Test("Mock provider throws error when file not found")
-    func mockThrowsErrorWhenFileNotFound() async throws {
+    @Test("Mock provider throws error when file not found") func mockThrowsErrorWhenFileNotFound() async throws {
         let mock = makeSUT()
 
         do {
@@ -121,27 +112,23 @@ struct FirebaseStorageProviderTests {
         }
     }
 
-    @Test("Mock provider throws configured error")
-    func mockThrowsConfiguredError() async throws {
+    @Test("Mock provider throws configured error") func mockThrowsConfiguredError() async throws {
         let mock = makeSUT()
 
         mock.reset()
         mock.setMockError(MockStorageError.uploadFailed)
 
         do {
-            _ = try await mock.upload(
-                data: Data(),
-                path: "test/file.txt",
-                contentType: "text/plain"
-            )
+            _ = try await mock.upload(data: Data(),
+                                      path: "test/file.txt",
+                                      contentType: "text/plain")
             Issue.record("Expected error to be thrown")
         } catch {
             #expect(error is MockStorageError)
         }
     }
 
-    @Test("Mock provider tracks file count")
-    func mockTracksFileCount() async throws {
+    @Test("Mock provider tracks file count") func mockTracksFileCount() async throws {
         let mock = makeSUT()
 
         #expect(mock.fileCount() == 0)
@@ -156,8 +143,7 @@ struct FirebaseStorageProviderTests {
         #expect(mock.fileCount() == 1)
     }
 
-    @Test("Mock reset clears all state")
-    func mockResetClearsAllState() async throws {
+    @Test("Mock reset clears all state") func mockResetClearsAllState() async throws {
         let mock = makeSUT()
 
         // Perform operations
@@ -178,42 +164,32 @@ struct FirebaseStorageProviderTests {
 
     // MARK: - StorageReference Tests
 
-    @Test("StorageReference initialization with bucket")
-    func storageReferenceInitialization() {
-        let ref = StorageReference(
-            bucket: "test-bucket",
-            path: "photos/image.jpg"
-        )
+    @Test("StorageReference initialization with bucket") func storageReferenceInitialization() {
+        let ref = StorageReference(bucket: "test-bucket",
+                                   path: "photos/image.jpg")
 
         #expect(ref.bucket == "test-bucket")
         #expect(ref.path == "photos/image.jpg")
         #expect(ref.fullPath == "test-bucket/photos/image.jpg")
     }
 
-    @Test("StorageReference initialization without bucket")
-    func storageReferenceWithoutBucket() {
-        let ref = StorageReference(
-            bucket: nil,
-            path: "photos/image.jpg"
-        )
+    @Test("StorageReference initialization without bucket") func storageReferenceWithoutBucket() {
+        let ref = StorageReference(bucket: nil,
+                                   path: "photos/image.jpg")
 
         #expect(ref.bucket == nil)
         #expect(ref.path == "photos/image.jpg")
         #expect(ref.fullPath == "photos/image.jpg")
     }
 
-    @Test("Restaurant photo reference helper")
-    func restaurantPhotoReference() {
-        let ref = StorageReference.restaurantPhoto(
-            restaurantID: "abc123",
-            filename: "photo.jpg"
-        )
+    @Test("Restaurant photo reference helper") func restaurantPhotoReference() {
+        let ref = StorageReference.restaurantPhoto(restaurantID: "abc123",
+                                                   filename: "photo.jpg")
 
         #expect(ref.path == "restaurants/abc123/photos/photo.jpg")
     }
 
-    @Test("User profile photo reference helper")
-    func userProfilePhotoReference() {
+    @Test("User profile photo reference helper") func userProfilePhotoReference() {
         let ref = StorageReference.userProfilePhoto(userID: "user456")
 
         #expect(ref.path == "users/user456/profile.jpg")

@@ -8,7 +8,7 @@
 import SwiftUI
 
 extension EnvironmentValues {
-    // The crashlytics provider in the environment.
+    /// The crashlytics provider in the environment.
     @Entry public var crashlyticsProvider: any CrashlyticsProviding = PlaceholderCrashlyticsProvider()
 }
 
@@ -40,17 +40,15 @@ private struct PlaceholderCrashlyticsProvider: CrashlyticsProviding, @unchecked 
     }
 
     private func placeholderCrash() -> Never {
-        fatalError(
-            """
-            CrashlyticsProvider not configured.
-            You must set the crashlytics provider in your app's environment:
+        fatalError("""
+        CrashlyticsProvider not configured.
+        You must set the crashlytics provider in your app's environment:
 
-                .environment(\\.crashlyticsProvider, crashlyticsProvider)
+            .environment(\\.crashlyticsProvider, crashlyticsProvider)
 
-            Or use a mock provider for previews/testing:
+        Or use a mock provider for previews/testing:
 
-                .environment(\\.crashlyticsProvider, MockCrashlyticsProvider())
-            """
-        )
+            .environment(\\.crashlyticsProvider, MockCrashlyticsProvider())
+        """)
     }
 }

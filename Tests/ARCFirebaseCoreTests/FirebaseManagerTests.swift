@@ -2,11 +2,9 @@ import Foundation
 import Testing
 @testable import ARCFirebaseCore
 
-@Suite("FirebaseManager Tests")
-struct FirebaseManagerTests {
+@Suite("FirebaseManager Tests") struct FirebaseManagerTests {
     @Test("FirebaseManager is a singleton")
-    @MainActor
-    func firebaseManagerSingleton() {
+    @MainActor func firebaseManagerSingleton() {
         let manager1 = FirebaseManager.shared
         let manager2 = FirebaseManager.shared
 
@@ -14,8 +12,7 @@ struct FirebaseManagerTests {
     }
 
     @Test("isConfigured is false before configuration in test environment")
-    @MainActor
-    func isConfiguredFalseBeforeConfiguration() {
+    @MainActor func isConfiguredFalseBeforeConfiguration() {
         // Firebase is never configured in unit tests (no GoogleService-Info.plist)
         #expect(FirebaseManager.shared.isConfigured == false)
     }
@@ -31,31 +28,25 @@ struct FirebaseManagerTests {
         }
     }
 
-    @Test("FirebaseError descriptions are not nil")
-    func firebaseErrorDescriptions() {
-        let cases: [(FirebaseError, String)] = [
-            (.notConfigured, "Firebase"),
-            (.authNotAvailable, "Authentication"),
-            (.firestoreNotAvailable, "Firestore"),
-            (.storageNotAvailable, "Storage"),
-            (.analyticsNotAvailable, "Analytics"),
-            (.aiNotAvailable, "AI"),
-            (.userNotFound, "user"),
-            (.documentNotFound, "document"),
-            (.permissionDenied, "Permission")
-        ]
+    @Test("FirebaseError descriptions are not nil") func firebaseErrorDescriptions() {
+        let cases: [(FirebaseError, String)] = [(.notConfigured, "Firebase"),
+                                                (.authNotAvailable, "Authentication"),
+                                                (.firestoreNotAvailable, "Firestore"),
+                                                (.storageNotAvailable, "Storage"),
+                                                (.analyticsNotAvailable, "Analytics"),
+                                                (.aiNotAvailable, "AI"),
+                                                (.userNotFound, "user"),
+                                                (.documentNotFound, "document"),
+                                                (.permissionDenied, "Permission")]
 
         for (error, keyword) in cases {
             #expect(error.errorDescription != nil, "errorDescription should not be nil for \(error)")
-            #expect(
-                error.errorDescription?.localizedCaseInsensitiveContains(keyword) == true,
-                "errorDescription for \(error) should contain '\(keyword)'"
-            )
+            #expect(error.errorDescription?.localizedCaseInsensitiveContains(keyword) == true,
+                    "errorDescription for \(error) should contain '\(keyword)'")
         }
     }
 
-    @Test("Network error wrapping preserves description")
-    func networkErrorWrapping() {
+    @Test("Network error wrapping preserves description") func networkErrorWrapping() {
         let underlyingError = NSError(domain: NSURLErrorDomain, code: -1009, userInfo: nil)
         let networkError = FirebaseError.networkError(underlying: underlyingError)
 
@@ -63,8 +54,7 @@ struct FirebaseManagerTests {
         #expect(networkError.errorDescription?.contains("Network") == true)
     }
 
-    @Test("Unknown error wrapping preserves description")
-    func unknownErrorWrapping() {
+    @Test("Unknown error wrapping preserves description") func unknownErrorWrapping() {
         let underlyingError = NSError(domain: "TestDomain", code: 999, userInfo: nil)
         let unknownError = FirebaseError.unknown(underlying: underlyingError)
 
@@ -74,8 +64,7 @@ struct FirebaseManagerTests {
 
     // MARK: - Helpers
 
-    @MainActor
-    private func makeSUT() -> FirebaseManager {
+    @MainActor private func makeSUT() -> FirebaseManager {
         FirebaseManager.shared
     }
 }

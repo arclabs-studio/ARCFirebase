@@ -8,7 +8,7 @@
 import SwiftUI
 
 extension EnvironmentValues {
-    // The analytics provider in the environment.
+    /// The analytics provider in the environment.
     @Entry public var analyticsProvider: any AnalyticsProviding = PlaceholderAnalyticsProvider()
 }
 
@@ -32,17 +32,15 @@ private struct PlaceholderAnalyticsProvider: AnalyticsProviding, @unchecked Send
     }
 
     private func placeholderCrash() -> Never {
-        fatalError(
-            """
-            AnalyticsProvider not configured.
-            You must set the analytics provider in your app's environment:
+        fatalError("""
+        AnalyticsProvider not configured.
+        You must set the analytics provider in your app's environment:
 
-                .environment(\\.analyticsProvider, analyticsProvider)
+            .environment(\\.analyticsProvider, analyticsProvider)
 
-            Or use a mock provider for previews/testing:
+        Or use a mock provider for previews/testing:
 
-                .environment(\\.analyticsProvider, MockAnalyticsProvider())
-            """
-        )
+            .environment(\\.analyticsProvider, MockAnalyticsProvider())
+        """)
     }
 }

@@ -1,10 +1,8 @@
 import Testing
 @testable import ARCFirebaseAuth
 
-@Suite("FirebaseAuthProvider Tests")
-struct FirebaseAuthProviderTests {
-    @Test("Mock provider can authenticate user")
-    func mockAuthenticationFlow() async throws {
+@Suite("FirebaseAuthProvider Tests") struct FirebaseAuthProviderTests {
+    @Test("Mock provider can authenticate user") func mockAuthenticationFlow() async throws {
         let mock = makeSUT()
 
         // Initially no user
@@ -25,8 +23,7 @@ struct FirebaseAuthProviderTests {
         #expect(currentUser?.email == "test@example.com")
     }
 
-    @Test("Mock provider can sign up new user")
-    func mockSignUpFlow() async throws {
+    @Test("Mock provider can sign up new user") func mockSignUpFlow() async throws {
         let mock = makeSUT()
 
         let user = try await mock.signUp(email: "newuser@example.com", password: "password123")
@@ -35,8 +32,7 @@ struct FirebaseAuthProviderTests {
         #expect(await mock.isAuthenticated == true)
     }
 
-    @Test("Mock provider can sign out user")
-    func mockSignOutFlow() async throws {
+    @Test("Mock provider can sign out user") func mockSignOutFlow() async throws {
         let mock = makeSUT()
 
         // Sign in first
@@ -50,16 +46,14 @@ struct FirebaseAuthProviderTests {
         #expect(await mock.currentUser == nil)
     }
 
-    @Test("Mock provider can send password reset")
-    func mockPasswordResetFlow() async throws {
+    @Test("Mock provider can send password reset") func mockPasswordResetFlow() async throws {
         let mock = makeSUT()
 
         try await mock.sendPasswordReset(email: "test@example.com")
         #expect(mock.passwordResetCallCount == 1)
     }
 
-    @Test("Mock provider can update password")
-    func mockUpdatePasswordFlow() async throws {
+    @Test("Mock provider can update password") func mockUpdatePasswordFlow() async throws {
         let mock = makeSUT()
 
         // Sign in first
@@ -70,8 +64,7 @@ struct FirebaseAuthProviderTests {
         #expect(mock.updatePasswordCallCount == 1)
     }
 
-    @Test("Mock provider throws errors when configured")
-    func mockErrorHandling() async throws {
+    @Test("Mock provider throws errors when configured") func mockErrorHandling() async throws {
         let mock = makeSUT()
 
         enum TestError: Error {
@@ -98,16 +91,14 @@ struct FirebaseAuthProviderTests {
         }
     }
 
-    @Test("User model properties are accessible")
-    func userModelProperties() {
+    @Test("User model properties are accessible") func userModelProperties() {
         let user = User(id: "123", email: "test@example.com")
 
         #expect(user.id == "123")
         #expect(user.email == "test@example.com")
     }
 
-    @Test("Mock reset clears all state")
-    func mockResetFunctionality() async throws {
+    @Test("Mock reset clears all state") func mockResetFunctionality() async throws {
         let mock = makeSUT()
 
         // Perform some operations
@@ -129,8 +120,7 @@ struct FirebaseAuthProviderTests {
 
     // MARK: - User Model Tests
 
-    @Test("User has default nil providerID and empty linkedProviderIDs")
-    func userDefaultProviderProperties() {
+    @Test("User has default nil providerID and empty linkedProviderIDs") func userDefaultProviderProperties() {
         // Given / When
         let user = User(id: "123", email: "test@example.com")
 
@@ -139,8 +129,7 @@ struct FirebaseAuthProviderTests {
         #expect(user.linkedProviderIDs.isEmpty)
     }
 
-    @Test("User stores provider info correctly")
-    func userProviderProperties() {
+    @Test("User stores provider info correctly") func userProviderProperties() {
         // Given / When
         let user = User(id: "123",
                         email: "test@example.com",
@@ -152,8 +141,7 @@ struct FirebaseAuthProviderTests {
         #expect(user.linkedProviderIDs == ["google.com", "apple.com"])
     }
 
-    @Test("User conforms to Equatable")
-    func userEquatable() {
+    @Test("User conforms to Equatable") func userEquatable() {
         // Given
         let user1 = User(id: "123", email: "test@example.com", providerID: "google.com")
         let user2 = User(id: "123", email: "test@example.com", providerID: "google.com")
@@ -164,8 +152,7 @@ struct FirebaseAuthProviderTests {
         #expect(user1 != user3)
     }
 
-    @Test("User description includes provider")
-    func userDescription() {
+    @Test("User description includes provider") func userDescription() {
         // Given
         let user = User(id: "123", email: "test@example.com", providerID: "google.com")
 
@@ -176,13 +163,12 @@ struct FirebaseAuthProviderTests {
 
     // MARK: - OAuth Sign-In Tests
 
-    @Test("OAuth sign in returns user with provider info")
-    func oauthSignIn() async throws {
+    @Test("OAuth sign in returns user with provider info") func oauthSignIn() async throws {
         // Given
         let mock = makeSUT()
         let credential = OAuthCredentialData(providerID: "google.com",
-                                              idToken: "mock-id-token",
-                                              accessToken: "mock-access-token")
+                                             idToken: "mock-id-token",
+                                             accessToken: "mock-access-token")
 
         // When
         let user = try await mock.signIn(with: credential)
@@ -193,8 +179,7 @@ struct FirebaseAuthProviderTests {
         #expect(mock.oauthSignInCallCount == 1)
     }
 
-    @Test("OAuth sign in returns pre-configured mock user")
-    func oauthSignInWithMockUser() async throws {
+    @Test("OAuth sign in returns pre-configured mock user") func oauthSignInWithMockUser() async throws {
         // Given
         let mock = makeSUT()
         let expectedUser = User(id: "preset-id", email: "preset@example.com", providerID: "apple.com")
@@ -209,8 +194,7 @@ struct FirebaseAuthProviderTests {
         #expect(user == expectedUser)
     }
 
-    @Test("OAuth sign in throws error when configured")
-    func oauthSignInError() async throws {
+    @Test("OAuth sign in throws error when configured") func oauthSignInError() async throws {
         // Given
         let mock = makeSUT()
 
@@ -231,8 +215,7 @@ struct FirebaseAuthProviderTests {
 
     // MARK: - Auth State Changes Tests
 
-    @Test("Auth state changes stream emits correct sequence")
-    func authStateChanges() async {
+    @Test("Auth state changes stream emits correct sequence") func authStateChanges() async {
         // Given
         let mock = makeSUT()
         let user = User(id: "123", email: "test@example.com")
@@ -252,8 +235,7 @@ struct FirebaseAuthProviderTests {
         #expect(mock.authStateChangesCallCount == 1)
     }
 
-    @Test("Auth state changes stream handles empty sequence")
-    func authStateChangesEmpty() async {
+    @Test("Auth state changes stream handles empty sequence") func authStateChangesEmpty() async {
         // Given
         let mock = makeSUT()
         mock.mockAuthStateUsers = []
@@ -270,8 +252,7 @@ struct FirebaseAuthProviderTests {
 
     // MARK: - Delete Account Tests
 
-    @Test("Delete account succeeds and clears user")
-    func deleteAccount() async throws {
+    @Test("Delete account succeeds and clears user") func deleteAccount() async throws {
         // Given
         let mock = makeSUT()
         mock.mockUser = User(id: "123", email: "test@example.com")
@@ -284,8 +265,7 @@ struct FirebaseAuthProviderTests {
         #expect(await mock.currentUser == nil)
     }
 
-    @Test("Delete account throws error when configured")
-    func deleteAccountError() async throws {
+    @Test("Delete account throws error when configured") func deleteAccountError() async throws {
         // Given
         let mock = makeSUT()
 
@@ -304,8 +284,7 @@ struct FirebaseAuthProviderTests {
 
     // MARK: - Provider Linking Tests
 
-    @Test("Link account adds provider to user")
-    func linkAccount() async throws {
+    @Test("Link account adds provider to user") func linkAccount() async throws {
         // Given
         let mock = makeSUT()
         mock.mockUser = User(id: "123",
@@ -323,8 +302,7 @@ struct FirebaseAuthProviderTests {
         #expect(updatedUser.linkedProviderIDs.contains("password"))
     }
 
-    @Test("Unlink provider removes provider from user")
-    func unlinkProvider() async throws {
+    @Test("Unlink provider removes provider from user") func unlinkProvider() async throws {
         // Given
         let mock = makeSUT()
         mock.mockUser = User(id: "123",
@@ -341,8 +319,7 @@ struct FirebaseAuthProviderTests {
         #expect(updatedUser.linkedProviderIDs.contains("password"))
     }
 
-    @Test("Linked providers returns configured list")
-    func linkedProviders() async {
+    @Test("Linked providers returns configured list") func linkedProviders() async {
         // Given
         let mock = makeSUT()
         mock.mockLinkedProviders = ["password", "google.com", "apple.com"]
@@ -355,8 +332,7 @@ struct FirebaseAuthProviderTests {
         #expect(mock.linkedProvidersCallCount == 1)
     }
 
-    @Test("Linked providers returns empty when no providers configured")
-    func linkedProvidersEmpty() async {
+    @Test("Linked providers returns empty when no providers configured") func linkedProvidersEmpty() async {
         // Given
         let mock = makeSUT()
 
@@ -369,8 +345,7 @@ struct FirebaseAuthProviderTests {
 
     // MARK: - Reset Tests
 
-    @Test("Reset clears all new call counts and state")
-    func resetClearsNewState() async throws {
+    @Test("Reset clears all new call counts and state") func resetClearsNewState() async throws {
         // Given
         let mock = makeSUT()
         mock.mockUser = User(id: "123", email: "test@example.com")
@@ -402,13 +377,12 @@ struct FirebaseAuthProviderTests {
 
     // MARK: - OAuthCredentialData Tests
 
-    @Test("OAuthCredentialData stores all properties")
-    func oauthCredentialProperties() {
+    @Test("OAuthCredentialData stores all properties") func oauthCredentialProperties() {
         // Given / When
         let credential = OAuthCredentialData(providerID: "google.com",
-                                              idToken: "id-token",
-                                              accessToken: "access-token",
-                                              rawNonce: "nonce")
+                                             idToken: "id-token",
+                                             accessToken: "access-token",
+                                             rawNonce: "nonce")
 
         // Then
         #expect(credential.providerID == "google.com")
@@ -417,8 +391,7 @@ struct FirebaseAuthProviderTests {
         #expect(credential.rawNonce == "nonce")
     }
 
-    @Test("OAuthCredentialData has sensible defaults")
-    func oauthCredentialDefaults() {
+    @Test("OAuthCredentialData has sensible defaults") func oauthCredentialDefaults() {
         // Given / When
         let credential = OAuthCredentialData(providerID: "apple.com")
 

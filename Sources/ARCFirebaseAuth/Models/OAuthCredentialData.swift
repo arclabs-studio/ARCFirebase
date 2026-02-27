@@ -52,12 +52,11 @@ public struct OAuthCredentialData: Sendable {
     ///   - idToken: The ID token from the OAuth provider.
     ///   - accessToken: The access token from the OAuth provider.
     ///   - rawNonce: The raw nonce for Apple Sign-In verification.
-    public init(
-        providerID: String,
-        idToken: String? = nil,
-        accessToken: String? = nil,
-        rawNonce: String? = nil
-    ) {
+    public init(providerID: String,
+                idToken: String? = nil,
+                accessToken: String? = nil,
+                rawNonce: String? = nil)
+    {
         self.providerID = providerID
         self.idToken = idToken
         self.accessToken = accessToken

@@ -63,22 +63,20 @@ private struct PlaceholderAuthProvider: AuthProviding, @unchecked Sendable {
     }
 
     private func placeholderCrash() -> Never {
-        fatalError(
-            """
-            AuthProvider not configured.
-            You must set the auth provider in your app's environment:
+        fatalError("""
+        AuthProvider not configured.
+        You must set the auth provider in your app's environment:
 
-                .environment(\\.authProvider, authProvider)
+            .environment(\\.authProvider, authProvider)
 
-            Or use a mock provider for previews/testing:
+        Or use a mock provider for previews/testing:
 
-                .environment(\\.authProvider, MockAuthProvider())
-            """
-        )
+            .environment(\\.authProvider, MockAuthProvider())
+        """)
     }
 }
 
 extension EnvironmentValues {
-    // The authentication provider in the environment.
+    /// The authentication provider in the environment.
     @Entry public var authProvider: any AuthProviding = PlaceholderAuthProvider()
 }

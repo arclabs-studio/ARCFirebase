@@ -1,12 +1,10 @@
 import Testing
 @testable import ARCFirebaseAnalytics
 
-@Suite("FirebaseAnalyticsProvider Tests")
-struct FirebaseAnalyticsProviderTests {
+@Suite("FirebaseAnalyticsProvider Tests") struct FirebaseAnalyticsProviderTests {
     // MARK: - Mock Provider Tests
 
-    @Test("logEvent records event with parameters")
-    func logEvent_withParameters_recordsEvent() {
+    @Test("logEvent records event with parameters") func logEvent_withParameters_recordsEvent() {
         // Given
         let mock = makeSUT()
 
@@ -19,8 +17,7 @@ struct FirebaseAnalyticsProviderTests {
         #expect(mock.hasLoggedEvent("test_event"))
     }
 
-    @Test("logEvent records event without parameters")
-    func logEvent_withoutParameters_recordsNilParameters() {
+    @Test("logEvent records event without parameters") func logEvent_withoutParameters_recordsNilParameters() {
         // Given
         let mock = makeSUT()
 
@@ -33,8 +30,7 @@ struct FirebaseAnalyticsProviderTests {
         #expect(mock.loggedEvents[0].parameters == nil)
     }
 
-    @Test("logScreenView records view with class name")
-    func logScreenView_withClass_recordsView() {
+    @Test("logScreenView records view with class name") func logScreenView_withClass_recordsView() {
         // Given
         let mock = makeSUT()
 
@@ -47,8 +43,7 @@ struct FirebaseAnalyticsProviderTests {
         #expect(mock.screenViews[0].screenClass == "HomeViewController")
     }
 
-    @Test("logScreenView records view without class name")
-    func logScreenView_withoutClass_recordsNilClass() {
+    @Test("logScreenView records view without class name") func logScreenView_withoutClass_recordsNilClass() {
         // Given
         let mock = makeSUT()
 
@@ -61,8 +56,7 @@ struct FirebaseAnalyticsProviderTests {
         #expect(mock.screenViews[0].screenClass == nil)
     }
 
-    @Test("setUserProperty stores multiple properties")
-    func setUserProperty_withValues_storesProperties() {
+    @Test("setUserProperty stores multiple properties") func setUserProperty_withValues_storesProperties() {
         // Given
         let mock = makeSUT()
 
@@ -76,8 +70,7 @@ struct FirebaseAnalyticsProviderTests {
         #expect(mock.userProperties["user_level"] == "5")
     }
 
-    @Test("setUserProperty with nil value removes property")
-    func setUserProperty_withNilValue_removesProperty() {
+    @Test("setUserProperty with nil value removes property") func setUserProperty_withNilValue_removesProperty() {
         // Given
         let mock = makeSUT()
         mock.setUserProperty("test_property", value: "test_value")
@@ -90,8 +83,7 @@ struct FirebaseAnalyticsProviderTests {
         #expect(mock.userProperties["test_property"] == nil)
     }
 
-    @Test("setUserID updates and clears user ID")
-    func setUserID_withValueThenNil_updatesAndClearsID() {
+    @Test("setUserID updates and clears user ID") func setUserID_withValueThenNil_updatesAndClearsID() {
         // Given
         let mock = makeSUT()
 
@@ -108,8 +100,7 @@ struct FirebaseAnalyticsProviderTests {
         #expect(mock.userID == nil)
     }
 
-    @Test("logEvent called multiple times tracks all events")
-    func logEvent_multipleTimes_tracksAll() {
+    @Test("logEvent called multiple times tracks all events") func logEvent_multipleTimes_tracksAll() {
         // Given
         let mock = makeSUT()
 
@@ -144,8 +135,7 @@ struct FirebaseAnalyticsProviderTests {
         }
     }
 
-    @Test("reset clears all recorded data")
-    func reset_afterOperations_clearsAllState() {
+    @Test("reset clears all recorded data") func reset_afterOperations_clearsAllState() {
         // Given
         let mock = makeSUT()
         mock.logEvent("test_event")
@@ -165,8 +155,7 @@ struct FirebaseAnalyticsProviderTests {
 
     // MARK: - Predefined Constants Tests
 
-    @Test("AnalyticsEvent constants match expected raw values")
-    func analyticsEvent_constants_matchExpectedValues() {
+    @Test("AnalyticsEvent constants match expected raw values") func analyticsEvent_constants_matchExpectedValues() {
         // Then
         #expect(AnalyticsEvent.itemViewed == "item_viewed")
         #expect(AnalyticsEvent.itemFavorited == "item_favorited")
@@ -194,11 +183,9 @@ struct FirebaseAnalyticsProviderTests {
     @Test("AnalyticsEvent names follow lowercase underscore convention")
     func analyticsEvent_names_followLowercaseUnderscore() {
         // Given
-        let eventNames = [
-            AnalyticsEvent.itemViewed,
-            AnalyticsEvent.searchPerformed,
-            AnalyticsEvent.onboardingCompleted
-        ]
+        let eventNames = [AnalyticsEvent.itemViewed,
+                          AnalyticsEvent.searchPerformed,
+                          AnalyticsEvent.onboardingCompleted]
 
         // Then
         for eventName in eventNames {

@@ -78,13 +78,12 @@ public struct AIConfiguration: Sendable, Equatable {
     ///   - topP: Nucleus sampling parameter (0.0-1.0). Default: nil (uses model default).
     ///   - topK: Top-K sampling parameter. Default: nil (uses model default).
     ///   - stopSequences: Sequences that stop generation. Default: nil.
-    public init(
-        temperature: Float? = nil,
-        maxOutputTokens: Int? = nil,
-        topP: Float? = nil,
-        topK: Int? = nil,
-        stopSequences: [String]? = nil
-    ) {
+    public init(temperature: Float? = nil,
+                maxOutputTokens: Int? = nil,
+                topP: Float? = nil,
+                topK: Int? = nil,
+                stopSequences: [String]? = nil)
+    {
         self.temperature = temperature
         self.maxOutputTokens = maxOutputTokens
         self.topP = topP
@@ -100,12 +99,10 @@ public struct AIConfiguration: Sendable, Equatable {
     /// - Max output tokens: 8192
     /// - Top P: 0.95
     /// - Top K: 40
-    public static let `default` = AIConfiguration(
-        temperature: 1.0,
-        maxOutputTokens: 8192,
-        topP: 0.95,
-        topK: 40
-    )
+    public static let `default` = AIConfiguration(temperature: 1.0,
+                                                  maxOutputTokens: 8192,
+                                                  topP: 0.95,
+                                                  topK: 40)
 
     /// Creative configuration for imaginative, varied responses.
     ///
@@ -115,12 +112,10 @@ public struct AIConfiguration: Sendable, Equatable {
     /// - Max output tokens: 8192
     /// - Top P: 0.98
     /// - Top K: 64
-    public static let creative = AIConfiguration(
-        temperature: 1.5,
-        maxOutputTokens: 8192,
-        topP: 0.98,
-        topK: 64
-    )
+    public static let creative = AIConfiguration(temperature: 1.5,
+                                                 maxOutputTokens: 8192,
+                                                 topP: 0.98,
+                                                 topK: 64)
 
     /// Factual configuration for precise, consistent responses.
     ///
@@ -130,12 +125,10 @@ public struct AIConfiguration: Sendable, Equatable {
     /// - Max output tokens: 4096
     /// - Top P: 0.8
     /// - Top K: 20
-    public static let factual = AIConfiguration(
-        temperature: 0.3,
-        maxOutputTokens: 4096,
-        topP: 0.8,
-        topK: 20
-    )
+    public static let factual = AIConfiguration(temperature: 0.3,
+                                                maxOutputTokens: 4096,
+                                                topP: 0.8,
+                                                topK: 20)
 
     /// Structured configuration for JSON and structured output.
     ///
@@ -145,10 +138,8 @@ public struct AIConfiguration: Sendable, Equatable {
     /// - Max output tokens: 4096
     /// - Top P: 0.7
     /// - Top K: 10
-    public static let structured = AIConfiguration(
-        temperature: 0.1,
-        maxOutputTokens: 4096,
-        topP: 0.7,
-        topK: 10
-    )
+    public static let structured = AIConfiguration(temperature: 0.1,
+                                                   maxOutputTokens: 4096,
+                                                   topP: 0.7,
+                                                   topK: 10)
 }

@@ -176,13 +176,11 @@ extension FirebaseStorageProvider {
         do {
             return try create()
         } catch {
-            fatalError(
-                """
-                FirebaseStorageProvider initialization failed.
-                Ensure FirebaseManager.shared.configure() is called before accessing .live.
-                Error: \(error.localizedDescription)
-                """
-            )
+            fatalError("""
+            FirebaseStorageProvider initialization failed.
+            Ensure FirebaseManager.shared.configure() is called before accessing .live.
+            Error: \(error.localizedDescription)
+            """)
         }
     }
 }

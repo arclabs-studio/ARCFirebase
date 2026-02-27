@@ -9,7 +9,7 @@ import Foundation
 import SwiftUI
 
 extension EnvironmentValues {
-    // The storage provider in the environment.
+    /// The storage provider in the environment.
     @Entry public var storageProvider: any StorageProviding = PlaceholderStorageProvider()
 }
 
@@ -37,17 +37,15 @@ private struct PlaceholderStorageProvider: StorageProviding, @unchecked Sendable
     }
 
     private func placeholderCrash() -> Never {
-        fatalError(
-            """
-            StorageProvider not configured.
-            You must set the storage provider in your app's environment:
+        fatalError("""
+        StorageProvider not configured.
+        You must set the storage provider in your app's environment:
 
-                .environment(\\.storageProvider, storageProvider)
+            .environment(\\.storageProvider, storageProvider)
 
-            Or use a mock provider for previews/testing:
+        Or use a mock provider for previews/testing:
 
-                .environment(\\.storageProvider, MockStorageProvider())
-            """
-        )
+            .environment(\\.storageProvider, MockStorageProvider())
+        """)
     }
 }

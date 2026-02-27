@@ -73,10 +73,8 @@ public protocol AIProviding: Sendable {
     ///   - configuration: Optional generation configuration. Uses model defaults if nil.
     /// - Returns: The generated response.
     /// - Throws: Generation errors or ``FirebaseError/aiNotAvailable``.
-    func generateContent(
-        prompt: String,
-        configuration: AIConfiguration?
-    ) async throws -> AIResponse
+    func generateContent(prompt: String,
+                         configuration: AIConfiguration?) async throws -> AIResponse
 
     /// Generates content with a system instruction.
     ///
@@ -88,11 +86,9 @@ public protocol AIProviding: Sendable {
     ///   - configuration: Optional generation configuration. Uses model defaults if nil.
     /// - Returns: The generated response.
     /// - Throws: Generation errors or ``FirebaseError/aiNotAvailable``.
-    func generateContent(
-        prompt: String,
-        systemInstruction: String,
-        configuration: AIConfiguration?
-    ) async throws -> AIResponse
+    func generateContent(prompt: String,
+                         systemInstruction: String,
+                         configuration: AIConfiguration?) async throws -> AIResponse
 
     /// Generates structured content using a response schema.
     ///
@@ -106,12 +102,10 @@ public protocol AIProviding: Sendable {
     ///   - configuration: Optional generation configuration. Uses model defaults if nil.
     /// - Returns: The generated response with structured content.
     /// - Throws: Generation errors or ``FirebaseError/aiNotAvailable``.
-    func generateStructuredContent(
-        prompt: String,
-        responseSchema: AISchema,
-        systemInstruction: String?,
-        configuration: AIConfiguration?
-    ) async throws -> AIResponse
+    func generateStructuredContent(prompt: String,
+                                   responseSchema: AISchema,
+                                   systemInstruction: String?,
+                                   configuration: AIConfiguration?) async throws -> AIResponse
 
     /// Streams content generation as an `AsyncThrowingStream`.
     ///
@@ -127,10 +121,8 @@ public protocol AIProviding: Sendable {
     ///   - prompt: The text prompt to send to the model.
     ///   - configuration: Optional generation configuration. Uses model defaults if nil.
     /// - Returns: A stream of text chunks as they are generated.
-    func streamContent(
-        prompt: String,
-        configuration: AIConfiguration?
-    ) -> AsyncThrowingStream<String, Error>
+    func streamContent(prompt: String,
+                       configuration: AIConfiguration?) -> AsyncThrowingStream<String, Error>
 
     /// Sends a message in a multi-turn conversation.
     ///
@@ -143,12 +135,10 @@ public protocol AIProviding: Sendable {
     ///   - configuration: Optional generation configuration. Uses model defaults if nil.
     /// - Returns: The model's response.
     /// - Throws: Generation errors or ``FirebaseError/aiNotAvailable``.
-    func sendMessage(
-        _ message: String,
-        history: [AIMessage],
-        systemInstruction: String?,
-        configuration: AIConfiguration?
-    ) async throws -> AIResponse
+    func sendMessage(_ message: String,
+                     history: [AIMessage],
+                     systemInstruction: String?,
+                     configuration: AIConfiguration?) async throws -> AIResponse
 
     /// Checks whether the AI service is available.
     ///
@@ -177,10 +167,9 @@ extension AIProviding {
     }
 
     /// Sends a message with history.
-    public func sendMessage(
-        _ message: String,
-        history: [AIMessage]
-    ) async throws -> AIResponse {
+    public func sendMessage(_ message: String,
+                            history: [AIMessage]) async throws -> AIResponse
+    {
         try await sendMessage(message, history: history, systemInstruction: nil, configuration: nil)
     }
 }

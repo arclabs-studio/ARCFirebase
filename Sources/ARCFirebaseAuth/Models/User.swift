@@ -60,7 +60,8 @@ public struct User: Sendable, Identifiable, Equatable {
                 creationDate: Date? = nil,
                 lastSignInDate: Date? = nil,
                 providerID: String? = nil,
-                linkedProviderIDs: [String] = []) {
+                linkedProviderIDs: [String] = [])
+    {
         self.id = id
         self.email = email
         self.displayName = displayName

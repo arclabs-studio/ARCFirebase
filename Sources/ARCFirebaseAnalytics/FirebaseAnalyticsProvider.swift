@@ -54,10 +54,9 @@ public final class FirebaseAnalyticsProvider: AnalyticsProviding, @unchecked Sen
 
     /// Firebase Analytics methods are thread-safe and can be called from any context.
     public func logScreenView(_ screenName: String, screenClass: String? = nil) {
-        Analytics.logEvent(AnalyticsEventScreenView, parameters: [
-            AnalyticsParameterScreenName: screenName,
-            AnalyticsParameterScreenClass: screenClass ?? screenName
-        ])
+        Analytics.logEvent(AnalyticsEventScreenView, parameters: [AnalyticsParameterScreenName: screenName,
+                                                                  AnalyticsParameterScreenClass: screenClass ??
+                                                                      screenName])
     }
 
     /// Firebase Analytics methods are thread-safe and can be called from any context.
@@ -100,13 +99,11 @@ extension FirebaseAnalyticsProvider {
         do {
             return try create()
         } catch {
-            fatalError(
-                """
-                FirebaseAnalyticsProvider initialization failed.
-                Ensure FirebaseManager.shared.configure() is called before accessing .live.
-                Error: \(error.localizedDescription)
-                """
-            )
+            fatalError("""
+            FirebaseAnalyticsProvider initialization failed.
+            Ensure FirebaseManager.shared.configure() is called before accessing .live.
+            Error: \(error.localizedDescription)
+            """)
         }
     }
 }

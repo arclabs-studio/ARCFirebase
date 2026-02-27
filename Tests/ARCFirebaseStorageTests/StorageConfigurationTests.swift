@@ -9,12 +9,10 @@ import Foundation
 import Testing
 @testable import ARCFirebaseStorage
 
-@Suite("StorageConfiguration Tests")
-struct StorageConfigurationTests {
+@Suite("StorageConfiguration Tests") struct StorageConfigurationTests {
     // MARK: - Default Configuration
 
-    @Test("Default preset has 10 MB download limit")
-    func defaultPreset() {
+    @Test("Default preset has 10 MB download limit") func defaultPreset() {
         // Given / When
         let config = StorageConfiguration.default
 
@@ -22,8 +20,7 @@ struct StorageConfigurationTests {
         #expect(config.maxDownloadSize == 10 * 1024 * 1024)
     }
 
-    @Test("largeFiles preset has 50 MB download limit")
-    func largeFilesPreset() {
+    @Test("largeFiles preset has 50 MB download limit") func largeFilesPreset() {
         // Given / When
         let config = StorageConfiguration.largeFiles
 
@@ -33,8 +30,7 @@ struct StorageConfigurationTests {
 
     // MARK: - Custom Configuration
 
-    @Test("Custom init stores provided maxDownloadSize")
-    func customInit() {
+    @Test("Custom init stores provided maxDownloadSize") func customInit() {
         // Given
         let customSize: Int64 = 25 * 1024 * 1024 // 25 MB
 
@@ -45,8 +41,7 @@ struct StorageConfigurationTests {
         #expect(config.maxDownloadSize == customSize)
     }
 
-    @Test("Default parameter in init equals 10 MB")
-    func defaultInitParameter() {
+    @Test("Default parameter in init equals 10 MB") func defaultInitParameter() {
         // Given / When
         let config = makeSUT()
 
@@ -54,8 +49,7 @@ struct StorageConfigurationTests {
         #expect(config.maxDownloadSize == 10 * 1024 * 1024)
     }
 
-    @Test("largeFiles limit is five times the default limit")
-    func largeFilesIsMultipleOfDefault() {
+    @Test("largeFiles limit is five times the default limit") func largeFilesIsMultipleOfDefault() {
         // Given
         let defaultLimit = StorageConfiguration.default.maxDownloadSize
         let largeLimit = StorageConfiguration.largeFiles.maxDownloadSize
