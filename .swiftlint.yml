@@ -15,8 +15,6 @@ excluded:
   - ARCDevTools
   - "*/Generated/*"
   - "*.generated.swift"
-  - Package.swift
-  - Examples
 
 # Disabled rules
 disabled_rules:
@@ -115,6 +113,10 @@ custom_rules:
   observable_viewmodel:
     name: "ViewModels should use @Observable"
     regex: "final\\s+class\\s+\\w+ViewModel(?!.*@Observable)"
+    excluded_match_kinds:
+      - comment
+      - doccomment
+      - string
     message: "ViewModels must use @Observable in Swift 6"
     severity: warning
 
