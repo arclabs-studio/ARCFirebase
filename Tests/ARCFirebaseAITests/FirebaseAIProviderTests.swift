@@ -8,12 +8,10 @@
 import Testing
 @testable import ARCFirebaseAI
 
-@Suite("FirebaseAIProvider Tests")
-struct FirebaseAIProviderTests {
+@Suite("FirebaseAIProvider Tests") struct FirebaseAIProviderTests {
     // MARK: - Generate Content
 
-    @Test("Mock provider generates content from prompt")
-    func generateContent() async throws {
+    @Test("Mock provider generates content from prompt") func generateContent() async throws {
         // Given
         let sut = makeSUT()
         sut.mockResponse = AIResponse(content: "Generated text", finishReason: .stop)
@@ -34,11 +32,9 @@ struct FirebaseAIProviderTests {
         let sut = makeSUT()
 
         // When
-        _ = try await sut.generateContent(
-            prompt: "Describe this",
-            systemInstruction: "You are a food critic",
-            configuration: nil
-        )
+        _ = try await sut.generateContent(prompt: "Describe this",
+                                          systemInstruction: "You are a food critic",
+                                          configuration: nil)
 
         // Then
         #expect(sut.generateContentWithSystemCallCount == 1)
@@ -46,22 +42,17 @@ struct FirebaseAIProviderTests {
         #expect(sut.lastSystemInstruction == "You are a food critic")
     }
 
-    @Test("Mock provider generates structured content")
-    func generateStructuredContent() async throws {
+    @Test("Mock provider generates structured content") func generateStructuredContent() async throws {
         // Given
         let sut = makeSUT()
-        let schema = AISchema.object(properties: [
-            "name": .string(),
-            "rating": .integer()
-        ])
+        let schema = AISchema.object(properties: ["name": .string(),
+                                                  "rating": .integer()])
 
         // When
-        _ = try await sut.generateStructuredContent(
-            prompt: "Extract restaurant info",
-            responseSchema: schema,
-            systemInstruction: nil,
-            configuration: .structured
-        )
+        _ = try await sut.generateStructuredContent(prompt: "Extract restaurant info",
+                                                    responseSchema: schema,
+                                                    systemInstruction: nil,
+                                                    configuration: .structured)
 
         // Then
         #expect(sut.generateStructuredContentCallCount == 1)
@@ -70,8 +61,7 @@ struct FirebaseAIProviderTests {
 
     // MARK: - Streaming
 
-    @Test("Mock provider streams content chunks")
-    func streamContent() async throws {
+    @Test("Mock provider streams content chunks") func streamContent() async throws {
         // Given
         let sut = makeSUT()
         sut.mockStreamChunks = ["Hello", " ", "World"]
@@ -88,8 +78,7 @@ struct FirebaseAIProviderTests {
         #expect(sut.streamContentCallCount == 1)
     }
 
-    @Test("Mock provider stream handles errors")
-    func streamContentError() async throws {
+    @Test("Mock provider stream handles errors") func streamContentError() async throws {
         // Given
         let sut = makeSUT()
         sut.mockError = TestError.mockFailure
@@ -107,22 +96,17 @@ struct FirebaseAIProviderTests {
 
     // MARK: - Multi-Turn Chat
 
-    @Test("Mock provider sends message with history")
-    func sendMessage() async throws {
+    @Test("Mock provider sends message with history") func sendMessage() async throws {
         // Given
         let sut = makeSUT()
-        let history: [AIMessage] = [
-            AIMessage(role: .user, content: "Hi"),
-            AIMessage(role: .model, content: "Hello!")
-        ]
+        let history: [AIMessage] = [AIMessage(role: .user, content: "Hi"),
+                                    AIMessage(role: .model, content: "Hello!")]
 
         // When
-        let response = try await sut.sendMessage(
-            "How are you?",
-            history: history,
-            systemInstruction: nil,
-            configuration: nil
-        )
+        let response = try await sut.sendMessage("How are you?",
+                                                 history: history,
+                                                 systemInstruction: nil,
+                                                 configuration: nil)
 
         // Then
         #expect(response.content == "Mock response")
@@ -133,8 +117,7 @@ struct FirebaseAIProviderTests {
 
     // MARK: - Availability
 
-    @Test("Mock provider reports availability")
-    func isAvailable() async {
+    @Test("Mock provider reports availability") func isAvailable() async {
         // Given
         let sut = makeSUT()
 
@@ -146,8 +129,7 @@ struct FirebaseAIProviderTests {
         #expect(sut.isAvailableCallCount == 1)
     }
 
-    @Test("Mock provider reports unavailable when configured")
-    func isUnavailable() async {
+    @Test("Mock provider reports unavailable when configured") func isUnavailable() async {
         // Given
         let sut = makeSUT()
         sut.mockAvailable = false
@@ -161,8 +143,7 @@ struct FirebaseAIProviderTests {
 
     // MARK: - Error Handling
 
-    @Test("Mock provider throws errors when configured")
-    func errorHandling() async throws {
+    @Test("Mock provider throws errors when configured") func errorHandling() async throws {
         // Given
         let sut = makeSUT()
         sut.mockError = TestError.mockFailure
@@ -177,20 +158,17 @@ struct FirebaseAIProviderTests {
 
         // When/Then — sendMessage
         do {
-            _ = try await sut.sendMessage(
-                "Test",
-                history: [],
-                systemInstruction: nil,
-                configuration: nil
-            )
+            _ = try await sut.sendMessage("Test",
+                                          history: [],
+                                          systemInstruction: nil,
+                                          configuration: nil)
             Issue.record("Expected error to be thrown")
         } catch {
             #expect(error is TestError)
         }
     }
 
-    @Test("Mock provider passes configuration correctly")
-    func configurationPassthrough() async throws {
+    @Test("Mock provider passes configuration correctly") func configurationPassthrough() async throws {
         // Given
         let sut = makeSUT()
 
@@ -203,8 +181,7 @@ struct FirebaseAIProviderTests {
 
     // MARK: - Reset
 
-    @Test("Mock reset clears all state")
-    func resetFunctionality() async throws {
+    @Test("Mock reset clears all state") func resetFunctionality() async throws {
         // Given
         let sut = makeSUT()
         _ = try await sut.generateContent(prompt: "Test", configuration: nil)

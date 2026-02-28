@@ -54,8 +54,7 @@ import Foundation
 ///
 /// ### Implementations
 /// - ``FirebaseManager``
-@MainActor
-public protocol FirebaseConfiguring: AnyObject, Sendable {
+@MainActor public protocol FirebaseConfiguring: AnyObject, Sendable {
     /// Indicates whether Firebase has been configured.
     var isConfigured: Bool { get }
 

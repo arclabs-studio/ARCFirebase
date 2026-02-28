@@ -8,12 +8,10 @@
 import Testing
 @testable import ARCFirebaseAI
 
-@Suite("AIConfiguration Tests")
-struct AIConfigurationTests {
+@Suite("AIConfiguration Tests") struct AIConfigurationTests {
     // MARK: - Default Preset
 
-    @Test("Default preset has expected values")
-    func defaultPreset() {
+    @Test("Default preset has expected values") func defaultPreset() {
         // Given/When
         let sut = AIConfiguration.default
 
@@ -27,8 +25,7 @@ struct AIConfigurationTests {
 
     // MARK: - Creative Preset
 
-    @Test("Creative preset has higher temperature")
-    func creativePreset() {
+    @Test("Creative preset has higher temperature") func creativePreset() {
         // Given/When
         let sut = AIConfiguration.creative
 
@@ -41,8 +38,7 @@ struct AIConfigurationTests {
 
     // MARK: - Factual Preset
 
-    @Test("Factual preset has lower temperature")
-    func factualPreset() {
+    @Test("Factual preset has lower temperature") func factualPreset() {
         // Given/When
         let sut = AIConfiguration.factual
 
@@ -55,8 +51,7 @@ struct AIConfigurationTests {
 
     // MARK: - Structured Preset
 
-    @Test("Structured preset has very low temperature")
-    func structuredPreset() {
+    @Test("Structured preset has very low temperature") func structuredPreset() {
         // Given/When
         let sut = AIConfiguration.structured
 
@@ -69,16 +64,13 @@ struct AIConfigurationTests {
 
     // MARK: - Custom Initialization
 
-    @Test("Custom configuration accepts all parameters")
-    func customInit() {
+    @Test("Custom configuration accepts all parameters") func customInit() {
         // Given/When
-        let sut = AIConfiguration(
-            temperature: 0.7,
-            maxOutputTokens: 2048,
-            topP: 0.9,
-            topK: 30,
-            stopSequences: ["END", "STOP"]
-        )
+        let sut = AIConfiguration(temperature: 0.7,
+                                  maxOutputTokens: 2048,
+                                  topP: 0.9,
+                                  topK: 30,
+                                  stopSequences: ["END", "STOP"])
 
         // Then
         #expect(sut.temperature == 0.7)
@@ -88,8 +80,7 @@ struct AIConfigurationTests {
         #expect(sut.stopSequences == ["END", "STOP"])
     }
 
-    @Test("Default init has nil values")
-    func defaultInit() {
+    @Test("Default init has nil values") func defaultInit() {
         // Given/When
         let sut = AIConfiguration()
 
@@ -103,8 +94,7 @@ struct AIConfigurationTests {
 
     // MARK: - Equatable
 
-    @Test("Configurations with same values are equal")
-    func equality() {
+    @Test("Configurations with same values are equal") func equality() {
         // Given
         let config1 = AIConfiguration(temperature: 0.5, maxOutputTokens: 1024)
         let config2 = AIConfiguration(temperature: 0.5, maxOutputTokens: 1024)
@@ -113,8 +103,7 @@ struct AIConfigurationTests {
         #expect(config1 == config2)
     }
 
-    @Test("Configurations with different values are not equal")
-    func inequality() {
+    @Test("Configurations with different values are not equal") func inequality() {
         // Given
         let config1 = AIConfiguration(temperature: 0.5)
         let config2 = AIConfiguration(temperature: 0.8)
@@ -123,8 +112,7 @@ struct AIConfigurationTests {
         #expect(config1 != config2)
     }
 
-    @Test("Presets are not equal to each other")
-    func presetInequality() {
+    @Test("Presets are not equal to each other") func presetInequality() {
         #expect(AIConfiguration.default != AIConfiguration.creative)
         #expect(AIConfiguration.factual != AIConfiguration.structured)
         #expect(AIConfiguration.creative != AIConfiguration.factual)

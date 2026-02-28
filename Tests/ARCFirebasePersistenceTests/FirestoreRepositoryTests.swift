@@ -9,8 +9,7 @@ import Foundation
 import Testing
 @testable import ARCFirebasePersistence
 
-@Suite("FirestoreRepository Tests")
-struct FirestoreRepositoryTests {
+@Suite("FirestoreRepository Tests") struct FirestoreRepositoryTests {
     // MARK: - Test Entity
 
     struct TestEntity: Identifiable, Codable, Equatable {
@@ -21,8 +20,7 @@ struct FirestoreRepositoryTests {
 
     // MARK: - FirestoreDocument Protocol Tests
 
-    @Test("FirestoreDocument protocol requirements")
-    func firestoreDocumentProtocol() {
+    @Test("FirestoreDocument protocol requirements") func firestoreDocumentProtocol() {
         // Given
         struct TestDocument: FirestoreDocument {
             let id: String
@@ -32,11 +30,9 @@ struct FirestoreRepositoryTests {
         let now = Date()
 
         // When
-        let document = TestDocument(
-            id: "test123",
-            createdAt: now,
-            updatedAt: now
-        )
+        let document = TestDocument(id: "test123",
+                                    createdAt: now,
+                                    updatedAt: now)
 
         // Then
         #expect(document.id == "test123")
@@ -64,8 +60,7 @@ struct FirestoreRepositoryTests {
 
     // MARK: - Mock Repository Tests
 
-    @Test("Mock repository can save entity")
-    func save_withValidEntity_savesSuccessfully() async throws {
+    @Test("Mock repository can save entity") func save_withValidEntity_savesSuccessfully() async throws {
         // Given
         let repository = makeSUT()
         let entity = TestEntity(id: "1", name: "Test", value: 100)
@@ -78,8 +73,7 @@ struct FirestoreRepositoryTests {
         #expect(repository.count == 1)
     }
 
-    @Test("Mock repository can fetch entity by ID")
-    func fetch_withExistingID_returnsEntity() async throws {
+    @Test("Mock repository can fetch entity by ID") func fetch_withExistingID_returnsEntity() async throws {
         // Given
         let repository = makeSUT()
         let entity = TestEntity(id: "1", name: "Test", value: 100)
@@ -106,15 +100,12 @@ struct FirestoreRepositoryTests {
         #expect(fetched == nil)
     }
 
-    @Test("Mock repository can fetch all entities")
-    func fetchAll_withMultipleEntities_returnsAll() async throws {
+    @Test("Mock repository can fetch all entities") func fetchAll_withMultipleEntities_returnsAll() async throws {
         // Given
         let repository = makeSUT()
-        let entities = [
-            TestEntity(id: "1", name: "First", value: 1),
-            TestEntity(id: "2", name: "Second", value: 2),
-            TestEntity(id: "3", name: "Third", value: 3)
-        ]
+        let entities = [TestEntity(id: "1", name: "First", value: 1),
+                        TestEntity(id: "2", name: "Second", value: 2),
+                        TestEntity(id: "3", name: "Third", value: 3)]
         for entity in entities {
             try await repository.save(entity)
         }
@@ -127,8 +118,7 @@ struct FirestoreRepositoryTests {
         #expect(all.count == 3)
     }
 
-    @Test("Mock repository can update entity")
-    func update_withExistingEntity_updatesSuccessfully() async throws {
+    @Test("Mock repository can update entity") func update_withExistingEntity_updatesSuccessfully() async throws {
         // Given
         let repository = makeSUT()
         let original = TestEntity(id: "1", name: "Original", value: 100)
@@ -145,8 +135,7 @@ struct FirestoreRepositoryTests {
         #expect(fetched?.value == 200)
     }
 
-    @Test("Mock repository can delete entity")
-    func delete_withExistingID_deletesSuccessfully() async throws {
+    @Test("Mock repository can delete entity") func delete_withExistingID_deletesSuccessfully() async throws {
         // Given
         let repository = makeSUT()
         let entity = TestEntity(id: "1", name: "Test", value: 100)
@@ -161,8 +150,7 @@ struct FirestoreRepositoryTests {
         #expect(fetched == nil)
     }
 
-    @Test("Mock repository throws configured error on fetch")
-    func fetch_withMockError_throwsError() async {
+    @Test("Mock repository throws configured error on fetch") func fetch_withMockError_throwsError() async {
         // Given
         let repository = makeSUT()
         let testError = NSError(domain: "TestDomain", code: 404, userInfo: nil)
@@ -177,8 +165,7 @@ struct FirestoreRepositoryTests {
         }
     }
 
-    @Test("Mock repository throws configured error on save")
-    func save_withMockError_throwsError() async {
+    @Test("Mock repository throws configured error on save") func save_withMockError_throwsError() async {
         // Given
         let repository = makeSUT()
         let testError = NSError(domain: "TestDomain", code: 500, userInfo: nil)
@@ -194,8 +181,7 @@ struct FirestoreRepositoryTests {
         }
     }
 
-    @Test("Mock repository reset clears all state")
-    func reset_afterOperations_clearsAllState() async throws {
+    @Test("Mock repository reset clears all state") func reset_afterOperations_clearsAllState() async throws {
         // Given
         let repository = makeSUT()
         let entity = TestEntity(id: "1", name: "Test", value: 100)
@@ -217,10 +203,8 @@ struct FirestoreRepositoryTests {
     func setStorage_withEntities_initializesCorrectly() async throws {
         // Given
         let repository = makeSUT()
-        let entities = [
-            TestEntity(id: "1", name: "First", value: 1),
-            TestEntity(id: "2", name: "Second", value: 2)
-        ]
+        let entities = [TestEntity(id: "1", name: "First", value: 1),
+                        TestEntity(id: "2", name: "Second", value: 2)]
 
         // When
         repository.setStorage(entities)
@@ -232,8 +216,7 @@ struct FirestoreRepositoryTests {
 
     // MARK: - Repository Protocol Tests
 
-    @Test("Repository protocol exists and is accessible")
-    func repositoryProtocol_exists_isAccessible() {
+    @Test("Repository protocol exists and is accessible") func repositoryProtocol_exists_isAccessible() {
         // Given / When
         let repository: any Repository = MockRepository<TestEntity>()
 

@@ -269,7 +269,7 @@ struct FlagRow: View {
 
     private let featureFlags: any FeatureFlagProviding
     private let analytics: any AnalyticsProviding
-    private nonisolated(unsafe) var updateListenerTask: Task<Void, Never>?
+    @ObservationIgnored private nonisolated(unsafe) var updateListenerTask: Task<Void, Never>?
 
     // MARK: Public State
 

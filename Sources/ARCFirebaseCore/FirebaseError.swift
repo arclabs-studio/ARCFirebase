@@ -49,6 +49,30 @@ public enum FirebaseError: LocalizedError {
     /// Permission denied for the requested operation.
     case permissionDenied
 
+    /// The email address is already in use by another account.
+    case emailAlreadyInUse
+
+    /// The email address is malformed.
+    case invalidEmail
+
+    /// The password does not meet strength requirements.
+    case weakPassword
+
+    /// The operation requires recent authentication. Re-authenticate and try again.
+    case requiresRecentLogin
+
+    /// The provider is already linked to this account.
+    case providerAlreadyLinked
+
+    /// The user is not linked to the specified provider.
+    case noSuchProvider
+
+    /// The supplied auth credential is invalid or has expired.
+    case invalidCredential
+
+    /// An account already exists with a different credential for this email.
+    case accountExistsWithDifferentCredential
+
     /// An unknown error occurred.
     case unknown(underlying: Error)
 
@@ -80,6 +104,22 @@ public enum FirebaseError: LocalizedError {
             "The requested document was not found."
         case .permissionDenied:
             "Permission denied. Check your Firestore security rules."
+        case .emailAlreadyInUse:
+            "The email address is already in use by another account."
+        case .invalidEmail:
+            "The email address is malformed."
+        case .weakPassword:
+            "The password does not meet strength requirements."
+        case .requiresRecentLogin:
+            "This operation requires recent authentication. Please sign in again."
+        case .providerAlreadyLinked:
+            "This provider is already linked to your account."
+        case .noSuchProvider:
+            "The user is not linked to the specified provider."
+        case .invalidCredential:
+            "The supplied auth credential is invalid or has expired."
+        case .accountExistsWithDifferentCredential:
+            "An account already exists with a different credential for this email."
         case let .unknown(error):
             "An unknown error occurred: \(error.localizedDescription)"
         }
