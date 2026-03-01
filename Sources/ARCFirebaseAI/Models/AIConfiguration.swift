@@ -82,8 +82,7 @@ public struct AIConfiguration: Sendable, Equatable {
                 maxOutputTokens: Int? = nil,
                 topP: Float? = nil,
                 topK: Int? = nil,
-                stopSequences: [String]? = nil)
-    {
+                stopSequences: [String]? = nil) {
         self.temperature = temperature
         self.maxOutputTokens = maxOutputTokens
         self.topP = topP

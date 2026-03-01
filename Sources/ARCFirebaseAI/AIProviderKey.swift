@@ -11,37 +11,32 @@ import SwiftUI
 /// This avoids crashes at module load time while ensuring proper configuration.
 private struct PlaceholderAIProvider: AIProviding, @unchecked Sendable {
     func generateContent(prompt _: String,
-                         configuration _: AIConfiguration?) async throws -> AIResponse
-    {
+                         configuration _: AIConfiguration?) async throws -> AIResponse {
         placeholderCrash()
     }
 
     func generateContent(prompt _: String,
                          systemInstruction _: String,
-                         configuration _: AIConfiguration?) async throws -> AIResponse
-    {
+                         configuration _: AIConfiguration?) async throws -> AIResponse {
         placeholderCrash()
     }
 
     func generateStructuredContent(prompt _: String,
                                    responseSchema _: AISchema,
                                    systemInstruction _: String?,
-                                   configuration _: AIConfiguration?) async throws -> AIResponse
-    {
+                                   configuration _: AIConfiguration?) async throws -> AIResponse {
         placeholderCrash()
     }
 
     func streamContent(prompt _: String,
-                       configuration _: AIConfiguration?) -> AsyncThrowingStream<String, Error>
-    {
+                       configuration _: AIConfiguration?) -> AsyncThrowingStream<String, Error> {
         placeholderCrash()
     }
 
     func sendMessage(_: String,
                      history _: [AIMessage],
                      systemInstruction _: String?,
-                     configuration _: AIConfiguration?) async throws -> AIResponse
-    {
+                     configuration _: AIConfiguration?) async throws -> AIResponse {
         placeholderCrash()
     }
 

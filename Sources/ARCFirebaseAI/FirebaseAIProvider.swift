@@ -84,8 +84,7 @@ public final class FirebaseAIProvider: AIProviding, @unchecked Sendable {
     // MARK: - AIProviding Implementation
 
     public func generateContent(prompt: String,
-                                configuration: AIConfiguration?) async throws -> AIResponse
-    {
+                                configuration: AIConfiguration?) async throws -> AIResponse {
         logger.info("Generating content for prompt (\(prompt.prefix(50))...)")
 
         let model = makeModel(configuration: configuration)
@@ -102,8 +101,7 @@ public final class FirebaseAIProvider: AIProviding, @unchecked Sendable {
 
     public func generateContent(prompt: String,
                                 systemInstruction: String,
-                                configuration: AIConfiguration?) async throws -> AIResponse
-    {
+                                configuration: AIConfiguration?) async throws -> AIResponse {
         logger.info("Generating content with system instruction")
 
         let model = makeModel(configuration: configuration,
@@ -122,8 +120,7 @@ public final class FirebaseAIProvider: AIProviding, @unchecked Sendable {
     public func generateStructuredContent(prompt: String,
                                           responseSchema: AISchema,
                                           systemInstruction: String?,
-                                          configuration: AIConfiguration?) async throws -> AIResponse
-    {
+                                          configuration: AIConfiguration?) async throws -> AIResponse {
         logger.info("Generating structured content")
 
         let genConfig = makeGenerationConfig(configuration: configuration,
@@ -144,8 +141,7 @@ public final class FirebaseAIProvider: AIProviding, @unchecked Sendable {
     }
 
     public func streamContent(prompt: String,
-                              configuration: AIConfiguration?) -> AsyncThrowingStream<String, Error>
-    {
+                              configuration: AIConfiguration?) -> AsyncThrowingStream<String, Error> {
         logger.info("Streaming content for prompt (\(prompt.prefix(50))...)")
 
         let model = makeModel(configuration: configuration)
@@ -176,8 +172,7 @@ public final class FirebaseAIProvider: AIProviding, @unchecked Sendable {
     public func sendMessage(_ message: String,
                             history: [AIMessage],
                             systemInstruction: String?,
-                            configuration: AIConfiguration?) async throws -> AIResponse
-    {
+                            configuration: AIConfiguration?) async throws -> AIResponse {
         logger.info("Sending message with \(history.count) history items")
 
         let model = makeModel(configuration: configuration,
