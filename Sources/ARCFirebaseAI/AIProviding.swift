@@ -168,8 +168,7 @@ extension AIProviding {
 
     /// Sends a message with history.
     public func sendMessage(_ message: String,
-                            history: [AIMessage]) async throws -> AIResponse
-    {
+                            history: [AIMessage]) async throws -> AIResponse {
         try await sendMessage(message, history: history, systemInstruction: nil, configuration: nil)
     }
 }

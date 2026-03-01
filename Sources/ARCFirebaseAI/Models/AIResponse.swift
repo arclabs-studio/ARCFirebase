@@ -58,8 +58,7 @@ public struct AIResponse: Sendable, Equatable {
                 finishReason: FinishReason = .stop,
                 promptTokenCount: Int? = nil,
                 candidatesTokenCount: Int? = nil,
-                totalTokenCount: Int? = nil)
-    {
+                totalTokenCount: Int? = nil) {
         self.content = content
         self.finishReason = finishReason
         self.promptTokenCount = promptTokenCount

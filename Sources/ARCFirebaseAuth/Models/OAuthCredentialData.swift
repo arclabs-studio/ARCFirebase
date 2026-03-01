@@ -55,8 +55,7 @@ public struct OAuthCredentialData: Sendable {
     public init(providerID: String,
                 idToken: String? = nil,
                 accessToken: String? = nil,
-                rawNonce: String? = nil)
-    {
+                rawNonce: String? = nil) {
         self.providerID = providerID
         self.idToken = idToken
         self.accessToken = accessToken

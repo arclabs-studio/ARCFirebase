@@ -12,15 +12,13 @@ import Foundation
 
 extension FirebaseAIProvider {
     func makeModel(configuration: AIConfiguration? = nil,
-                   systemInstruction: String? = nil) -> GenerativeModel
-    {
+                   systemInstruction: String? = nil) -> GenerativeModel {
         let genConfig = configuration.map { makeGenerationConfig(configuration: $0) }
         return makeModel(generationConfig: genConfig, systemInstruction: systemInstruction)
     }
 
     func makeModel(generationConfig: GenerationConfig? = nil,
-                   systemInstruction: String? = nil) -> GenerativeModel
-    {
+                   systemInstruction: String? = nil) -> GenerativeModel {
         if let instruction = systemInstruction {
             backend.generativeModel(modelName: modelName,
                                     generationConfig: generationConfig,
@@ -34,8 +32,7 @@ extension FirebaseAIProvider {
 
     func makeGenerationConfig(configuration: AIConfiguration?,
                               responseMIMEType: String? = nil,
-                              responseSchema: AISchema? = nil) -> GenerationConfig
-    {
+                              responseSchema: AISchema? = nil) -> GenerationConfig {
         GenerationConfig(temperature: configuration?.temperature,
                          topP: configuration?.topP,
                          topK: configuration?.topK,
