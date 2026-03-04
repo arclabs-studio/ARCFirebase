@@ -9,7 +9,8 @@ import Foundation
 import Testing
 @testable import ARCFirebasePersistence
 
-@Suite("FirestoreRepository Tests") struct FirestoreRepositoryTests {
+@Suite("FirestoreRepository Tests")
+struct FirestoreRepositoryTests {
     // MARK: - Test Entity
 
     struct TestEntity: Identifiable, Codable, Equatable {

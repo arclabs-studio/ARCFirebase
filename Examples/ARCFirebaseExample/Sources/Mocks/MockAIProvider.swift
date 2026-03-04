@@ -47,56 +47,44 @@ final class MockAIProvider: AIProviding, @unchecked Sendable {
 
     // MARK: AIProviding Implementation
 
-    func generateContent(
-        prompt: String,
-        configuration _: AIConfiguration?
-    ) async throws -> AIResponse {
+    func generateContent(prompt: String,
+                         configuration _: AIConfiguration?) async throws -> AIResponse {
         generateCount += 1
         try await Task.sleep(for: .seconds(simulatedDelay))
 
         let content = customResponse ?? mockResponse(for: prompt)
-        return AIResponse(
-            content: content,
-            finishReason: .stop,
-            promptTokenCount: prompt.count / 4,
-            candidatesTokenCount: content.count / 4,
-            totalTokenCount: (prompt.count + content.count) / 4
-        )
+        return AIResponse(content: content,
+                          finishReason: .stop,
+                          promptTokenCount: prompt.count / 4,
+                          candidatesTokenCount: content.count / 4,
+                          totalTokenCount: (prompt.count + content.count) / 4)
     }
 
-    func generateContent(
-        prompt: String,
-        systemInstruction _: String,
-        configuration: AIConfiguration?
-    ) async throws -> AIResponse {
+    func generateContent(prompt: String,
+                         systemInstruction _: String,
+                         configuration: AIConfiguration?) async throws -> AIResponse {
         try await generateContent(prompt: prompt, configuration: configuration)
     }
 
-    func generateStructuredContent(
-        prompt: String,
-        responseSchema _: AISchema,
-        systemInstruction _: String?,
-        configuration _: AIConfiguration?
-    ) async throws -> AIResponse {
+    func generateStructuredContent(prompt: String,
+                                   responseSchema _: AISchema,
+                                   systemInstruction _: String?,
+                                   configuration _: AIConfiguration?) async throws -> AIResponse {
         generateCount += 1
         try await Task.sleep(for: .seconds(simulatedDelay))
 
         let json = """
         {"name": "Osteria Francescana", "rating": 5, "cuisine": "Italian"}
         """
-        return AIResponse(
-            content: json,
-            finishReason: .stop,
-            promptTokenCount: prompt.count / 4,
-            candidatesTokenCount: json.count / 4,
-            totalTokenCount: (prompt.count + json.count) / 4
-        )
+        return AIResponse(content: json,
+                          finishReason: .stop,
+                          promptTokenCount: prompt.count / 4,
+                          candidatesTokenCount: json.count / 4,
+                          totalTokenCount: (prompt.count + json.count) / 4)
     }
 
-    func streamContent(
-        prompt: String,
-        configuration _: AIConfiguration?
-    ) -> AsyncThrowingStream<String, Error> {
+    func streamContent(prompt: String,
+                       configuration _: AIConfiguration?) -> AsyncThrowingStream<String, Error> {
         streamCount += 1
         let response = customResponse ?? mockResponse(for: prompt)
         let delay = simulatedDelay
@@ -115,23 +103,19 @@ final class MockAIProvider: AIProviding, @unchecked Sendable {
         }
     }
 
-    func sendMessage(
-        _ message: String,
-        history: [AIMessage],
-        systemInstruction _: String?,
-        configuration _: AIConfiguration?
-    ) async throws -> AIResponse {
+    func sendMessage(_ message: String,
+                     history: [AIMessage],
+                     systemInstruction _: String?,
+                     configuration _: AIConfiguration?) async throws -> AIResponse {
         chatCount += 1
         try await Task.sleep(for: .seconds(simulatedDelay))
 
         let content = customResponse ?? mockChatResponse(for: message, history: history)
-        return AIResponse(
-            content: content,
-            finishReason: .stop,
-            promptTokenCount: message.count / 4,
-            candidatesTokenCount: content.count / 4,
-            totalTokenCount: (message.count + content.count) / 4
-        )
+        return AIResponse(content: content,
+                          finishReason: .stop,
+                          promptTokenCount: message.count / 4,
+                          candidatesTokenCount: content.count / 4,
+                          totalTokenCount: (message.count + content.count) / 4)
     }
 
     func isAvailable() async -> Bool {

@@ -2,7 +2,8 @@ import Foundation
 import Testing
 @testable import ARCFirebaseCore
 
-@Suite("FirebaseManager Tests") struct FirebaseManagerTests {
+@Suite("FirebaseManager Tests")
+struct FirebaseManagerTests {
     @Test("FirebaseManager is a singleton")
     @MainActor func firebaseManagerSingleton() {
         let manager1 = FirebaseManager.shared

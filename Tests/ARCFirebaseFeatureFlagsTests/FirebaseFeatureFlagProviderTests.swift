@@ -2,7 +2,8 @@ import Foundation
 import Testing
 @testable import ARCFirebaseFeatureFlags
 
-@Suite("FirebaseFeatureFlagProvider Tests") struct FirebaseFeatureFlagProviderTests {
+@Suite("FirebaseFeatureFlagProvider Tests")
+struct FirebaseFeatureFlagProviderTests {
     // MARK: - Bool Tests
 
     @Test("Returns mock bool value when set") func boolValue_whenSet() {

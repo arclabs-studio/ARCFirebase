@@ -9,7 +9,8 @@ import Foundation
 import Testing
 @testable import ARCFirebaseStorage
 
-@Suite("StorageConfiguration Tests") struct StorageConfigurationTests {
+@Suite("StorageConfiguration Tests")
+struct StorageConfigurationTests {
     // MARK: - Default Configuration
 
     @Test("Default preset has 10 MB download limit") func defaultPreset() {

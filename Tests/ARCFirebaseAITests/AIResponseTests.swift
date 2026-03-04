@@ -9,7 +9,8 @@ import Foundation
 import Testing
 @testable import ARCFirebaseAI
 
-@Suite("AIResponse Tests") struct AIResponseTests {
+@Suite("AIResponse Tests")
+struct AIResponseTests {
     // MARK: - Initialisation
 
     @Test("Default finishReason is .stop") func defaultFinishReason() {

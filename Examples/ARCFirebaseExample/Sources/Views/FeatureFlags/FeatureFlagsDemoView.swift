@@ -264,7 +264,8 @@ struct FlagRow: View {
 /// - Real-time config update listening
 /// - Analytics event tracking
 @MainActor
-@Observable final class FeatureFlagsDemoViewModel {
+@Observable
+final class FeatureFlagsDemoViewModel {
     // MARK: Private Properties
 
     private let featureFlags: any FeatureFlagProviding

@@ -1,7 +1,8 @@
 import Testing
 @testable import ARCFirebaseAuth
 
-@Suite("FirebaseAuthProvider Tests") struct FirebaseAuthProviderTests {
+@Suite("FirebaseAuthProvider Tests")
+struct FirebaseAuthProviderTests {
     @Test("Mock provider can authenticate user") func mockAuthenticationFlow() async throws {
         let mock = makeSUT()
 

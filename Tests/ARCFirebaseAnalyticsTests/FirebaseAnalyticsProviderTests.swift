@@ -1,7 +1,8 @@
 import Testing
 @testable import ARCFirebaseAnalytics
 
-@Suite("FirebaseAnalyticsProvider Tests") struct FirebaseAnalyticsProviderTests {
+@Suite("FirebaseAnalyticsProvider Tests")
+struct FirebaseAnalyticsProviderTests {
     // MARK: - Mock Provider Tests
 
     @Test("logEvent records event with parameters") func logEvent_withParameters_recordsEvent() {

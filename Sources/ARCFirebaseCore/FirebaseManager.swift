@@ -26,7 +26,8 @@ import Foundation
 /// ### Best Practices
 /// - <doc:GettingStarted>
 /// - <doc:MultiAppSetup>
-@MainActor public final class FirebaseManager: FirebaseConfiguring {
+@MainActor
+public final class FirebaseManager: FirebaseConfiguring {
     // MARK: - Singleton
 
     /// Shared singleton instance.

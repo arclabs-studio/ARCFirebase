@@ -8,7 +8,8 @@
 import Testing
 @testable import ARCFirebaseAI
 
-@Suite("FirebaseAIProvider Tests") struct FirebaseAIProviderTests {
+@Suite("FirebaseAIProvider Tests")
+struct FirebaseAIProviderTests {
     // MARK: - Generate Content
 
     @Test("Mock provider generates content from prompt") func generateContent() async throws {

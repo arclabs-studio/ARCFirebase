@@ -9,7 +9,8 @@ import Foundation
 import Testing
 @testable import ARCFirebaseCore
 
-@Suite("Error+Firebase Mapping Tests") struct FirebaseErrorMappingTests {
+@Suite("Error+Firebase Mapping Tests")
+struct FirebaseErrorMappingTests {
     // MARK: - Firestore Domain
 
     @Test("Firestore NOT_FOUND (5) maps to documentNotFound") func firestoreNotFound() {

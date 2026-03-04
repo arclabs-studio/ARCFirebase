@@ -9,7 +9,8 @@ import Foundation
 import Testing
 @testable import ARCFirebaseCrashlytics
 
-@Suite("FirebaseCrashlyticsProvider Tests") struct FirebaseCrashlyticsProviderTests {
+@Suite("FirebaseCrashlyticsProvider Tests")
+struct FirebaseCrashlyticsProviderTests {
     // MARK: - Mock Provider Tests
 
     @Test("Mock provider can record error") func recordError_withError_tracksCorrectly() {

@@ -8,7 +8,8 @@
 import Testing
 @testable import ARCFirebaseAI
 
-@Suite("AIConfiguration Tests") struct AIConfigurationTests {
+@Suite("AIConfiguration Tests")
+struct AIConfigurationTests {
     // MARK: - Default Preset
 
     @Test("Default preset has expected values") func defaultPreset() {

@@ -52,10 +52,8 @@ struct AIChatView: View {
             .navigationTitle("AI Chat")
             .task {
                 if viewModel == nil {
-                    viewModel = AIChatViewModel(
-                        ai: ai,
-                        analytics: analytics
-                    )
+                    viewModel = AIChatViewModel(ai: ai,
+                                                analytics: analytics)
                 }
             }
         }
@@ -65,8 +63,7 @@ struct AIChatView: View {
 // MARK: - Private Views
 
 extension AIChatView {
-    @ViewBuilder
-    private func chatContent(_ viewModel: AIChatViewModel) -> some View {
+    @ViewBuilder private func chatContent(_ viewModel: AIChatViewModel) -> some View {
         @Bindable var vm = viewModel
 
         VStack(spacing: 0) {
@@ -76,10 +73,8 @@ extension AIChatView {
             ScrollViewReader { proxy in
                 ScrollView {
                     LazyVStack(alignment: .leading, spacing: 12) {
-                        ForEach(
-                            Array(viewModel.messages.enumerated()),
-                            id: \.offset
-                        ) { index, message in
+                        ForEach(Array(viewModel.messages.enumerated()),
+                                id: \.offset) { index, message in
                             MessageBubble(message: message)
                                 .id(index)
                         }
@@ -195,12 +190,10 @@ struct MessageBubble: View {
                     .font(.body)
                     .padding(.horizontal, 14)
                     .padding(.vertical, 10)
-                    .background(
-                        message.role == .user
-                            ? Color.accentColor.opacity(0.15)
-                            : Color(.systemGray6)
-                    )
-                    .clipShape(RoundedRectangle(cornerRadius: 16))
+                    .background(message.role == .user
+                        ? Color.accentColor.opacity(0.15)
+                        : Color(.systemGray6))
+                        .clipShape(RoundedRectangle(cornerRadius: 16))
             }
 
             if message.role == .model { Spacer(minLength: 60) }
@@ -256,11 +249,9 @@ final class AIChatViewModel {
         self.analytics = analytics
 
         // Add welcome message
-        messages.append(AIMessage(
-            role: .model,
-            content: "Hello! I'm powered by Gemini through Firebase AI. " +
-                "Try asking me about restaurants, recipes, or anything else!"
-        ))
+        messages.append(AIMessage(role: .model,
+                                  content: "Hello! I'm powered by Gemini through Firebase AI. " +
+                                      "Try asking me about restaurants, recipes, or anything else!"))
     }
 
     // MARK: Actions
@@ -288,9 +279,7 @@ final class AIChatViewModel {
                 try await handleChat(text)
             }
 
-            analytics.logEvent("ai_message_sent", parameters: [
-                "mode": selectedMode.rawValue.lowercased()
-            ])
+            analytics.logEvent("ai_message_sent", parameters: ["mode": selectedMode.rawValue.lowercased()])
         } catch {
             errorMessage = error.localizedDescription
             print("AI error: \(error)")
@@ -305,10 +294,8 @@ final class AIChatViewModel {
         chatHistory.removeAll()
         lastTokenCount = nil
 
-        messages.append(AIMessage(
-            role: .model,
-            content: "Chat cleared. Ask me anything!"
-        ))
+        messages.append(AIMessage(role: .model,
+                                  content: "Chat cleared. Ask me anything!"))
     }
 
     /// Clears the error message.
@@ -319,10 +306,8 @@ final class AIChatViewModel {
     // MARK: Private Helpers
 
     private func handleGenerate(_ text: String) async throws {
-        let response = try await ai.generateContent(
-            prompt: text,
-            configuration: configuration
-        )
+        let response = try await ai.generateContent(prompt: text,
+                                                    configuration: configuration)
 
         messages.append(AIMessage(role: .model, content: response.content))
         lastTokenCount = response.totalTokenCount
@@ -349,12 +334,10 @@ final class AIChatViewModel {
         // Build history from previous messages (excluding welcome)
         chatHistory.append(AIMessage(role: .user, content: text))
 
-        let response = try await ai.sendMessage(
-            text,
-            history: chatHistory.dropLast().map(\.self),
-            systemInstruction: nil,
-            configuration: configuration
-        )
+        let response = try await ai.sendMessage(text,
+                                                history: chatHistory.dropLast().map(\.self),
+                                                systemInstruction: nil,
+                                                configuration: configuration)
 
         let modelMessage = AIMessage(role: .model, content: response.content)
         messages.append(modelMessage)

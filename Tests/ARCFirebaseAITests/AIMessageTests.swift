@@ -8,7 +8,8 @@
 import Testing
 @testable import ARCFirebaseAI
 
-@Suite("AIMessage Tests") struct AIMessageTests {
+@Suite("AIMessage Tests")
+struct AIMessageTests {
     // MARK: - Initialization
 
     @Test("User message initializes correctly") func userMessageInit() {

@@ -9,7 +9,8 @@ import Foundation
 import Testing
 @testable import ARCFirebaseFeatureFlags
 
-@Suite("FeatureFlagConfiguration Tests") struct FeatureFlagConfigurationTests {
+@Suite("FeatureFlagConfiguration Tests")
+struct FeatureFlagConfigurationTests {
     // MARK: - Default Configuration
 
     @Test("Default preset has 12-hour fetch interval") func defaultPreset() {

@@ -63,7 +63,8 @@ import SwiftUI
 ///
 /// - **Demo Mode**: Runs without `GoogleService-Info.plist` using mock providers
 /// - **Production Mode**: Add `GoogleService-Info.plist` for real Firebase
-@main struct ARCFirebaseExampleApp: App {
+@main
+struct ARCFirebaseExampleApp: App {
     // MARK: Private Properties
 
     /// Authentication provider - manages user sign in/up/out.
@@ -112,8 +113,7 @@ import SwiftUI
                                                   crashlytics: any CrashlyticsProviding,
                                                   ai: any AIProviding,
                                                   featureFlags: any FeatureFlagProviding,
-                                                  isDemoMode: Bool)
-    {
+                                                  isDemoMode: Bool) {
         // Check for GoogleService-Info.plist
         let hasFirebaseConfig = Bundle.main.path(forResource: "GoogleService-Info",
                                                  ofType: "plist") != nil

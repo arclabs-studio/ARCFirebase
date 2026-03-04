@@ -2,7 +2,8 @@ import Foundation
 import Testing
 @testable import ARCFirebaseStorage
 
-@Suite("FirebaseStorageProvider Tests") struct FirebaseStorageProviderTests {
+@Suite("FirebaseStorageProvider Tests")
+struct FirebaseStorageProviderTests {
     // MARK: - Mock Provider Tests
 
     @Test("Mock provider uploads data") func mockUploadsData() async throws {
