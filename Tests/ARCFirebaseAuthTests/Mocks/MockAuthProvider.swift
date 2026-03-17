@@ -21,6 +21,7 @@ final class MockAuthProvider: AuthProviding, @unchecked Sendable {
     private(set) var unlinkProviderCallCount = 0
     private(set) var linkedProvidersCallCount = 0
     private(set) var authStateChangesCallCount = 0
+    private(set) var sendEmailVerificationCallCount = 0
 
     // MARK: - AuthProviding Implementation
 
@@ -184,6 +185,8 @@ final class MockAuthProvider: AuthProviding, @unchecked Sendable {
     }
 
     func sendEmailVerification() async throws {
+        sendEmailVerificationCallCount += 1
+
         if let error = mockError {
             throw error
         }
@@ -207,6 +210,7 @@ final class MockAuthProvider: AuthProviding, @unchecked Sendable {
         unlinkProviderCallCount = 0
         linkedProvidersCallCount = 0
         authStateChangesCallCount = 0
+        sendEmailVerificationCallCount = 0
     }
 
     func setMockError(_ error: Error?) {
