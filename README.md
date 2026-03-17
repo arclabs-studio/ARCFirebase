@@ -665,6 +665,46 @@ Same package, different configs. See [Multi-App Setup Guide](Sources/ARCFirebase
 
 ---
 
+## 🏗️ Architecture
+
+ARCFirebase follows the **Protocol + Provider + EnvironmentKey** pattern across all modules:
+
+```
+Protocol          → defines the contract, enables dependency injection
+Provider          → production implementation backed by Firebase SDK
+EnvironmentKey    → SwiftUI Environment integration
+Mock (in Tests)   → test double for unit testing
+```
+
+### Module Dependency Graph
+
+```
+ARCFirebaseCore (required by all)
+    ├── ARCFirebaseAuth         (actor — thread-safe)
+    ├── ARCFirebaseAnalytics    (@unchecked Sendable)
+    ├── ARCFirebaseCrashlytics  (singleton — global logging)
+    ├── ARCFirebasePersistence  (generic Firestore repository)
+    ├── ARCFirebaseStorage      (actor — thread-safe)
+    ├── ARCFirebaseAI           (actor — Gemini via Firebase AI)
+    └── ARCFirebaseFeatureFlags (Remote Config)
+```
+
+Import only the modules your app needs — there is no required umbrella import.
+
+---
+
+## 🤝 Contributing
+
+This package is maintained by ARC Labs Studio. To contribute:
+
+1. Follow the [ARC Labs branch naming conventions](https://github.com/arclabs-studio/ARCKnowledge): `feature/`, `bugfix/`, or `hotfix/` — include the Linear issue ID (e.g. `feature/ARC-42-add-messaging`)
+2. Run the full test suite before opening a PR: `swift test`
+3. Ensure SwiftLint and SwiftFormat pass: `make lint && make format`
+4. Add tests for any new public API — mock providers live in `Tests/*/Mocks/`
+5. Update `CHANGELOG.md` under `[Unreleased]`
+
+---
+
 ## 📄 License
 
 MIT License - ARC Labs Studio
