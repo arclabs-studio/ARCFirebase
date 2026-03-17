@@ -94,6 +94,9 @@ import Foundation
 /// - ``unlinkProvider(_:)``
 /// - ``linkedProviders()``
 ///
+/// ### Email Verification
+/// - ``sendEmailVerification()``
+///
 /// ### Implementations
 /// - ``FirebaseAuthProvider``
 public protocol AuthProviding: Sendable {

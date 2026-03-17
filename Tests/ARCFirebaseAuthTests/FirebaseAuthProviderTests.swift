@@ -344,6 +344,54 @@ struct FirebaseAuthProviderTests {
         #expect(providers.isEmpty)
     }
 
+    // MARK: - Email Verification Tests
+
+    @Test("Send email verification succeeds when user is signed in") func sendEmailVerificationSuccess() async throws {
+        // Given
+        let mock = makeSUT()
+        mock.mockUser = User(id: "123", email: "test@example.com")
+
+        // When
+        try await mock.sendEmailVerification()
+
+        // Then
+        #expect(mock.sendEmailVerificationCallCount == 1)
+    }
+
+    @Test("Send email verification throws when no user is signed in") func sendEmailVerificationNoUser() async throws {
+        // Given
+        let mock = makeSUT()
+
+        enum TestError: Error { case userNotFound }
+        mock.setMockError(TestError.userNotFound)
+
+        // When / Then
+        do {
+            try await mock.sendEmailVerification()
+            Issue.record("Expected error to be thrown")
+        } catch {
+            #expect(error is TestError)
+            #expect(mock.sendEmailVerificationCallCount == 1)
+        }
+    }
+
+    @Test("Send email verification throws when configured with arbitrary error") func sendEmailVerificationArbitraryError() async throws {
+        // Given
+        let mock = makeSUT()
+
+        enum TestError: Error { case networkFailure }
+        mock.setMockError(TestError.networkFailure)
+
+        // When / Then
+        do {
+            try await mock.sendEmailVerification()
+            Issue.record("Expected error to be thrown")
+        } catch {
+            #expect(error is TestError)
+            #expect(mock.sendEmailVerificationCallCount == 1)
+        }
+    }
+
     // MARK: - Reset Tests
 
     @Test("Reset clears all new call counts and state") func resetClearsNewState() async throws {
@@ -360,6 +408,7 @@ struct FirebaseAuthProviderTests {
         _ = try await mock.unlinkProvider("apple.com")
         _ = await mock.linkedProviders()
         _ = mock.authStateChanges()
+        try await mock.sendEmailVerification()
 
         // When
         mock.reset()
@@ -371,6 +420,7 @@ struct FirebaseAuthProviderTests {
         #expect(mock.unlinkProviderCallCount == 0)
         #expect(mock.linkedProvidersCallCount == 0)
         #expect(mock.authStateChangesCallCount == 0)
+        #expect(mock.sendEmailVerificationCallCount == 0)
         #expect(mock.mockLinkedProviders.isEmpty)
         #expect(mock.mockAuthStateUsers.isEmpty)
         #expect(await mock.currentUser == nil)
