@@ -209,6 +209,10 @@ final class MockAuthProvider: AuthProviding, @unchecked Sendable {
     func linkedProviders() async -> [String] {
         mockUser?.linkedProviderIDs ?? []
     }
+
+    func sendEmailVerification() async throws {
+        try await Task.sleep(for: .seconds(simulatedDelay))
+    }
 }
 
 // MARK: - Convenience Initializers
