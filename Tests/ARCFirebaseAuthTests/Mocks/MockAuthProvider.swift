@@ -183,6 +183,12 @@ final class MockAuthProvider: AuthProviding, @unchecked Sendable {
         return mockLinkedProviders
     }
 
+    func sendEmailVerification() async throws {
+        if let error = mockError {
+            throw error
+        }
+    }
+
     // MARK: - Test Helpers
 
     func reset() {

@@ -256,6 +256,23 @@ public final class FirebaseAuthProvider: AuthProviding, @unchecked Sendable {
         auth.currentUser?.providerData.map(\.providerID) ?? []
     }
 
+    public func sendEmailVerification() async throws {
+        logger.info("Sending verification email")
+
+        guard let currentUser = auth.currentUser else {
+            logger.error("No user signed in")
+            throw FirebaseError.userNotFound
+        }
+
+        do {
+            try await currentUser.sendEmailVerification()
+            logger.info("Verification email sent")
+        } catch {
+            logger.error("Failed to send verification email: \(error.localizedDescription)")
+            throw error.asFirebaseError()
+        }
+    }
+
     // MARK: - Private Helpers
 
     private static func makeOAuthCredential(from credential: OAuthCredentialData) -> OAuthCredential {

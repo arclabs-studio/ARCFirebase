@@ -62,6 +62,10 @@ private struct PlaceholderAuthProvider: AuthProviding, @unchecked Sendable {
         placeholderCrash()
     }
 
+    func sendEmailVerification() async throws {
+        placeholderCrash()
+    }
+
     private func placeholderCrash() -> Never {
         fatalError("""
         AuthProvider not configured.

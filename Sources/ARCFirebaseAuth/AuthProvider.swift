@@ -186,4 +186,12 @@ public protocol AuthProviding: Sendable {
     ///
     /// - Returns: An array of provider IDs, or an empty array if no user is signed in.
     func linkedProviders() async -> [String]
+
+    // MARK: - Email Verification
+
+    /// Sends a verification email to the current user's email address.
+    ///
+    /// - Throws: ``FirebaseError/userNotFound`` if no user is signed in.
+    /// - Throws: Network or Firebase errors if sending fails.
+    func sendEmailVerification() async throws
 }
