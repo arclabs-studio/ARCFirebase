@@ -60,6 +60,7 @@ import Foundation
 /// - ``linkAccount(with:)``
 /// - ``unlinkProvider(_:)``
 /// - ``linkedProviders()``
+/// - ``sendEmailVerification()``
 public final class FirebaseAuthProvider: AuthProviding, @unchecked Sendable {
     // MARK: - Properties
 
