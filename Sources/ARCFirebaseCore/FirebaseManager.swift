@@ -10,19 +10,6 @@ import FirebaseAppCheck
 import FirebaseCore
 import Foundation
 
-// MARK: - AppAttestProviderFactory (private)
-
-// Custom factory that wraps `AppAttestProvider` for use with `AppCheck.setAppCheckProviderFactory`.
-// Available on iOS 14+, tvOS 15+, watchOS 9+, and visionOS 1+.
-#if os(iOS) || os(tvOS) || os(watchOS) || os(visionOS)
-@available(iOS 14.0, tvOS 15.0, watchOS 9.0, *)
-private final class AppAttestProviderFactory: NSObject, AppCheckProviderFactory {
-    func createProvider(with app: FirebaseApp) -> (any AppCheckProvider)? {
-        AppAttestProvider(app: app)
-    }
-}
-#endif
-
 // MARK: - AppCheckProviderType
 
 /// Specifies which Firebase App Check provider to use at launch.
@@ -103,11 +90,7 @@ public final class FirebaseManager: FirebaseConfiguring {
                     AppCheck.setAppCheckProviderFactory(AppCheckDebugProviderFactory())
                 case .appAttest:
                     #if os(iOS) || os(tvOS) || os(watchOS) || os(visionOS)
-                    if #available(iOS 14.0, tvOS 15.0, watchOS 9.0, *) {
-                        AppCheck.setAppCheckProviderFactory(AppAttestProviderFactory())
-                    } else {
-                        AppCheck.setAppCheckProviderFactory(DeviceCheckProviderFactory())
-                    }
+                    AppCheck.setAppCheckProviderFactory(AppAttestProviderFactory())
                     #else
                     AppCheck.setAppCheckProviderFactory(DeviceCheckProviderFactory())
                     #endif
