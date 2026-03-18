@@ -21,7 +21,7 @@ import Foundation
 /// let ai = try FirebaseAIProvider()
 ///
 /// // Or specify a model
-/// let ai = try FirebaseAIProvider(model: "gemini-2.0-flash")
+/// let ai = try FirebaseAIProvider(model: "gemini-2.5-flash")
 ///
 /// // Or use the convenience default
 /// let ai = FirebaseAIProvider.live
@@ -61,7 +61,7 @@ public final class FirebaseAIProvider: AIProviding, @unchecked Sendable {
     // MARK: - Properties
 
     /// Default Gemini model name used when no model is specified.
-    public static let defaultModelName = "gemini-2.0-flash"
+    public static let defaultModelName = "gemini-2.5-flash"
 
     // Declared internal (not private) so FirebaseAIProvider+Mapping.swift can access them.
     let modelName: String
@@ -72,7 +72,7 @@ public final class FirebaseAIProvider: AIProviding, @unchecked Sendable {
 
     /// Creates a Firebase AI provider.
     ///
-    /// - Parameter model: The Gemini model name. Default: `"gemini-2.0-flash"`.
+    /// - Parameter model: The Gemini model name. Default: `"gemini-2.5-flash"`.
     /// - Throws: ``FirebaseError/notConfigured`` if Firebase hasn't been initialized.
     public init(model: String = FirebaseAIProvider.defaultModelName) throws {
         try FirebaseManager.ensureConfigured()
@@ -214,7 +214,7 @@ extension FirebaseAIProvider {
     /// }
     /// ```
     ///
-    /// - Parameter model: The Gemini model name. Default: `"gemini-2.0-flash"`.
+    /// - Parameter model: The Gemini model name. Default: `"gemini-2.5-flash"`.
     /// - Returns: A configured ``FirebaseAIProvider`` instance.
     /// - Throws: ``FirebaseError/notConfigured`` if Firebase hasn't been initialized.
     public static func create(model: String = FirebaseAIProvider.defaultModelName) throws -> FirebaseAIProvider {
