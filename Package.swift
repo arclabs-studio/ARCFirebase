@@ -12,13 +12,24 @@ let package = Package(name: "ARCFirebase",
                           .library(name: "ARCFirebaseCore", targets: ["ARCFirebaseCore"]),
 
                           // Individual modules
-                          .library(name: "ARCFirebaseAuth", targets: ["ARCFirebaseAuth"]),
-                          .library(name: "ARCFirebaseAnalytics", targets: ["ARCFirebaseAnalytics"]),
-                          .library(name: "ARCFirebaseCrashlytics", targets: ["ARCFirebaseCrashlytics"]),
-                          .library(name: "ARCFirebasePersistence", targets: ["ARCFirebasePersistence"]),
-                          .library(name: "ARCFirebaseStorage", targets: ["ARCFirebaseStorage"]),
-                          .library(name: "ARCFirebaseAI", targets: ["ARCFirebaseAI"]),
-                          .library(name: "ARCFirebaseFeatureFlags", targets: ["ARCFirebaseFeatureFlags"]),
+                          .library(name: "ARCFirebaseAuth",
+                                   targets: ["ARCFirebaseAuth"]),
+                          .library(name: "ARCFirebaseAnalytics",
+                                   targets: ["ARCFirebaseAnalytics"]),
+                          .library(name: "ARCFirebaseCrashlytics",
+                                   targets: ["ARCFirebaseCrashlytics"]),
+                          .library(name: "ARCFirebasePersistence",
+                                   targets: ["ARCFirebasePersistence"]),
+                          .library(name: "ARCFirebaseStorage",
+                                   targets: ["ARCFirebaseStorage"]),
+                          .library(name: "ARCFirebaseAI",
+                                   targets: ["ARCFirebaseAI"]),
+                          .library(name: "ARCFirebaseFeatureFlags",
+                                   targets: ["ARCFirebaseFeatureFlags"]),
+                          .library(name: "ARCFirebaseAppCheck",
+                                   targets: ["ARCFirebaseAppCheck"]),
+                          .library(name: "ARCFirebaseCloudFunctions",
+                                   targets: ["ARCFirebaseCloudFunctions"]),
 
                           // Convenience: All modules in one
                           .library(name: "ARCFirebase",
@@ -29,7 +40,9 @@ let package = Package(name: "ARCFirebase",
                                              "ARCFirebasePersistence",
                                              "ARCFirebaseStorage",
                                              "ARCFirebaseAI",
-                                             "ARCFirebaseFeatureFlags"])],
+                                             "ARCFirebaseFeatureFlags",
+                                             "ARCFirebaseAppCheck",
+                                             "ARCFirebaseCloudFunctions"])],
                       dependencies: [// Firebase iOS SDK
                           .package(url: "https://github.com/firebase/firebase-ios-sdk.git", from: "11.13.0"),
 
@@ -107,6 +120,24 @@ let package = Package(name: "ARCFirebase",
                                   path: "Sources/ARCFirebaseFeatureFlags",
                                   swiftSettings: [.swiftLanguageMode(.v6)]),
 
+                          // MARK: - App Check
+
+                          .target(name: "ARCFirebaseAppCheck",
+                                  dependencies: ["ARCFirebaseCore",
+                                                 .product(name: "FirebaseAppCheck", package: "firebase-ios-sdk"),
+                                                 .product(name: "ARCLogger", package: "ARCLogger")],
+                                  path: "Sources/ARCFirebaseAppCheck",
+                                  swiftSettings: [.swiftLanguageMode(.v6)]),
+
+                          // MARK: - Cloud Functions
+
+                          .target(name: "ARCFirebaseCloudFunctions",
+                                  dependencies: ["ARCFirebaseCore",
+                                                 .product(name: "FirebaseFunctions", package: "firebase-ios-sdk"),
+                                                 .product(name: "ARCLogger", package: "ARCLogger")],
+                                  path: "Sources/ARCFirebaseCloudFunctions",
+                                  swiftSettings: [.swiftLanguageMode(.v6)]),
+
                           // MARK: - Tests
 
                           .testTarget(name: "ARCFirebaseCoreTests",
@@ -132,4 +163,10 @@ let package = Package(name: "ARCFirebase",
                                       swiftSettings: [.swiftLanguageMode(.v6)]),
                           .testTarget(name: "ARCFirebaseFeatureFlagsTests",
                                       dependencies: ["ARCFirebaseFeatureFlags"],
+                                      swiftSettings: [.swiftLanguageMode(.v6)]),
+                          .testTarget(name: "ARCFirebaseAppCheckTests",
+                                      dependencies: ["ARCFirebaseAppCheck"],
+                                      swiftSettings: [.swiftLanguageMode(.v6)]),
+                          .testTarget(name: "ARCFirebaseCloudFunctionsTests",
+                                      dependencies: ["ARCFirebaseCloudFunctions"],
                                       swiftSettings: [.swiftLanguageMode(.v6)])])
