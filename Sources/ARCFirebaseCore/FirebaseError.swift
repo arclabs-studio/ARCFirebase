@@ -76,6 +76,21 @@ public enum FirebaseError: LocalizedError {
     /// An unknown error occurred.
     case unknown(underlying: Error)
 
+    /// Cloud Functions service is not available.
+    case cloudFunctionsNotAvailable
+
+    /// App Check service is not available.
+    case appCheckNotAvailable
+
+    /// App Check token retrieval failed.
+    case appCheckTokenError(underlying: Error)
+
+    /// A Cloud Function returned an error response.
+    case cloudFunctionError(code: String, message: String)
+
+    /// A Cloud Function call timed out.
+    case cloudFunctionTimeout
+
     // MARK: - LocalizedError
 
     public var errorDescription: String? {
@@ -122,6 +137,16 @@ public enum FirebaseError: LocalizedError {
             "An account already exists with a different credential for this email."
         case let .unknown(error):
             "An unknown error occurred: \(error.localizedDescription)"
+        case .cloudFunctionsNotAvailable:
+            "Firebase Cloud Functions is not available."
+        case .appCheckNotAvailable:
+            "Firebase App Check is not available."
+        case let .appCheckTokenError(error):
+            "App Check token error: \(error.localizedDescription)"
+        case let .cloudFunctionError(code, message):
+            "Cloud Function error (\(code)): \(message)"
+        case .cloudFunctionTimeout:
+            "The Cloud Function call timed out."
         }
     }
 }
