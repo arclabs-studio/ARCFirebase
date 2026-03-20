@@ -8,42 +8,33 @@
 import ARCFirebaseCore
 import ARCLogger
 import FirebaseAppCheck
+import FirebaseCore
 import Foundation
 
 /// Firebase implementation of ``AppCheckProviding``.
 ///
 /// This is the production App Check provider that verifies request integrity.
 ///
-/// ## Important: Initialization Order
+/// ## Recommended Setup
 ///
-/// ``configure()`` **must** be called **before** ``FirebaseManager/configure()``.
-///
-/// ## Initialization
-///
-/// ```swift
-/// // Create an instance
-/// let appCheck = FirebaseAppCheckProvider()
-///
-/// // Or use the convenience default
-/// let appCheck = FirebaseAppCheckProvider.live
-/// ```
-///
-/// ## SwiftUI Integration
+/// Use `FirebaseManager.configure(appCheckProvider:)` to set up App Check as part
+/// of normal Firebase initialization — no need to call `configure()` separately:
 ///
 /// ```swift
 /// @main
 /// struct MyApp: App {
 ///     init() {
-///         // App Check MUST be configured before Firebase
-///         let appCheck = FirebaseAppCheckProvider.live
-///         try? appCheck.configure()
-///         FirebaseManager.shared.configure()
+///         #if DEBUG
+///         FirebaseManager.shared.configure(appCheckProvider: .debug)
+///         #else
+///         FirebaseManager.shared.configure(appCheckProvider: .appAttest)
+///         #endif
 ///     }
 ///
 ///     var body: some Scene {
 ///         WindowGroup {
 ///             ContentView()
-///                 .environment(\.appCheckProvider, FirebaseAppCheckProvider.live)
+///                 .environment(\.appCheckProvider, try? FirebaseAppCheckProvider())
 ///         }
 ///     }
 /// }
@@ -52,6 +43,7 @@ import Foundation
 /// ## Topics
 ///
 /// ### Initialization
+/// - ``init()``
 /// - ``init(configuration:)``
 /// - ``live``
 /// - ``create(configuration:)``
@@ -69,10 +61,22 @@ public final class FirebaseAppCheckProvider: AppCheckProviding, @unchecked Senda
 
     // MARK: - Initialization
 
+    /// Creates an App Check provider, verifying Firebase is already configured.
+    ///
+    /// Use this initializer when `FirebaseManager.configure(appCheckProvider:)` has
+    /// already been called at app launch (the recommended approach).
+    ///
+    /// - Throws: ``FirebaseError/notConfigured`` if `FirebaseManager.configure()` hasn't been called yet.
+    public init() throws {
+        configuration = .default
+        try FirebaseManager.ensureConfigured()
+        _isConfigured = true
+    }
+
     /// Creates an App Check provider with the given configuration.
     ///
     /// - Parameter configuration: The App Check configuration. Defaults to ``AppCheckConfiguration/default``.
-    public init(configuration: AppCheckConfiguration = .default) {
+    public init(configuration: AppCheckConfiguration) {
         self.configuration = configuration
     }
 
@@ -85,9 +89,19 @@ public final class FirebaseAppCheckProvider: AppCheckProviding, @unchecked Senda
 
     /// Registers the App Check provider factory with Firebase.
     ///
-    /// - Important: Call this **before** ``FirebaseManager/configure()``.
-    /// - Throws: ``FirebaseError/appCheckNotAvailable`` if registration fails.
+    /// - Note: This is a no-op when `FirebaseManager.configure(appCheckProvider:)` has already
+    ///   been called (the recommended path). The factory is already registered by `FirebaseManager`.
+    ///   Only call this manually if you need standalone App Check setup without `FirebaseManager`.
+    /// - Important: If calling manually, call this **before** `FirebaseManager.configure()`.
     public func configure() throws {
+        // If Firebase is already configured, App Check factory was registered by FirebaseManager.
+        // Registering it again would be a no-op at best and confusing at worst.
+        guard FirebaseApp.app() == nil else {
+            logger.debug("AppCheck already configured via FirebaseManager — skipping factory registration")
+            _isConfigured = true
+            return
+        }
+
         let factory: any AppCheckProviderFactory
         if configuration.isDebug {
             factory = AppCheckDebugProviderFactory()
@@ -106,7 +120,7 @@ public final class FirebaseAppCheckProvider: AppCheckProviding, @unchecked Senda
     /// - Throws: ``FirebaseError/appCheckTokenError(underlying:)`` if token retrieval fails.
     public func getLimitedUseToken() async throws -> String {
         guard _isConfigured else {
-            logger.error("AppCheck not configured — call configure() before FirebaseManager.configure()")
+            logger.error("AppCheck not configured — call FirebaseManager.configure(appCheckProvider:) at app launch")
             throw FirebaseError.appCheckNotAvailable
         }
 
@@ -134,7 +148,8 @@ extension FirebaseAppCheckProvider {
 
     /// Default live instance for production use.
     ///
-    /// - Important: Call ``configure()`` on this instance before ``FirebaseManager/configure()``.
+    /// Use after `FirebaseManager.configure(appCheckProvider:)` has been called at app launch.
+    /// For a checked initializer that throws if Firebase isn't configured yet, use ``init()`` instead.
     public static var live: FirebaseAppCheckProvider {
         create()
     }

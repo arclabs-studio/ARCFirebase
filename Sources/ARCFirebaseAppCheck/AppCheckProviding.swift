@@ -12,22 +12,21 @@ import Foundation
 /// Use this protocol for dependency injection to make your code testable
 /// and decoupled from Firebase App Check.
 ///
-/// ## Important: Initialization Order
+/// ## Recommended Setup
 ///
-/// ``configure()`` **must** be called **before** ``FirebaseManager/configure()``.
-/// App Check requires the provider factory to be registered before `FirebaseApp.configure()`.
-///
-/// ## Usage in Production
+/// Pass an `appCheckProvider` to `FirebaseManager.configure()` at app launch.
+/// App Check factory registration is handled automatically — no need to call
+/// `configure()` separately:
 ///
 /// ```swift
 /// @main
 /// struct MyApp: App {
 ///     init() {
-///         // 1. App Check FIRST
-///         let appCheck = FirebaseAppCheckProvider.live
-///         try? appCheck.configure()
-///         // 2. Then Firebase
-///         FirebaseManager.shared.configure()
+///         #if DEBUG
+///         FirebaseManager.shared.configure(appCheckProvider: .debug)
+///         #else
+///         FirebaseManager.shared.configure(appCheckProvider: .appAttest)
+///         #endif
 ///     }
 /// }
 /// ```
@@ -46,8 +45,9 @@ import Foundation
 public protocol AppCheckProviding: Sendable {
     /// Registers the App Check provider factory with Firebase.
     ///
-    /// - Important: Call this **before** ``FirebaseManager/configure()``.
-    /// - Throws: ``FirebaseError/appCheckNotAvailable`` if registration fails.
+    /// - Note: When using `FirebaseManager.configure(appCheckProvider:)` (recommended),
+    ///   this method is a no-op — the factory is already registered. Only needed for
+    ///   standalone App Check setup without `FirebaseManager`.
     func configure() throws
 
     /// Returns a limited-use App Check token for a single Cloud Functions call.
