@@ -26,6 +26,8 @@ extension Error {
         case "FIRAuthErrorDomain": return authError(code: nsError.code)
         case "FIRStorageErrorDomain": return storageError(code: nsError.code)
         case "FIRRemoteConfigErrorDomain": return remoteConfigError(code: nsError.code)
+        case "FIRFunctionsErrorDomain": return cloudFunctionsError(code: nsError.code)
+        case "FIRAppCheckErrorDomain": return appCheckError(code: nsError.code)
         case NSURLErrorDomain: return .networkError(underlying: self)
         default: return .unknown(underlying: self)
         }
@@ -70,5 +72,21 @@ extension Error {
         case 8003: .fetchThrottled // THROTTLED
         default: .unknown(underlying: self)
         }
+    }
+
+    private func cloudFunctionsError(code: Int) -> FirebaseError {
+        switch code {
+        case 1: return .unknown(underlying: self) // CANCELLED
+        case 4: return .cloudFunctionTimeout // DEADLINE_EXCEEDED
+        case 7: return .permissionDenied // PERMISSION_DENIED
+        case 16: return .appCheckNotAvailable // UNAUTHENTICATED (App Check verification failed)
+        default:
+            let message = (self as NSError).userInfo[NSLocalizedDescriptionKey] as? String ?? localizedDescription
+            return .cloudFunctionError(code: "\(code)", message: message)
+        }
+    }
+
+    private func appCheckError(code _: Int) -> FirebaseError {
+        .appCheckTokenError(underlying: self)
     }
 }
