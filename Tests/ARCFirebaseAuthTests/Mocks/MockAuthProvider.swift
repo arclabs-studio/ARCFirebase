@@ -22,6 +22,7 @@ final class MockAuthProvider: AuthProviding, @unchecked Sendable {
     private(set) var linkedProvidersCallCount = 0
     private(set) var authStateChangesCallCount = 0
     private(set) var sendEmailVerificationCallCount = 0
+    private(set) var updateProfileCallCount = 0
 
     // MARK: - AuthProviding Implementation
 
@@ -192,6 +193,23 @@ final class MockAuthProvider: AuthProviding, @unchecked Sendable {
         }
     }
 
+    func updateProfile(displayName: String?, photoURL _: URL?) async throws {
+        updateProfileCallCount += 1
+        if let error = mockError { throw error }
+        if let name = displayName, var user = mockUser {
+            user = User(id: user.id,
+                        email: user.email,
+                        displayName: name,
+                        photoURL: user.photoURL,
+                        isEmailVerified: user.isEmailVerified,
+                        creationDate: user.creationDate,
+                        lastSignInDate: user.lastSignInDate,
+                        providerID: user.providerID,
+                        linkedProviderIDs: user.linkedProviderIDs)
+            mockUser = user
+        }
+    }
+
     // MARK: - Test Helpers
 
     func reset() {
@@ -211,6 +229,7 @@ final class MockAuthProvider: AuthProviding, @unchecked Sendable {
         linkedProvidersCallCount = 0
         authStateChangesCallCount = 0
         sendEmailVerificationCallCount = 0
+        updateProfileCallCount = 0
     }
 
     func setMockError(_ error: Error?) {
