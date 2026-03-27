@@ -197,4 +197,14 @@ public protocol AuthProviding: Sendable {
     /// - Throws: ``FirebaseError/userNotFound`` if no user is signed in.
     /// - Throws: Network or Firebase errors if sending fails.
     func sendEmailVerification() async throws
+
+    // MARK: - Profile Update
+
+    /// Updates the current user's display name and/or photo URL.
+    ///
+    /// - Parameters:
+    ///   - displayName: The new display name, or `nil` to leave unchanged.
+    ///   - photoURL: The new photo URL, or `nil` to leave unchanged.
+    /// - Throws: ``FirebaseError/userNotFound`` if no user is signed in.
+    func updateProfile(displayName: String?, photoURL: URL?) async throws
 }

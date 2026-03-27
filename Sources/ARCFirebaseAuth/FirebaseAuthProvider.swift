@@ -274,6 +274,30 @@ public final class FirebaseAuthProvider: AuthProviding, @unchecked Sendable {
         }
     }
 
+    public func updateProfile(displayName: String?, photoURL: URL?) async throws {
+        logger.info("Updating user profile")
+
+        guard let currentUser = auth.currentUser else {
+            logger.error("No user signed in")
+            throw FirebaseError.userNotFound
+        }
+
+        do {
+            let request = currentUser.createProfileChangeRequest()
+            if let displayName {
+                request.displayName = displayName
+            }
+            if let photoURL {
+                request.photoURL = photoURL
+            }
+            try await request.commitChanges()
+            logger.info("Profile updated successfully")
+        } catch {
+            logger.error("Failed to update profile: \(error.localizedDescription)")
+            throw error.asFirebaseError()
+        }
+    }
+
     // MARK: - Private Helpers
 
     private static func makeOAuthCredential(from credential: OAuthCredentialData) -> OAuthCredential {

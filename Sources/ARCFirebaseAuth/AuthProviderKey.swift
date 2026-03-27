@@ -66,6 +66,10 @@ private struct PlaceholderAuthProvider: AuthProviding, @unchecked Sendable {
         placeholderCrash()
     }
 
+    func updateProfile(displayName _: String?, photoURL _: URL?) async throws {
+        placeholderCrash()
+    }
+
     private func placeholderCrash() -> Never {
         fatalError("""
         AuthProvider not configured.
