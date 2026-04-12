@@ -33,13 +33,16 @@ extension FirebaseAIProvider {
     func makeGenerationConfig(configuration: AIConfiguration?,
                               responseMIMEType: String? = nil,
                               responseSchema: AISchema? = nil) -> GenerationConfig {
-        GenerationConfig(temperature: configuration?.temperature,
-                         topP: configuration?.topP,
-                         topK: configuration?.topK,
-                         maxOutputTokens: configuration?.maxOutputTokens,
-                         stopSequences: configuration?.stopSequences,
-                         responseMIMEType: responseMIMEType,
-                         responseSchema: responseSchema)
+        // Prefer explicit overrides; fall back to values from AIConfiguration
+        let mimeType = responseMIMEType ?? configuration?.responseMIMEType
+        let schema = responseSchema ?? configuration?.responseSchema
+        return GenerationConfig(temperature: configuration?.temperature,
+                                topP: configuration?.topP,
+                                topK: configuration?.topK,
+                                maxOutputTokens: configuration?.maxOutputTokens,
+                                stopSequences: configuration?.stopSequences,
+                                responseMIMEType: mimeType,
+                                responseSchema: schema)
     }
 }
 
