@@ -46,6 +46,12 @@ public struct AIResponse: Sendable, Equatable {
     /// Total tokens used (prompt + response).
     public let totalTokenCount: Int?
 
+    /// Grounding metadata from the provider's search grounding, if enabled.
+    ///
+    /// `nil` when grounding was not requested (`AIConfiguration.groundingEnabled == false`)
+    /// or when the provider/model does not support grounding.
+    public let groundingMetadata: AIGroundingMetadata?
+
     /// Creates an AI response.
     ///
     /// - Parameters:
@@ -54,16 +60,19 @@ public struct AIResponse: Sendable, Equatable {
     ///   - promptTokenCount: Number of tokens in the prompt.
     ///   - candidatesTokenCount: Number of tokens in the response.
     ///   - totalTokenCount: Total tokens used.
+    ///   - groundingMetadata: Grounding metadata, if grounding was enabled and supported.
     public init(content: String,
                 finishReason: FinishReason = .stop,
                 promptTokenCount: Int? = nil,
                 candidatesTokenCount: Int? = nil,
-                totalTokenCount: Int? = nil) {
+                totalTokenCount: Int? = nil,
+                groundingMetadata: AIGroundingMetadata? = nil) {
         self.content = content
         self.finishReason = finishReason
         self.promptTokenCount = promptTokenCount
         self.candidatesTokenCount = candidatesTokenCount
         self.totalTokenCount = totalTokenCount
+        self.groundingMetadata = groundingMetadata
     }
 
     /// The reason content generation finished.

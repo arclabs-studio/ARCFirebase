@@ -5,6 +5,7 @@
 //  Created by ARC Labs Studio on 2026-02-17.
 //
 
+import FirebaseAI
 import Foundation
 
 /// Configuration for AI content generation.
@@ -46,7 +47,9 @@ import Foundation
 /// - ``creative``
 /// - ``factual``
 /// - ``structured``
-public struct AIConfiguration: Sendable, Equatable {
+/// `@unchecked Sendable` because `AISchema` (= `FirebaseAI.Schema`) may not satisfy
+/// the automatic Sendable check. The schema is set once at creation and never mutated.
+public struct AIConfiguration: @unchecked Sendable, Equatable {
     /// Controls randomness in generation. Higher values produce more creative output.
     ///
     /// Range: 0.0 to 2.0. Default: 1.0
@@ -70,6 +73,24 @@ public struct AIConfiguration: Sendable, Equatable {
     /// Sequences that will stop generation when encountered.
     public let stopSequences: [String]?
 
+    /// MIME type for the response (e.g. `"application/json"` for structured output).
+    ///
+    /// `nil` means the provider uses its default (plain text). Pair with
+    /// `responseSchema` to constrain the response shape.
+    public let responseMIMEType: String?
+
+    /// JSON Schema for structured output.
+    ///
+    /// Used together with `responseMIMEType: "application/json"`. When provided,
+    /// the model constrains its response to match this schema. `nil` means no
+    /// schema constraint.
+    public let responseSchema: AISchema?
+
+    /// When `true`, the provider uses search grounding to verify factual claims
+    /// (if supported by the provider and model). Providers that do not support
+    /// grounding silently ignore this flag.
+    public let groundingEnabled: Bool
+
     /// Creates an AI configuration with custom settings.
     ///
     /// - Parameters:
@@ -78,16 +99,41 @@ public struct AIConfiguration: Sendable, Equatable {
     ///   - topP: Nucleus sampling parameter (0.0-1.0). Default: nil (uses model default).
     ///   - topK: Top-K sampling parameter. Default: nil (uses model default).
     ///   - stopSequences: Sequences that stop generation. Default: nil.
+    ///   - responseMIMEType: MIME type for the response. Default: nil (plain text).
+    ///   - responseSchema: JSON schema for structured output. Default: nil.
+    ///   - groundingEnabled: Enable search grounding when supported. Default: false.
     public init(temperature: Float? = nil,
                 maxOutputTokens: Int? = nil,
                 topP: Float? = nil,
                 topK: Int? = nil,
-                stopSequences: [String]? = nil) {
+                stopSequences: [String]? = nil,
+                responseMIMEType: String? = nil,
+                responseSchema: AISchema? = nil,
+                groundingEnabled: Bool = false) {
         self.temperature = temperature
         self.maxOutputTokens = maxOutputTokens
         self.topP = topP
         self.topK = topK
         self.stopSequences = stopSequences
+        self.responseMIMEType = responseMIMEType
+        self.responseSchema = responseSchema
+        self.groundingEnabled = groundingEnabled
+    }
+
+    // MARK: - Equatable
+
+    /// Schema equality is best-effort: two configurations are considered equal when
+    /// all scalar fields match and both `responseSchema` values are either both
+    /// `nil` or both non-`nil`, because `AISchema` is not itself `Equatable`.
+    public static func == (lhs: AIConfiguration, rhs: AIConfiguration) -> Bool {
+        lhs.temperature == rhs.temperature &&
+            lhs.maxOutputTokens == rhs.maxOutputTokens &&
+            lhs.topP == rhs.topP &&
+            lhs.topK == rhs.topK &&
+            lhs.stopSequences == rhs.stopSequences &&
+            lhs.responseMIMEType == rhs.responseMIMEType &&
+            lhs.groundingEnabled == rhs.groundingEnabled &&
+            (lhs.responseSchema == nil) == (rhs.responseSchema == nil)
     }
 
     // MARK: - Presets
