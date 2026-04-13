@@ -60,11 +60,11 @@ import Foundation
 public final class FirebaseAIProvider: AIProviding, @unchecked Sendable {
     // MARK: - Properties
 
-    /// Default Gemini model name used when no model is specified.
-    public static let defaultModelName = "gemini-2.5-flash"
+    /// Default Gemini model used when no model is specified.
+    public static let defaultModel: GeminiModel = .flash25
 
     // Declared internal (not private) so FirebaseAIProvider+Mapping.swift can access them.
-    let modelName: String
+    let model: GeminiModel
     let backend: FirebaseAI
     private let logger = ARCLogger(subsystem: "com.arclabs-studio.arcfirebase", category: "FirebaseAI")
 
@@ -72,13 +72,13 @@ public final class FirebaseAIProvider: AIProviding, @unchecked Sendable {
 
     /// Creates a Firebase AI provider.
     ///
-    /// - Parameter model: The Gemini model name. Default: `"gemini-2.5-flash"`.
+    /// - Parameter model: The Gemini model to use. Default: ``GeminiModel/flash25``.
     /// - Throws: ``FirebaseError/notConfigured`` if Firebase hasn't been initialized.
-    public init(model: String = FirebaseAIProvider.defaultModelName) throws {
+    public init(model: GeminiModel = FirebaseAIProvider.defaultModel) throws {
         try FirebaseManager.ensureConfigured()
-        modelName = model
+        self.model = model
         backend = FirebaseAI.firebaseAI(backend: .googleAI())
-        logger.info("FirebaseAIProvider initialized with model: \(model)")
+        logger.info("FirebaseAIProvider initialized with model: \(model.rawValue)")
     }
 
     // MARK: - AIProviding Implementation
@@ -214,14 +214,14 @@ extension FirebaseAIProvider {
     /// }
     /// ```
     ///
-    /// - Parameter model: The Gemini model name. Default: `"gemini-2.5-flash"`.
+    /// - Parameter model: The Gemini model to use. Default: ``GeminiModel/flash25``.
     /// - Returns: A configured ``FirebaseAIProvider`` instance.
     /// - Throws: ``FirebaseError/notConfigured`` if Firebase hasn't been initialized.
-    public static func create(model: String = FirebaseAIProvider.defaultModelName) throws -> FirebaseAIProvider {
+    public static func create(model: GeminiModel = FirebaseAIProvider.defaultModel) throws -> FirebaseAIProvider {
         try FirebaseAIProvider(model: model)
     }
 
-    /// Default live instance for production use.
+    /// Default live instance for production use (Gemini 2.5 Flash).
     ///
     /// ```swift
     /// let ai = FirebaseAIProvider.live

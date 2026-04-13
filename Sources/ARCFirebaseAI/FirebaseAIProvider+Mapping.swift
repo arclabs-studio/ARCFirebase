@@ -20,12 +20,12 @@ extension FirebaseAIProvider {
     func makeModel(generationConfig: GenerationConfig? = nil,
                    systemInstruction: String? = nil) -> GenerativeModel {
         if let instruction = systemInstruction {
-            backend.generativeModel(modelName: modelName,
+            backend.generativeModel(modelName: model.rawValue,
                                     generationConfig: generationConfig,
                                     systemInstruction: ModelContent(role: "system",
                                                                     parts: instruction))
         } else {
-            backend.generativeModel(modelName: modelName,
+            backend.generativeModel(modelName: model.rawValue,
                                     generationConfig: generationConfig)
         }
     }
