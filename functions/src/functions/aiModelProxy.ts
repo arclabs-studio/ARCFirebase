@@ -1,99 +1,122 @@
-import { onCall } from "firebase-functions/v2/https";
-import { getSecret } from "../config/secrets";
+import { onCall, HttpsError } from "firebase-functions/v2/https";
+import { defineSecret } from "firebase-functions/params";
+import {
+  providerForModel,
+  providerConfig,
+  mapRequest,
+  mapResponse,
+  UnifiedRequest,
+  UnifiedResponse,
+} from "../providers/llmProviders";
+import { checkRateLimit } from "../middleware/rateLimit";
+
+const OPENAI_KEY = defineSecret("OPENAI_KEY");
+const XAI_KEY = defineSecret("XAI_KEY");
 
 interface AIModelRequest {
   prompt: string;
   model?: string;
+  systemPrompt?: string;
   maxTokens?: number;
-}
-
-interface AIModelResponse {
-  text: string;
-  model: string;
-  usage?: {
-    promptTokens: number;
-    completionTokens: number;
-    totalTokens: number;
-  };
+  temperature?: number;
 }
 
 /**
- * Proxies AI model API requests through Cloud Functions.
+ * Proxies LLM chat-completion requests to OpenAI or xAI/Grok.
  *
- * The AI model API key is read from Secret Manager, keeping it
- * off the client device entirely.
+ * The provider is resolved from the `model` field (e.g. `gpt-4o-mini` → OpenAI,
+ * `grok-4-1-fast` → xAI). Provider API keys live in Firebase Secret Manager —
+ * declared via `defineSecret(...)` and never reach the device.
  *
- * App Check enforcement is enabled — requests without valid App Check
- * tokens are rejected automatically before the handler runs.
+ * Security stack:
+ *   1. App Check (enforced by Firebase runtime before the handler runs).
+ *   2. Firebase Auth — handler rejects unauthenticated callers.
+ *   3. Per-UID rate limit — soft cap to bound runaway cost from a single account.
  *
- * Secret Manager keys:
- *   - AI_MODEL_API_KEY
- *
- * Environment variables:
- *   - AI_MODEL_ENDPOINT: The API endpoint URL for the AI model service.
+ * Secrets:
+ *   - OPENAI_KEY (set via: `firebase functions:secrets:set OPENAI_KEY`)
+ *   - XAI_KEY    (set via: `firebase functions:secrets:set XAI_KEY`)
  */
 export const aiModelProxy = onCall(
-  { enforceAppCheck: true },
-  async (request): Promise<AIModelResponse> => {
-    const {
-      prompt,
-      model = "default",
-      maxTokens = 1024,
-    } = request.data as AIModelRequest;
-
-    if (!prompt || prompt.trim().length === 0) {
-      throw new Error("prompt is required and must not be empty");
-    }
-
-    const apiKey = await getSecret("AI_MODEL_API_KEY");
-    const endpoint = process.env.AI_MODEL_ENDPOINT;
-
-    if (!endpoint) {
-      throw new Error(
-        "AI_MODEL_ENDPOINT environment variable is not configured"
+  { secrets: [OPENAI_KEY, XAI_KEY], enforceAppCheck: true },
+  async (request): Promise<UnifiedResponse> => {
+    const uid = request.auth?.uid;
+    if (!uid) {
+      throw new HttpsError(
+        "unauthenticated",
+        "Sign-in required to call aiModelProxy."
       );
     }
 
-    const response = await fetch(endpoint, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${apiKey}`,
-      },
-      body: JSON.stringify({
-        model,
-        prompt,
-        max_tokens: maxTokens,
-      }),
-    });
+    if (!checkRateLimit(uid)) {
+      throw new HttpsError(
+        "resource-exhausted",
+        "Rate limit exceeded. Try again later."
+      );
+    }
+
+    const data = request.data as AIModelRequest;
+    const prompt = data?.prompt;
+    if (!prompt || prompt.trim().length === 0) {
+      throw new HttpsError(
+        "invalid-argument",
+        "`prompt` is required and must not be empty."
+      );
+    }
+
+    const model = data.model ?? "gpt-4o-mini";
+
+    let provider: ReturnType<typeof providerForModel>;
+    try {
+      provider = providerForModel(model);
+    } catch {
+      throw new HttpsError("invalid-argument", `Unsupported model: ${model}`);
+    }
+
+    const apiKey = provider === "openai" ? OPENAI_KEY.value() : XAI_KEY.value();
+    const { baseUrl, authHeaders } = providerConfig(provider);
+
+    const unified: UnifiedRequest = {
+      prompt,
+      model,
+      systemPrompt: data.systemPrompt,
+      maxTokens: data.maxTokens,
+      temperature: data.temperature,
+    };
+
+    let response: Response;
+    try {
+      response = await fetch(baseUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...authHeaders(apiKey),
+        },
+        body: JSON.stringify(mapRequest(unified)),
+      });
+    } catch (err) {
+      // Network-level failure — do not leak the inner message; it may
+      // include host/IP details from the underlying http stack.
+      throw new HttpsError(
+        "unavailable",
+        `Upstream provider request failed (${provider}).`
+      );
+    }
 
     if (!response.ok) {
-      throw new Error(
-        `AI model API error: ${response.status} ${response.statusText}`
+      // Read provider error text but DO NOT echo it to the client — it may
+      // include account hints. Log server-side via Firebase logs only.
+      const errBody = await response.text().catch(() => "<unreadable>");
+      console.error(
+        `[aiModelProxy] provider=${provider} status=${response.status} body=${errBody.slice(0, 500)}`
+      );
+      throw new HttpsError(
+        "internal",
+        `Provider returned ${response.status}.`
       );
     }
 
-    const data = (await response.json()) as Record<string, unknown>;
-
-    const choices = data["choices"] as Array<{ text?: string }> | undefined;
-    const usageRaw = data["usage"] as
-      | {
-          prompt_tokens?: number;
-          completion_tokens?: number;
-          total_tokens?: number;
-        }
-      | undefined;
-
-    return {
-      text: (data["text"] as string) ?? choices?.[0]?.text ?? "",
-      model: (data["model"] as string) ?? model,
-      usage: usageRaw
-        ? {
-            promptTokens: usageRaw.prompt_tokens ?? 0,
-            completionTokens: usageRaw.completion_tokens ?? 0,
-            totalTokens: usageRaw.total_tokens ?? 0,
-          }
-        : undefined,
-    };
+    const raw = (await response.json()) as Record<string, unknown>;
+    return mapResponse(raw, model);
   }
 );

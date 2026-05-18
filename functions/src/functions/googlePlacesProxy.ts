@@ -1,5 +1,7 @@
-import { onCall } from "firebase-functions/v2/https";
-import { getSecret } from "../config/secrets";
+import { onCall, HttpsError } from "firebase-functions/v2/https";
+import { defineSecret } from "firebase-functions/params";
+
+const GOOGLE_PLACES_API_KEY = defineSecret("GOOGLE_PLACES_API_KEY");
 
 interface PlacesSearchRequest {
   query: string;
@@ -24,16 +26,18 @@ interface PlacesSearchResponse {
 /**
  * Proxies Google Places API (New) requests through Cloud Functions.
  *
- * The Google Places API key is read from Secret Manager, keeping it
- * off the client device entirely.
+ * The Google Places API key lives in Firebase Secret Manager (declared via
+ * `defineSecret`) and is loaded into the function runtime at cold-start —
+ * it never reaches the device.
  *
  * App Check enforcement is enabled — requests without valid App Check
  * tokens are rejected automatically before the handler runs.
  *
- * Secret Manager key: GOOGLE_PLACES_API_KEY
+ * Secret: GOOGLE_PLACES_API_KEY
+ *   Set via: `firebase functions:secrets:set GOOGLE_PLACES_API_KEY`
  */
 export const googlePlacesProxy = onCall(
-  { enforceAppCheck: true },
+  { secrets: [GOOGLE_PLACES_API_KEY], enforceAppCheck: true },
   async (request): Promise<PlacesSearchResponse> => {
     const {
       query,
@@ -42,10 +46,13 @@ export const googlePlacesProxy = onCall(
     } = request.data as PlacesSearchRequest;
 
     if (!query || query.trim().length === 0) {
-      throw new Error("query is required and must not be empty");
+      throw new HttpsError(
+        "invalid-argument",
+        "`query` is required and must not be empty."
+      );
     }
 
-    const apiKey = await getSecret("GOOGLE_PLACES_API_KEY");
+    const apiKey = GOOGLE_PLACES_API_KEY.value();
 
     const response = await fetch(
       "https://places.googleapis.com/v1/places:searchText",
@@ -66,8 +73,13 @@ export const googlePlacesProxy = onCall(
     );
 
     if (!response.ok) {
-      throw new Error(
-        `Places API error: ${response.status} ${response.statusText}`
+      const errBody = await response.text().catch(() => "<unreadable>");
+      console.error(
+        `[googlePlacesProxy] status=${response.status} body=${errBody.slice(0, 500)}`
+      );
+      throw new HttpsError(
+        "internal",
+        `Places API returned ${response.status}.`
       );
     }
 
