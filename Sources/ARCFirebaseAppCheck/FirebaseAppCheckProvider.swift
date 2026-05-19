@@ -56,7 +56,7 @@ public final class FirebaseAppCheckProvider: AppCheckProviding, @unchecked Senda
     // MARK: - Properties
 
     private let configuration: AppCheckConfiguration
-    private let logger = ARCLogger(subsystem: "com.arclabs-studio.arcfirebase", category: "AppCheck")
+    private let logger = ARCLogger(subsystem: ARCFirebaseLogSubsystem.current, category: "AppCheck")
     private var _isConfigured = false
 
     // MARK: - Initialization

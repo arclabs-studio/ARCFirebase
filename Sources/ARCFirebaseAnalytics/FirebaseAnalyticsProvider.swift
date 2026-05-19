@@ -33,7 +33,7 @@ import Foundation
 public final class FirebaseAnalyticsProvider: AnalyticsProviding, @unchecked Sendable {
     // MARK: - Properties
 
-    private let logger = ARCLogger(subsystem: "com.arclabs-studio.arcfirebase", category: "FirebaseAnalytics")
+    private let logger = ARCLogger(subsystem: ARCFirebaseLogSubsystem.current, category: "FirebaseAnalytics")
 
     // MARK: - Initialization
 

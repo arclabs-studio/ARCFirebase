@@ -66,7 +66,7 @@ public final class FirebaseAIProvider: AIProviding, @unchecked Sendable {
     // Declared internal (not private) so FirebaseAIProvider+Mapping.swift can access them.
     let model: GeminiModel
     let backend: FirebaseAI
-    private let logger = ARCLogger(subsystem: "com.arclabs-studio.arcfirebase", category: "FirebaseAI")
+    private let logger = ARCLogger(subsystem: ARCFirebaseLogSubsystem.current, category: "FirebaseAI")
 
     // MARK: - Initialization
 

@@ -59,7 +59,7 @@ public final class FirebaseCloudFunctionsProvider: CloudFunctionsProviding, @unc
 
     private let functions: Functions
     private let configuration: CloudFunctionsConfiguration
-    private let logger = ARCLogger(subsystem: "com.arclabs-studio.arcfirebase", category: "CloudFunctions")
+    private let logger = ARCLogger(subsystem: ARCFirebaseLogSubsystem.current, category: "CloudFunctions")
 
     // MARK: - Initialization
 
