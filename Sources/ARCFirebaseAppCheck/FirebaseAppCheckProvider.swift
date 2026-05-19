@@ -89,15 +89,25 @@ public final class FirebaseAppCheckProvider: AppCheckProviding, @unchecked Senda
 
     /// Registers the App Check provider factory with Firebase.
     ///
-    /// - Note: This is a no-op when `FirebaseManager.configure(appCheckProvider:)` has already
-    ///   been called (the recommended path). The factory is already registered by `FirebaseManager`.
-    ///   Only call this manually if you need standalone App Check setup without `FirebaseManager`.
-    /// - Important: If calling manually, call this **before** `FirebaseManager.configure()`.
+    /// - Warning: Prefer `FirebaseManager.configure(appCheckProvider:)`. If that path was
+    ///   already taken, this method is a **silent no-op** (the factory was registered earlier
+    ///   and Firebase is already initialized). Calling it later cannot change the registered
+    ///   factory — App Check factories must be installed **before** `FirebaseApp.configure()`.
+    /// - Note: When taking this standalone path, you must call `configure()` **before**
+    ///   `FirebaseManager.configure()` (or `FirebaseApp.configure()`), otherwise the factory
+    ///   registration is skipped and `isConfigured` reflects only the discovery, not a fresh
+    ///   registration.
+    /// - Important: Tests should use a mock conforming to ``AppCheckProviding`` rather than
+    ///   calling the live `configure()` repeatedly.
     public func configure() throws {
-        // If Firebase is already configured, App Check factory was registered by FirebaseManager.
-        // Registering it again would be a no-op at best and confusing at worst.
+        // If Firebase is already configured, App Check factory was registered by FirebaseManager
+        // (or by an earlier call). Re-registering is impossible at this point.
         guard FirebaseApp.app() == nil else {
-            logger.debug("AppCheck already configured via FirebaseManager — skipping factory registration")
+            logger.info("""
+            AppCheck factory registration skipped: Firebase already initialized. \
+            Use FirebaseManager.configure(appCheckProvider:) to install factories \
+            before Firebase setup.
+            """)
             _isConfigured = true
             return
         }
