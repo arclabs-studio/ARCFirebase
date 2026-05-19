@@ -54,12 +54,17 @@ import Foundation
 /// - ``call(_:timeout:)``
 /// - ``callVoid(_:data:timeout:)``
 /// - ``isAvailable()``
+/// `@unchecked Sendable` rationale: the Firebase SDK `Functions` type is not
+/// statically `Sendable` (Objective-C class without explicit annotations). All
+/// stored properties here are `let`, set once in `init`, and never mutated.
+/// `Functions` itself is documented as safe for concurrent use across threads
+/// (each call returns its own task), so cross-actor reads are safe.
 public final class FirebaseCloudFunctionsProvider: CloudFunctionsProviding, @unchecked Sendable {
     // MARK: - Properties
 
     private let functions: Functions
     private let configuration: CloudFunctionsConfiguration
-    private let logger = ARCLogger(subsystem: "com.arclabs-studio.arcfirebase", category: "CloudFunctions")
+    private let logger = ARCLogger(subsystem: ARCFirebaseLogSubsystem.current, category: "CloudFunctions")
 
     // MARK: - Initialization
 
@@ -168,8 +173,10 @@ extension FirebaseCloudFunctionsProvider {
 
     /// Default live instance for production use.
     ///
-    /// - Important: This will crash if Firebase is not configured.
-    ///              Call ``FirebaseManager/configure()`` first.
+    /// - Important: Production-only. Calls `fatalError` if Firebase is not configured.
+    ///              Call ``FirebaseManager/configure()`` first. Tests should use
+    ///              ``create(configuration:)`` (throws) or a mock conforming to
+    ///              ``CloudFunctionsProviding`` to avoid the trap.
     public static var live: FirebaseCloudFunctionsProvider {
         do {
             return try create()

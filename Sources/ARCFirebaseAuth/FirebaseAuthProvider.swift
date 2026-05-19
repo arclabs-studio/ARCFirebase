@@ -28,7 +28,7 @@ import Foundation
 ///
 /// ```swift
 /// @main
-/// struct FavResApp: App {
+/// struct MyApp: App {
 ///     let auth = FirebaseAuthProvider.live
 ///
 ///     var body: some Scene {
@@ -65,7 +65,7 @@ public final class FirebaseAuthProvider: AuthProviding, @unchecked Sendable {
     // MARK: - Properties
 
     private let auth = Auth.auth()
-    private let logger = ARCLogger(subsystem: "com.arclabs-studio.arcfirebase", category: "FirebaseAuth")
+    private let logger = ARCLogger(subsystem: ARCFirebaseLogSubsystem.current, category: "FirebaseAuth")
 
     // MARK: - Initialization
 
@@ -368,8 +368,10 @@ extension FirebaseAuthProvider {
     /// let auth = FirebaseAuthProvider.live
     /// ```
     ///
-    /// - Important: This will crash if Firebase is not configured.
-    ///              Call ``FirebaseManager/configure()`` first.
+    /// - Important: Production-only. Calls `fatalError` if Firebase is not configured.
+    ///              Call ``FirebaseManager/configure()`` first. Tests should use
+    ///              ``create()`` (throws) or a mock conforming to ``AuthProviding``
+    ///              to avoid the trap.
     public static var live: FirebaseAuthProvider {
         do {
             return try create()

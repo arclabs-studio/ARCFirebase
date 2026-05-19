@@ -55,7 +55,7 @@ public final class FirebaseFeatureFlagProvider: FeatureFlagProviding, @unchecked
         let settings = RemoteConfigSettings()
         settings.minimumFetchInterval = configuration.minimumFetchInterval
         remoteConfig.configSettings = settings
-        logger = ARCLogger(subsystem: "com.arclabs-studio.arcfirebase", category: "FeatureFlags")
+        logger = ARCLogger(subsystem: ARCFirebaseLogSubsystem.current, category: "FeatureFlags")
         logger
             .info("FirebaseFeatureFlagProvider initialized with fetchInterval: \(configuration.minimumFetchInterval)s")
     }

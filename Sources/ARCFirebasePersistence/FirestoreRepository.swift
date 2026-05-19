@@ -78,7 +78,7 @@ where Entity.ID == String {
 
         self.collectionPath = collectionPath
         db = Firestore.firestore()
-        logger = ARCLogger(subsystem: "com.arclabs-studio.arcfirebase", category: "Firestore[\(collectionPath)]")
+        logger = ARCLogger(subsystem: ARCFirebaseLogSubsystem.current, category: "Firestore[\(collectionPath)]")
 
         logger.info("Repository initialized for collection: \(collectionPath)")
     }
