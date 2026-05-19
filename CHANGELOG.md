@@ -12,6 +12,41 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 #### ARCFirebaseAuth
 - `sendEmailVerification()` to `AuthProviding` protocol and `FirebaseAuthProvider`
 
+#### ARCFirebaseCore
+- `ARCFirebaseLogSubsystem` helper — derives logger subsystem from
+  `Bundle.main.bundleIdentifier` at runtime, falling back to
+  `com.arclabs-studio.arcfirebase`. Scopes os_log streams to the host app.
+
+#### ARCFirebaseAI
+- `GeminiModel.pro25` (`gemini-2.5-pro`)
+- `GeminiModel.flashLite25` (`gemini-2.5-flash-lite`)
+- `GeminiModel.flashLite20` (`gemini-2.0-flash-lite`)
+
+### Changed
+
+#### ARCFirebaseCore / all providers
+- All 10 providers now use `ARCFirebaseLogSubsystem.current` instead of the
+  hardcoded `"com.arclabs-studio.arcfirebase"` subsystem. No API change.
+
+#### ARCFirebaseAppCheck
+- `FirebaseAppCheckProvider.configure()` no-op path now logs at `.info` level
+  with an explicit reason (instead of silent `.debug`). Docstring expanded to
+  warn that App Check factories must be installed before `FirebaseApp.configure()`
+  and that `FirebaseManager.configure(appCheckProvider:)` is the recommended path.
+
+### Documentation
+
+- README, GettingStarted.docc, MultiAppSetup.docc, SecurityBestPractices.docc:
+  replaced ARC-internal example names (FavRes, FavBook) with generic placeholders
+  (MyApp, AppA, AppB). License section clarifies the dual posture (PolyForm NC
+  source-available + internal ARC commercial grant + external commercial contact).
+- `@unchecked Sendable` rationale comments added to `FirebaseAppCheckProvider`,
+  `FirebaseCloudFunctionsProvider`, and `FirebaseAIProvider`.
+- `.live` docstrings on `FirebaseAuthProvider`, `FirebaseAnalyticsProvider`,
+  `FirebaseStorageProvider`, `FirebaseAIProvider`, `FirebaseCloudFunctionsProvider`,
+  and `FirebaseAppCheckProvider` now call out production-only intent and point
+  tests toward `create(…)` / mocks.
+
 ## [1.0.0] - 2026-01-13
 
 ### Added
