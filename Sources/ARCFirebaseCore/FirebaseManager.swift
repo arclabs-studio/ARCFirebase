@@ -81,7 +81,7 @@ public final class FirebaseManager: FirebaseConfiguring {
     ///
     /// ```swift
     /// @main
-    /// struct FavResApp: App {
+    /// struct MyApp: App {
     ///     init() {
     ///         FirebaseManager.shared.configure(appCheckProvider: .appAttest)
     ///     }

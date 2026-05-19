@@ -237,7 +237,7 @@ extension User {
     /// A mock user for previews and testing.
     static var mock: User {
         User(id: "mock-user-123",
-             email: "demo@arclabs.studio",
+             email: "demo@example.com",
              displayName: "Demo User",
              photoURL: nil,
              isEmailVerified: true,

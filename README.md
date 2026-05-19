@@ -26,8 +26,8 @@ ARCFirebase provides a clean, modular architecture for integrating Firebase serv
 - **SwiftUI integration**: Environment values support
 - **Comprehensive logging**: ARCLogger integration
 - **Full DocC documentation**: Learn as you code
-- **Multi-app ready**: Reusable across all ARC Labs apps
-- **Production tested**: Used in FavRes, FavBook, and more
+- **Multi-app ready**: Reusable across multiple apps and Firebase projects
+- **Production tested**: Used across ARC Labs Studio apps
 
 ---
 
@@ -113,7 +113,7 @@ import ARCFirebaseCrashlytics
 import ARCFirebaseAI
 
 @main
-struct FavResApp: App {
+struct MyApp: App {
     // Initialize providers
     private let auth: FirebaseAuthProvider
     private let analytics: FirebaseAnalyticsProvider
@@ -647,9 +647,9 @@ GoogleService-Info.plist
 ARCFirebase works across multiple apps. Each app uses its own Firebase project:
 
 ```
-FavRes     → Firebase Project "FavRes"
-FavBook    → Firebase Project "FavBook"
-SpatialShoes → Firebase Project "Spatial Shoes"
+AppA → Firebase Project "AppA"
+AppB → Firebase Project "AppB"
+AppC → Firebase Project "AppC"
 ```
 
 Same package, different configs. See [Multi-App Setup Guide](Sources/ARCFirebaseCore/ARCFirebaseCore.docc/MultiAppSetup.md).
@@ -707,11 +707,9 @@ This package is maintained by ARC Labs Studio. To contribute:
 
 ## 📄 License
 
-**PolyForm Noncommercial License 1.0.0** © 2025–2026 ARC Labs Studio.
+Source-available under **PolyForm Noncommercial License 1.0.0** © 2025–2026 ARC Labs Studio. Free for non-commercial use (research, study, hobby, evaluation).
 
-Source-available. Free for non-commercial use (research, study, hobby, evaluation). **Commercial use requires a separate license** — contact `arclabs.studio@gmail.com`.
-
-ARC Labs Studio's own commercial products are covered by an internal use grant — see [INTERNAL-USE.md](INTERNAL-USE.md).
+ARC Labs Studio holds an internal commercial grant covering its own products — see [INTERNAL-USE.md](INTERNAL-USE.md). External commercial users must contact `arclabs.studio@gmail.com` for a separate license.
 
 See [LICENSE](LICENSE) for the full license text.
 

@@ -28,7 +28,7 @@ import Foundation
 ///
 /// ```swift
 /// @main
-/// struct FavResApp: App {
+/// struct MyApp: App {
 ///     let auth = FirebaseAuthProvider.live
 ///
 ///     var body: some Scene {
