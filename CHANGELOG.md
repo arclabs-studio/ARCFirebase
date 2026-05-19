@@ -34,7 +34,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   warn that App Check factories must be installed before `FirebaseApp.configure()`
   and that `FirebaseManager.configure(appCheckProvider:)` is the recommended path.
 
+### Removed
+
+- `functions/` (TypeScript Cloud Functions backend) and `firebase.json` migrated
+  to the consuming-app repo. ARCFirebase is now a pure Swift client package; ship
+  and deploy the Functions backend from your app repo. The
+  `ARCFirebaseCloudFunctions` Swift client (`CloudFunctionsProviding`) stays in
+  this package and remains unchanged.
+
 ### Documentation
+
+#### ARCFirebaseCloudFunctions
+- `CloudFunctionsProviding` docstring clarifies that consumers ship their own
+  Functions backend; this package only provides the Swift client.
 
 - README, GettingStarted.docc, MultiAppSetup.docc, SecurityBestPractices.docc:
   replaced ARC-internal example names (FavRes, FavBook) with generic placeholders
