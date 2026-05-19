@@ -170,8 +170,10 @@ extension FirebaseStorageProvider {
 
     /// Default live instance for production use.
     ///
-    /// - Important: This will crash if Firebase is not configured.
-    ///              Call ``FirebaseManager/configure()`` first.
+    /// - Important: Production-only. Calls `fatalError` if Firebase is not configured.
+    ///              Call ``FirebaseManager/configure()`` first. Tests should use
+    ///              ``create()`` (throws) or a mock conforming to ``StorageProviding``
+    ///              to avoid the trap.
     public static var live: FirebaseStorageProvider {
         do {
             return try create()

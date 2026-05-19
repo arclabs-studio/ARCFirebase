@@ -57,6 +57,12 @@ import Foundation
 /// - ``streamContent(prompt:configuration:)``
 /// - ``sendMessage(_:history:systemInstruction:configuration:)``
 /// - ``isAvailable()``
+/// `@unchecked Sendable` rationale: the Firebase SDK `FirebaseAI` backend type
+/// is not statically `Sendable` (Objective-C-bridged), and `GeminiModel` here is
+/// `Sendable` but stored alongside it. All stored properties are `let`, set once
+/// in `init`, never mutated. `FirebaseAI` is documented as thread-safe — each
+/// request returns its own session — so cross-actor reads of `backend` and
+/// `model` are safe.
 public final class FirebaseAIProvider: AIProviding, @unchecked Sendable {
     // MARK: - Properties
 
@@ -227,8 +233,10 @@ extension FirebaseAIProvider {
     /// let ai = FirebaseAIProvider.live
     /// ```
     ///
-    /// - Important: This will crash if Firebase is not configured.
-    ///              Call ``FirebaseManager/configure()`` first.
+    /// - Important: Production-only. Calls `fatalError` if Firebase is not configured.
+    ///              Call ``FirebaseManager/configure()`` first. Tests should use
+    ///              ``create(model:)`` (throws) or a mock conforming to ``AIProviding``
+    ///              to avoid the trap.
     public static var live: FirebaseAIProvider {
         do {
             return try create()

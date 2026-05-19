@@ -368,8 +368,10 @@ extension FirebaseAuthProvider {
     /// let auth = FirebaseAuthProvider.live
     /// ```
     ///
-    /// - Important: This will crash if Firebase is not configured.
-    ///              Call ``FirebaseManager/configure()`` first.
+    /// - Important: Production-only. Calls `fatalError` if Firebase is not configured.
+    ///              Call ``FirebaseManager/configure()`` first. Tests should use
+    ///              ``create()`` (throws) or a mock conforming to ``AuthProviding``
+    ///              to avoid the trap.
     public static var live: FirebaseAuthProvider {
         do {
             return try create()

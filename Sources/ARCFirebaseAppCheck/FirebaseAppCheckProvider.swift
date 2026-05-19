@@ -52,6 +52,13 @@ import Foundation
 /// - ``configure()``
 /// - ``getLimitedUseToken()``
 /// - ``isConfigured``
+/// `@unchecked Sendable` rationale: `_isConfigured` is a `var Bool` so the class
+/// is not statically `Sendable`. Mutation contract: set exactly once during
+/// `configure()` (called at app launch, before any other thread reads it) and
+/// read-only thereafter. Boolean writes are word-atomic on supported platforms,
+/// and the read path (`isConfigured`) only ever observes `false → true`. No
+/// reordering hazard is introduced because callers never use `isConfigured` to
+/// gate concurrent state.
 public final class FirebaseAppCheckProvider: AppCheckProviding, @unchecked Sendable {
     // MARK: - Properties
 
@@ -160,6 +167,9 @@ extension FirebaseAppCheckProvider {
     ///
     /// Use after `FirebaseManager.configure(appCheckProvider:)` has been called at app launch.
     /// For a checked initializer that throws if Firebase isn't configured yet, use ``init()`` instead.
+    ///
+    /// - Important: Production-only. Tests should use ``create(configuration:)`` with a
+    ///   debug-mode configuration, or a mock conforming to ``AppCheckProviding``.
     public static var live: FirebaseAppCheckProvider {
         create()
     }
