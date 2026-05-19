@@ -16,6 +16,11 @@ import Foundation
 /// with any `Codable` request and response types. Define your function-specific
 /// request/response types in the **consuming app**, not in this package.
 ///
+/// - Important: This package only provides the Swift client. The Cloud Functions
+///   backend itself (TypeScript/JavaScript runtime code, `firebase.json`, deploy
+///   configuration) lives in your consuming-app repo. Ship and deploy it from there
+///   so the package stays generic and reusable across apps.
+///
 /// ## Usage in Production
 ///
 /// ```swift
