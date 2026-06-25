@@ -91,7 +91,8 @@ public final class FirebaseCloudFunctionsProvider: CloudFunctionsProviding, @unc
         callable.timeoutInterval = timeout ?? configuration.defaultTimeout
 
         do {
-            let result = try await callable.call(data)
+            let payload = try Self.encodeToJSONObject(data)
+            let result = try await callable.call(payload)
             let response: Response = try decodeResponse(result.data)
             logger.info("Function call succeeded: \(name)")
             return response
@@ -132,7 +133,8 @@ public final class FirebaseCloudFunctionsProvider: CloudFunctionsProviding, @unc
         callable.timeoutInterval = timeout ?? configuration.defaultTimeout
 
         do {
-            _ = try await callable.call(data)
+            let payload = try Self.encodeToJSONObject(data)
+            _ = try await callable.call(payload)
             logger.info("Function call (void) succeeded: \(name)")
         } catch let error as FirebaseError {
             throw error
@@ -147,6 +149,19 @@ public final class FirebaseCloudFunctionsProvider: CloudFunctionsProviding, @unc
     }
 
     // MARK: - Private Helpers
+
+    /// Encodes an `Encodable` value into a JSON object graph (`[String: Any]` /
+    /// `[Any]` / primitives) that Firebase's `FunctionsSerializer` accepts.
+    ///
+    /// The legacy `HTTPSCallable.call(_ data: Any?)` runs `FunctionsSerializer`,
+    /// which rejects arbitrary `Codable` Swift structs with
+    /// `unsupportedType(typeName:)`. Bridging through `JSONEncoder` +
+    /// `JSONSerialization` first produces the dictionary/array/primitive graph the
+    /// serializer supports, keeping struct payloads working end-to-end (FVRS-288).
+    static func encodeToJSONObject(_ value: some Encodable) throws -> Any {
+        let data = try JSONEncoder().encode(value)
+        return try JSONSerialization.jsonObject(with: data)
+    }
 
     private func decodeResponse<T: Decodable>(_ responseData: Any) throws -> T {
         guard JSONSerialization.isValidJSONObject(responseData) else {
