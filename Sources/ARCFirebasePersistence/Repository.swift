@@ -1,10 +1,3 @@
-//
-//  Repository.swift
-//  ARCFirebase
-//
-//  Created by ARC Labs Studio on 2026-01-13.
-//
-
 import Foundation
 
 /// Generic repository protocol for data persistence.
@@ -19,7 +12,7 @@ import Foundation
 /// - ``save(_:)``
 /// - ``update(_:)``
 /// - ``delete(id:)``
-public protocol Repository: Sendable {
+public protocol Repository {
     /// The type of entity this repository manages.
     associatedtype Entity: Identifiable & Codable
 

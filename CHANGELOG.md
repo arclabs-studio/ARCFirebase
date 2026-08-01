@@ -5,71 +5,6 @@ All notable changes to ARCFirebase will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
-
-### Added
-
-#### ARCFirebaseAuth
-- `sendEmailVerification()` to `AuthProviding` protocol and `FirebaseAuthProvider`
-
-#### ARCFirebaseCore
-- `ARCFirebaseLogSubsystem` helper — derives logger subsystem from
-  `Bundle.main.bundleIdentifier` at runtime, falling back to
-  `com.arclabs-studio.arcfirebase`. Scopes os_log streams to the host app.
-
-#### ARCFirebaseAI
-- `GeminiModel.pro25` (`gemini-2.5-pro`)
-- `GeminiModel.flashLite25` (`gemini-2.5-flash-lite`)
-- `GeminiModel.flashLite20` (`gemini-2.0-flash-lite`)
-
-### Changed
-
-#### ARCFirebaseCore / all providers
-- All 10 providers now use `ARCFirebaseLogSubsystem.current` instead of the
-  hardcoded `"com.arclabs-studio.arcfirebase"` subsystem. No API change.
-
-#### ARCFirebaseAppCheck
-- `FirebaseAppCheckProvider.configure()` no-op path now logs at `.info` level
-  with an explicit reason (instead of silent `.debug`). Docstring expanded to
-  warn that App Check factories must be installed before `FirebaseApp.configure()`
-  and that `FirebaseManager.configure(appCheckProvider:)` is the recommended path.
-
-#### ARCFirebaseAI
-- `FirebaseAIProvider` now logs a rich, bounded diagnostic instead of
-  `error.localizedDescription` when a FirebaseAI call fails.
-  `GenerateContentError.internalError`/`.promptImageContentError` recurse into the
-  underlying `BackendError` to surface `httpResponseCode` / `message` / `status`
-  (previously collapsed to the useless `"GenerateContentError 0"`). The
-  `.responseStoppedEarly` / `.promptBlocked` cases log a short, PII-safe form
-  (case + reason/blockReason, message capped at 300 chars) rather than dumping the
-  full `GenerateContentResponse`. Logging-only — callers still receive the raw,
-  unchanged error; no public API change.
-
-### Removed
-
-- `functions/` (TypeScript Cloud Functions backend) and `firebase.json` migrated
-  to the consuming-app repo. ARCFirebase is now a pure Swift client package; ship
-  and deploy the Functions backend from your app repo. The
-  `ARCFirebaseCloudFunctions` Swift client (`CloudFunctionsProviding`) stays in
-  this package and remains unchanged.
-
-### Documentation
-
-#### ARCFirebaseCloudFunctions
-- `CloudFunctionsProviding` docstring clarifies that consumers ship their own
-  Functions backend; this package only provides the Swift client.
-
-- README, GettingStarted.docc, MultiAppSetup.docc, SecurityBestPractices.docc:
-  replaced ARC-internal example names (FavRes, FavBook) with generic placeholders
-  (MyApp, AppA, AppB). License section clarifies the dual posture (PolyForm NC
-  source-available + internal ARC commercial grant + external commercial contact).
-- `@unchecked Sendable` rationale comments added to `FirebaseAppCheckProvider`,
-  `FirebaseCloudFunctionsProvider`, and `FirebaseAIProvider`.
-- `.live` docstrings on `FirebaseAuthProvider`, `FirebaseAnalyticsProvider`,
-  `FirebaseStorageProvider`, `FirebaseAIProvider`, `FirebaseCloudFunctionsProvider`,
-  and `FirebaseAppCheckProvider` now call out production-only intent and point
-  tests toward `create(…)` / mocks.
-
 ## [1.0.0] - 2026-01-13
 
 ### Added
@@ -132,29 +67,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ---
 
 ## [Unreleased]
-
-### Added
-
-#### ARCFirebaseAI
-- `AIProviding` protocol for dependency injection of AI content generation
-- `FirebaseAIProvider` class using Firebase AI (Gemini) for production use
-- `AIProviderKey` for SwiftUI Environment integration
-- `AIConfiguration` struct with presets: `.default`, `.creative`, `.factual`, `.structured`
-- `AIResponse` model with finish reason and token usage metadata
-- `AIMessage` model for multi-turn chat conversations
-- Streaming content generation via `AsyncThrowingStream`
-- Structured output generation with Firebase `Schema` type
-- System instruction support for guided model behavior
-- Factory methods: `create(model:)` and `live` property
-- DocC documentation with Getting Started guide
-
-#### ARCFirebaseCore
-- Added `case aiNotAvailable` to `FirebaseError`
-
-### Changed
-
-#### Package
-- Bumped firebase-ios-sdk minimum from `10.0.0` to `11.13.0` (required for Firebase AI)
 
 ### Changed
 

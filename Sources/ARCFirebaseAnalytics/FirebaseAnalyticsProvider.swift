@@ -1,10 +1,3 @@
-//
-//  FirebaseAnalyticsProvider.swift
-//  ARCFirebase
-//
-//  Created by ARC Labs Studio on 2026-01-13.
-//
-
 import ARCFirebaseCore
 import ARCLogger
 import FirebaseAnalytics
@@ -13,7 +6,7 @@ import Foundation
 /// Firebase implementation of ``AnalyticsProviding``.
 ///
 /// This is the production analytics provider that uses Firebase Analytics.
-/// All Firebase Analytics methods are thread-safe and can be called from any context.
+/// Implemented as an actor for thread-safe access in concurrent environments.
 ///
 /// ## Initialization
 ///
@@ -30,10 +23,10 @@ import Foundation
 /// ### Initialization
 /// - ``init()``
 /// - ``live``
-public final class FirebaseAnalyticsProvider: AnalyticsProviding, @unchecked Sendable {
+public actor FirebaseAnalyticsProvider: AnalyticsProviding {
     // MARK: - Properties
 
-    private let logger = ARCLogger(subsystem: ARCFirebaseLogSubsystem.current, category: "FirebaseAnalytics")
+    private let logger = ARCLogger(category: "FirebaseAnalytics")
 
     // MARK: - Initialization
 
@@ -48,24 +41,25 @@ public final class FirebaseAnalyticsProvider: AnalyticsProviding, @unchecked Sen
     // MARK: - AnalyticsProviding Implementation
 
     /// Firebase Analytics methods are thread-safe and can be called from any context.
-    public func logEvent(_ name: String, parameters: [String: any Sendable]? = nil) {
+    public nonisolated func logEvent(_ name: String, parameters: [String: Any]? = nil) {
         Analytics.logEvent(name, parameters: parameters)
     }
 
     /// Firebase Analytics methods are thread-safe and can be called from any context.
-    public func logScreenView(_ screenName: String, screenClass: String? = nil) {
-        Analytics.logEvent(AnalyticsEventScreenView, parameters: [AnalyticsParameterScreenName: screenName,
-                                                                  AnalyticsParameterScreenClass: screenClass ??
-                                                                      screenName])
+    public nonisolated func logScreenView(_ screenName: String, screenClass: String? = nil) {
+        Analytics.logEvent(AnalyticsEventScreenView, parameters: [
+            AnalyticsParameterScreenName: screenName,
+            AnalyticsParameterScreenClass: screenClass ?? screenName
+        ])
     }
 
     /// Firebase Analytics methods are thread-safe and can be called from any context.
-    public func setUserProperty(_ name: String, value: String?) {
+    public nonisolated func setUserProperty(_ name: String, value: String?) {
         Analytics.setUserProperty(value, forName: name)
     }
 
     /// Firebase Analytics methods are thread-safe and can be called from any context.
-    public func setUserID(_ userID: String?) {
+    public nonisolated func setUserID(_ userID: String?) {
         Analytics.setUserID(userID)
     }
 }
@@ -93,19 +87,19 @@ extension FirebaseAnalyticsProvider {
 
     /// Default live instance for production use.
     ///
-    /// - Important: Production-only. Calls `fatalError` if Firebase is not configured.
-    ///              Call ``FirebaseManager/configure()`` first. Tests should use
-    ///              ``create()`` (throws) or a mock conforming to ``AnalyticsProviding``
-    ///              to avoid the trap.
+    /// - Important: This will crash if Firebase is not configured.
+    ///              Call ``FirebaseManager/configure()`` first.
     public static var live: FirebaseAnalyticsProvider {
         do {
             return try create()
         } catch {
-            fatalError("""
-            FirebaseAnalyticsProvider initialization failed.
-            Ensure FirebaseManager.shared.configure() is called before accessing .live.
-            Error: \(error.localizedDescription)
-            """)
+            fatalError(
+                """
+                FirebaseAnalyticsProvider initialization failed.
+                Ensure FirebaseManager.shared.configure() is called before accessing .live.
+                Error: \(error.localizedDescription)
+                """
+            )
         }
     }
 }

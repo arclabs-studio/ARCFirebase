@@ -2,23 +2,18 @@ import Foundation
 @testable import ARCFirebaseStorage
 
 /// Mock storage provider for testing.
-final class MockStorageProvider: StorageProviding, @unchecked Sendable {
+actor MockStorageProvider: StorageProviding {
     // MARK: - Mock State
 
-    private(set) var uploadedFiles: [String: Data] = [:]
-    var mockDownloadURL: URL = {
-        guard let url = URL(string: "https://example.com/file.jpg") else {
-            preconditionFailure("MockStorageProvider: invalid mock URL constant")
-        }
-        return url
-    }()
-
+    var uploadedFiles: [String: Data] = [:]
+    // swiftlint:disable:next force_unwrapping
+    var mockDownloadURL = URL(string: "https://example.com/file.jpg")!
     var mockError: Error?
-    private(set) var uploadDataCallCount = 0
-    private(set) var uploadFileCallCount = 0
-    private(set) var downloadURLCallCount = 0
-    private(set) var downloadCallCount = 0
-    private(set) var deleteCallCount = 0
+    var uploadDataCallCount = 0
+    var uploadFileCallCount = 0
+    var downloadURLCallCount = 0
+    var downloadCallCount = 0
+    var deleteCallCount = 0
 
     // MARK: - StorageProviding Implementation
 

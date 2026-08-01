@@ -16,7 +16,7 @@ final class MockCrashlyticsProvider: CrashlyticsProviding, @unchecked Sendable {
     private(set) var recordedNonFatalErrors: [Error] = []
     private(set) var loggedMessages: [String] = []
     private(set) var currentUserID: String?
-    private(set) var customValues: [String: any Sendable] = [:]
+    private(set) var customValues: [String: Any] = [:]
 
     // MARK: - Call Counts
 
@@ -54,7 +54,7 @@ final class MockCrashlyticsProvider: CrashlyticsProviding, @unchecked Sendable {
         currentUserID = nil
     }
 
-    func setCustomValue(_ value: any Sendable, forKey key: String) {
+    func setCustomValue(_ value: Any, forKey key: String) {
         setCustomValueCallCount += 1
         customValues[key] = value
     }

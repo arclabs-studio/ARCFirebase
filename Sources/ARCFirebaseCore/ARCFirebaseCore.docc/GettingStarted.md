@@ -10,7 +10,7 @@ This guide walks you through the complete setup process for adding Firebase to y
 
 Before you begin:
 
-1. Firebase project created (e.g., "MyApp")
+1. Firebase project created (e.g., "FavRes")
 2. iOS app registered in Firebase Console
 3. `GoogleService-Info.plist` downloaded
 4. ARCFirebase package added to your project
@@ -24,8 +24,8 @@ Before you begin:
    - Check "Target Membership" → Your app target is checked
 
 ```
-MyApp/
-├── MyApp.swift
+FavRes/
+├── FavResApp.swift
 ├── GoogleService-Info.plist  ← Here, NOT in ARCFirebase package
 └── Views/
 ```
@@ -64,7 +64,7 @@ import ARCFirebaseAnalytics
 import ARCFirebaseCrashlytics
 
 @main
-struct MyApp: App {
+struct FavResApp: App {
     init() {
         // 1. Configure Firebase (reads GoogleService-Info.plist)
         FirebaseManager.configure()

@@ -68,7 +68,7 @@ public final class FirebaseCrashlyticsProvider: CrashlyticsProviding, @unchecked
     public init() throws {
         try FirebaseManager.ensureConfigured()
         crashlytics = Crashlytics.crashlytics()
-        logger = ARCLogger(subsystem: ARCFirebaseLogSubsystem.current, category: "Crashlytics")
+        logger = ARCLogger(category: "Crashlytics")
         logger.info("FirebaseCrashlyticsProvider initialized")
     }
 
@@ -99,7 +99,7 @@ public final class FirebaseCrashlyticsProvider: CrashlyticsProviding, @unchecked
         logger.debug("Cleared Crashlytics user ID")
     }
 
-    public func setCustomValue(_ value: any Sendable, forKey key: String) {
+    public func setCustomValue(_ value: Any, forKey key: String) {
         crashlytics.setCustomValue(value, forKey: key)
         logger.debug("Set custom value: \(key) = \(value)")
     }
@@ -134,11 +134,13 @@ extension FirebaseCrashlyticsProvider {
         do {
             return try create()
         } catch {
-            fatalError("""
-            FirebaseCrashlyticsProvider initialization failed.
-            Ensure FirebaseManager.shared.configure() is called before accessing .live.
-            Error: \(error.localizedDescription)
-            """)
+            fatalError(
+                """
+                FirebaseCrashlyticsProvider initialization failed.
+                Ensure FirebaseManager.shared.configure() is called before accessing .live.
+                Error: \(error.localizedDescription)
+                """
+            )
         }
     }
 }

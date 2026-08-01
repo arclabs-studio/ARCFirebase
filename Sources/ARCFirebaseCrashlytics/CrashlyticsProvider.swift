@@ -16,7 +16,7 @@ import Foundation
 ///
 /// ```swift
 /// @MainActor
-/// @Observable final class MyViewModel {
+/// class MyViewModel: ObservableObject {
 ///     private let crashlytics: CrashlyticsProviding
 ///
 ///     init(crashlytics: CrashlyticsProviding) {
@@ -108,5 +108,5 @@ public protocol CrashlyticsProviding: Sendable {
     /// - Parameters:
     ///   - value: The value to set (String, Bool, Int, Float, or Double).
     ///   - key: The key name (max 64 keys per session).
-    func setCustomValue(_ value: any Sendable, forKey key: String)
+    func setCustomValue(_ value: Any, forKey key: String)
 }

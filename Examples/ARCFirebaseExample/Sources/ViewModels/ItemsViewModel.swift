@@ -74,8 +74,10 @@ final class ItemsViewModel {
     /// - Parameters:
     ///   - analytics: Analytics provider for event tracking.
     ///   - crashlytics: Crashlytics provider for error recording.
-    init(analytics: any AnalyticsProviding,
-         crashlytics: any CrashlyticsProviding = MockCrashlyticsProvider()) {
+    init(
+        analytics: any AnalyticsProviding,
+        crashlytics: any CrashlyticsProviding = MockCrashlyticsProvider()
+    ) {
         self.analytics = analytics
         self.crashlytics = crashlytics
     }
@@ -106,7 +108,9 @@ final class ItemsViewModel {
         //     handleError(error, context: "loading items")
         // }
 
-        analytics.logEvent("items_loaded", parameters: ["count": items.count])
+        analytics.logEvent("items_loaded", parameters: [
+            "count": items.count
+        ])
 
         print("✅ Loaded \(items.count) items")
         isLoading = false
@@ -134,9 +138,11 @@ final class ItemsViewModel {
         errorMessage = nil
 
         // Create Item with timestamps
-        let item = Item.create(title: title,
-                               description: description,
-                               userId: userId)
+        let item = Item.create(
+            title: title,
+            description: description,
+            userId: userId
+        )
 
         // Simulate network delay
         try? await Task.sleep(for: .milliseconds(300))
@@ -154,7 +160,9 @@ final class ItemsViewModel {
 
         items.insert(item, at: 0)
 
-        analytics.logEvent("item_created", parameters: ["title_length": title.count])
+        analytics.logEvent("item_created", parameters: [
+            "title_length": title.count
+        ])
 
         print("✅ Item added: \(item.title)")
         isLoading = false

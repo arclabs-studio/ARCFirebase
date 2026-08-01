@@ -18,8 +18,6 @@ swift test --filter ARCFirebaseAnalyticsTests
 swift test --filter ARCFirebaseCrashlyticsTests
 swift test --filter ARCFirebasePersistenceTests
 swift test --filter ARCFirebaseStorageTests
-swift test --filter ARCFirebaseAITests
-swift test --filter ARCFirebaseFeatureFlagsTests
 
 # Generate DocC documentation
 swift package generate-documentation
@@ -38,9 +36,7 @@ ARCFirebaseCore          ← Required by all modules (FirebaseManager, FirebaseE
     ├── ARCFirebaseAnalytics    ← AnalyticsProviding protocol + FirebaseAnalyticsProvider
     ├── ARCFirebaseCrashlytics  ← CrashlyticsManager singleton
     ├── ARCFirebasePersistence  ← Repository protocol + FirestoreRepository<T>
-    ├── ARCFirebaseStorage      ← StorageProviding protocol + FirebaseStorageProvider actor
-    ├── ARCFirebaseAI           ← AIProviding protocol + FirebaseAIProvider (Gemini via Firebase AI)
-    └── ARCFirebaseFeatureFlags ← FeatureFlagProviding protocol + FirebaseFeatureFlagProvider (Remote Config)
+    └── ARCFirebaseStorage      ← StorageProviding protocol + FirebaseStorageProvider actor
 ```
 
 ### Design Pattern
@@ -82,7 +78,7 @@ struct FirebaseAuthProviderTests {
 
 ## Dependencies
 
-- **firebase-ios-sdk** (11.13.0+) - Firebase iOS SDK
+- **firebase-ios-sdk** (10.0.0+) - Firebase iOS SDK
 - **ARCLogger** (local path: `../ARCLogger`) - ARC Labs logging system
 
 ## Swift Version

@@ -52,8 +52,10 @@ struct StorageDemoView: View {
             .navigationTitle("Storage Demo")
             .task {
                 if viewModel == nil {
-                    viewModel = StorageDemoViewModel(storage: storage,
-                                                     analytics: analytics)
+                    viewModel = StorageDemoViewModel(
+                        storage: storage,
+                        analytics: analytics
+                    )
                 }
             }
         }
@@ -63,6 +65,7 @@ struct StorageDemoView: View {
 // MARK: - Private Views
 
 extension StorageDemoView {
+    @ViewBuilder
     private func storageContent(_ viewModel: StorageDemoViewModel) -> some View {
         List {
             // ==============================================================
@@ -151,21 +154,29 @@ extension StorageDemoView {
 
     private var howItWorksContent: some View {
         VStack(alignment: .leading, spacing: 16) {
-            InfoRow(icon: "arrow.up.doc",
-                    title: "Upload",
-                    description: "storage.upload(data:path:contentType:)")
+            InfoRow(
+                icon: "arrow.up.doc",
+                title: "Upload",
+                description: "storage.upload(data:path:contentType:)"
+            )
 
-            InfoRow(icon: "link",
-                    title: "Get URL",
-                    description: "storage.downloadURL(path:)")
+            InfoRow(
+                icon: "link",
+                title: "Get URL",
+                description: "storage.downloadURL(path:)"
+            )
 
-            InfoRow(icon: "arrow.down.doc",
-                    title: "Download",
-                    description: "storage.download(path:)")
+            InfoRow(
+                icon: "arrow.down.doc",
+                title: "Download",
+                description: "storage.download(path:)"
+            )
 
-            InfoRow(icon: "trash",
-                    title: "Delete",
-                    description: "storage.delete(path:)")
+            InfoRow(
+                icon: "trash",
+                title: "Delete",
+                description: "storage.delete(path:)"
+            )
         }
         .font(.caption)
     }
@@ -322,20 +333,26 @@ final class StorageDemoViewModel {
             let path = "demo/\(timestamp)_\(fileName)"
 
             // Upload to Firebase Storage
-            let downloadURL = try await storage.upload(data: data,
-                                                       path: path,
-                                                       contentType: "text/plain")
+            let downloadURL = try await storage.upload(
+                data: data,
+                path: path,
+                contentType: "text/plain"
+            )
 
             // Track analytics
-            analytics.logEvent("file_uploaded", parameters: ["file_size": data.count,
-                                                             "content_type": "text/plain"])
+            analytics.logEvent("file_uploaded", parameters: [
+                "file_size": data.count,
+                "content_type": "text/plain"
+            ])
 
             // Add to local list
-            let storedFile = StoredFile(path: path,
-                                        name: fileName,
-                                        size: data.count,
-                                        downloadURL: downloadURL,
-                                        uploadDate: Date())
+            let storedFile = StoredFile(
+                path: path,
+                name: fileName,
+                size: data.count,
+                downloadURL: downloadURL,
+                uploadDate: Date()
+            )
             storedFiles.insert(storedFile, at: 0)
 
             // Reset form

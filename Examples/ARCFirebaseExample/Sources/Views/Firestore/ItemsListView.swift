@@ -89,7 +89,8 @@ struct ItemsListView: View {
 // MARK: - Private Views
 
 extension ItemsListView {
-    @ViewBuilder private func itemsContent(_ viewModel: ItemsViewModel) -> some View {
+    @ViewBuilder
+    private func itemsContent(_ viewModel: ItemsViewModel) -> some View {
         if viewModel.isLoading, viewModel.items.isEmpty {
             // ================================================================
             // Loading State
@@ -101,9 +102,11 @@ extension ItemsListView {
             // Empty State
             // ================================================================
             // ContentUnavailableView provides consistent empty state design.
-            ContentUnavailableView("No Items",
-                                   systemImage: "tray",
-                                   description: Text("Tap + to add your first item"))
+            ContentUnavailableView(
+                "No Items",
+                systemImage: "tray",
+                description: Text("Tap + to add your first item")
+            )
         } else {
             // ================================================================
             // Items List
@@ -274,9 +277,11 @@ struct AddItemView: View {
                             guard let userId = authViewModel.currentUser?.id else {
                                 return
                             }
-                            await viewModel.addItem(title: title,
-                                                    description: description,
-                                                    userId: userId)
+                            await viewModel.addItem(
+                                title: title,
+                                description: description,
+                                userId: userId
+                            )
                             dismiss()
                         }
                     }
@@ -304,8 +309,10 @@ struct AddItemView: View {
 
 #Preview("Items List - Empty") {
     let mockAuth = MockAuthProvider.authenticated
-    let viewModel = AuthViewModel(auth: mockAuth,
-                                  analytics: MockAnalyticsProvider.preview)
+    let viewModel = AuthViewModel(
+        auth: mockAuth,
+        analytics: MockAnalyticsProvider.preview
+    )
     viewModel.mockAuthenticate()
 
     return ItemsListView()
@@ -315,8 +322,10 @@ struct AddItemView: View {
 
 #Preview("Items List - With Items") {
     let mockAuth = MockAuthProvider.authenticated
-    let viewModel = AuthViewModel(auth: mockAuth,
-                                  analytics: MockAnalyticsProvider.preview)
+    let viewModel = AuthViewModel(
+        auth: mockAuth,
+        analytics: MockAnalyticsProvider.preview
+    )
     viewModel.mockAuthenticate()
 
     return ItemsListView()
@@ -339,8 +348,10 @@ struct AddItemView: View {
 
 #Preview("Items List - Dark Mode") {
     let mockAuth = MockAuthProvider.authenticated
-    let viewModel = AuthViewModel(auth: mockAuth,
-                                  analytics: MockAnalyticsProvider.preview)
+    let viewModel = AuthViewModel(
+        auth: mockAuth,
+        analytics: MockAnalyticsProvider.preview
+    )
     viewModel.mockAuthenticate()
 
     return ItemsListView()

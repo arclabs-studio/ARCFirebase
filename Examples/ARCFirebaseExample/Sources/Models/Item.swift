@@ -106,9 +106,11 @@ extension Item {
     /// )
     /// try await repository.save(item)
     /// ```
-    static func create(title: String,
-                       description: String,
-                       userId: String) -> Item {
+    static func create(
+        title: String,
+        description: String,
+        userId: String
+    ) -> Item {
         // ====================================================================
         // Using withTimestamps Helper
         // ====================================================================
@@ -116,12 +118,14 @@ extension Item {
         // handling across all document types in your app.
 
         Item.withTimestamps { now in
-            Item(id: UUID().uuidString,
-                 title: title,
-                 description: description,
-                 createdAt: now,
-                 updatedAt: now,
-                 userId: userId)
+            Item(
+                id: UUID().uuidString,
+                title: title,
+                description: description,
+                createdAt: now,
+                updatedAt: now,
+                userId: userId
+            )
         }
     }
 }

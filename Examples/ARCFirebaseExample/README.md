@@ -36,12 +36,6 @@ A complete SwiftUI iOS app demonstrating all ARCFirebase modules in action. This
 - User context tracking
 - Custom logging
 
-### AI Chat (`ARCFirebaseAI`)
-- Content generation with Gemini 2.0 Flash via Firebase AI
-- Real-time streaming (word-by-word response display)
-- Multi-turn conversations with context history
-- Configuration presets (Default, Creative, Factual)
-
 ---
 
 ## Architecture
@@ -64,14 +58,11 @@ ARCFirebaseExample/
 │   │   ├── Auth/
 │   │   │   ├── SignInView.swift
 │   │   │   └── SignUpView.swift
-│   │   ├── AI/
-│   │   │   └── AIChatView.swift      # Gemini chat demo
 │   │   ├── Firestore/
 │   │   │   └── ItemsListView.swift
 │   │   └── Storage/
 │   │       └── StorageDemoView.swift
 │   └── Mocks/
-│       ├── MockAIProvider.swift
 │       ├── MockAuthProvider.swift
 │       ├── MockAnalyticsProvider.swift
 │       ├── MockStorageProvider.swift
@@ -130,10 +121,6 @@ xcodegen generate
 #### Crashlytics
 - Go to Crashlytics → Get started
 - Follow setup instructions
-
-#### Firebase AI (Gemini)
-- Go to [Firebase AI Logic](https://console.firebase.google.com) → Build with Gemini
-- Enable the Gemini API for your project
 
 ### 5. Development Security Rules
 
@@ -245,24 +232,6 @@ let downloadURL = try await storage.upload(
     path: "images/\(UUID().uuidString).jpg",
     contentType: "image/jpeg"
 )
-```
-
-### AI Content Generation
-
-```swift
-let ai: AIProviding = try FirebaseAIProvider.create()
-
-// One-shot generation
-let response = try await ai.generateContent(
-    prompt: "Suggest a restaurant in Tokyo",
-    configuration: .creative
-)
-print(response.content)
-
-// Streaming
-for try await chunk in ai.streamContent(prompt: "Tell me about sushi") {
-    print(chunk, terminator: "")
-}
 ```
 
 ---
