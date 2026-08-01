@@ -34,6 +34,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   warn that App Check factories must be installed before `FirebaseApp.configure()`
   and that `FirebaseManager.configure(appCheckProvider:)` is the recommended path.
 
+#### ARCFirebaseAI
+- `FirebaseAIProvider` now logs a rich, bounded diagnostic instead of
+  `error.localizedDescription` when a FirebaseAI call fails.
+  `GenerateContentError.internalError`/`.promptImageContentError` recurse into the
+  underlying `BackendError` to surface `httpResponseCode` / `message` / `status`
+  (previously collapsed to the useless `"GenerateContentError 0"`). The
+  `.responseStoppedEarly` / `.promptBlocked` cases log a short, PII-safe form
+  (case + reason/blockReason, message capped at 300 chars) rather than dumping the
+  full `GenerateContentResponse`. Logging-only — callers still receive the raw,
+  unchanged error; no public API change.
+
 ### Removed
 
 - `functions/` (TypeScript Cloud Functions backend) and `firebase.json` migrated

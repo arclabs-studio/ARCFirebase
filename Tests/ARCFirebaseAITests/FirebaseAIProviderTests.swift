@@ -5,10 +5,11 @@
 //  Created by ARC Labs Studio on 2026-02-17.
 //
 
+import FirebaseAI
+import Foundation
 import Testing
 @testable import ARCFirebaseAI
 
-@Suite("FirebaseAIProvider Tests")
 struct FirebaseAIProviderTests {
     // MARK: - Generate Content
 
@@ -201,6 +202,55 @@ struct FirebaseAIProviderTests {
         #expect(sut.lastPrompt == nil)
     }
 
+    // MARK: - Diagnostics
+
+    @Test("diagnosticDescription preserves BackendError detail for internalError")
+    func diagnosticsInternalErrorPreservesDetail() {
+        // Given — BackendError is internal to FirebaseAI; use a fixture whose
+        // String(describing:) carries the same fields the real BackendError exposes.
+        let error = GenerateContentError.internalError(underlying: FixtureBackendError())
+
+        // When
+        let result = FirebaseAIProvider.diagnosticDescription(for: error)
+
+        // Then — detail preserved, not collapsed to "GenerateContentError 0"
+        #expect(result.contains("httpResponseCode: 401"))
+        #expect(result.contains("Firebase App Check token is invalid."))
+        #expect(!result.contains("GenerateContentError 0"))
+    }
+
+    @Test("diagnosticDescription bounds responseStoppedEarly (no full response dump)")
+    func diagnosticsStoppedEarlyIsBounded() {
+        // Given — a response carrying a large body that must never be dumped
+        let largeBody = String(repeating: "A", count: 5000)
+        let candidate = Candidate(content: ModelContent(parts: largeBody),
+                                  safetyRatings: [],
+                                  finishReason: .maxTokens,
+                                  citationMetadata: nil)
+        let response = GenerateContentResponse(candidates: [candidate])
+        let error = GenerateContentError.responseStoppedEarly(reason: .maxTokens, response: response)
+
+        // When
+        let result = FirebaseAIProvider.diagnosticDescription(for: error)
+
+        // Then — the large body is absent and the output stays under the preview cap
+        #expect(!result.contains(largeBody))
+        #expect(result.count < 300)
+        #expect(result.contains("responseStoppedEarly"))
+    }
+
+    @Test("diagnosticDescription falls through to String(describing:) for plain errors")
+    func diagnosticsPlainErrorFallsThrough() {
+        // Given — typed as `Error` so the reflection matches how the helper sees it
+        let error: Error = URLError(.notConnectedToInternet)
+
+        // When
+        let result = FirebaseAIProvider.diagnosticDescription(for: error)
+
+        // Then
+        #expect(result == String(describing: error))
+    }
+
     // MARK: - Helpers
 
     private func makeSUT() -> MockAIProvider {
@@ -212,4 +262,13 @@ struct FirebaseAIProviderTests {
 
 private enum TestError: Error {
     case mockFailure
+}
+
+/// Stand-in for FirebaseAI's internal `BackendError` (not publicly constructible).
+/// Its description mirrors the fields the real type surfaces via `String(describing:)`.
+private struct FixtureBackendError: Error, CustomStringConvertible {
+    var description: String {
+        "BackendError(httpResponseCode: 401, message: \"Firebase App Check token is invalid.\", "
+            + "status: unauthenticated, details: [])"
+    }
 }

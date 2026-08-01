@@ -74,6 +74,37 @@ public final class FirebaseAIProvider: AIProviding, @unchecked Sendable {
     let backend: FirebaseAI
     private let logger = ARCLogger(subsystem: ARCFirebaseLogSubsystem.current, category: "FirebaseAI")
 
+    // MARK: - Diagnostics
+
+    /// Builds a rich but bounded diagnostic string for logging FirebaseAI errors.
+    ///
+    /// `GenerateContentError` has no `LocalizedError`/`CustomNSError` conformance, so
+    /// `localizedDescription` collapses to a useless `"GenerateContentError 0"`. This
+    /// recurses via `String(describing:)` into the underlying `BackendError` to surface
+    /// `httpResponseCode` / `message` / `status`. The stopped/blocked cases are bounded so
+    /// the full `GenerateContentResponse` (and any model/user-adjacent content) is never
+    /// dumped.
+    ///
+    /// - Parameter error: The error thrown by a FirebaseAI call.
+    /// - Returns: A diagnosable, PII-safe description for logging.
+    static func diagnosticDescription(for error: Error) -> String {
+        guard let genError = error as? GenerateContentError else {
+            return String(describing: error)
+        }
+        switch genError {
+        case .internalError, .promptImageContentError:
+            // Recurses into the underlying BackendError — surfaces the useful fields.
+            return String(describing: error)
+        case let .responseStoppedEarly(reason, _):
+            // Do NOT dump the response; the reason is the actionable signal.
+            return "GenerateContentError.responseStoppedEarly(reason: \(reason))"
+        case let .promptBlocked(response):
+            let reason = response.promptFeedback?.blockReason.map { String(describing: $0) } ?? "unknown"
+            let message = response.promptFeedback?.blockReasonMessage?.prefix(300) ?? ""
+            return "GenerateContentError.promptBlocked(blockReason: \(reason), message: \(message))"
+        }
+    }
+
     // MARK: - Initialization
 
     /// Creates a Firebase AI provider.
@@ -100,7 +131,7 @@ public final class FirebaseAIProvider: AIProviding, @unchecked Sendable {
             logger.info("Content generated successfully")
             return mapResponse(response)
         } catch {
-            logger.error("Content generation failed: \(error.localizedDescription)")
+            logger.error("Content generation failed: \(Self.diagnosticDescription(for: error))")
             throw error
         }
     }
@@ -118,7 +149,7 @@ public final class FirebaseAIProvider: AIProviding, @unchecked Sendable {
             logger.info("Content generated successfully")
             return mapResponse(response)
         } catch {
-            logger.error("Content generation failed: \(error.localizedDescription)")
+            logger.error("Content generation failed: \(Self.diagnosticDescription(for: error))")
             throw error
         }
     }
@@ -141,7 +172,7 @@ public final class FirebaseAIProvider: AIProviding, @unchecked Sendable {
             logger.info("Structured content generated successfully")
             return mapResponse(response)
         } catch {
-            logger.error("Structured content generation failed: \(error.localizedDescription)")
+            logger.error("Structured content generation failed: \(Self.diagnosticDescription(for: error))")
             throw error
         }
     }
@@ -164,7 +195,7 @@ public final class FirebaseAIProvider: AIProviding, @unchecked Sendable {
                     continuation.finish()
                     logger.info("Stream completed successfully")
                 } catch {
-                    logger.error("Stream failed: \(error.localizedDescription)")
+                    logger.error("Stream failed: \(Self.diagnosticDescription(for: error))")
                     continuation.finish(throwing: error)
                 }
             }
@@ -196,7 +227,7 @@ public final class FirebaseAIProvider: AIProviding, @unchecked Sendable {
             logger.info("Message sent successfully")
             return mapResponse(response)
         } catch {
-            logger.error("Send message failed: \(error.localizedDescription)")
+            logger.error("Send message failed: \(Self.diagnosticDescription(for: error))")
             throw error
         }
     }
@@ -244,7 +275,7 @@ extension FirebaseAIProvider {
             fatalError("""
             FirebaseAIProvider initialization failed.
             Ensure FirebaseManager.shared.configure() is called before accessing .live.
-            Error: \(error.localizedDescription)
+            Error: \(diagnosticDescription(for: error))
             """)
         }
     }
