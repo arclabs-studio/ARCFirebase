@@ -1,3 +1,10 @@
+//
+//  FirestoreDocument.swift
+//  ARCFirebase
+//
+//  Created by ARC Labs Studio on 2026-01-13.
+//
+
 import Foundation
 
 /// Protocol for Firestore document models.

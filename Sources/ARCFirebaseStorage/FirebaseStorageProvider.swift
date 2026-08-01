@@ -1,3 +1,10 @@
+//
+//  FirebaseStorageProvider.swift
+//  ARCFirebase
+//
+//  Created by ARC Labs Studio on 2026-01-13.
+//
+
 import ARCFirebaseCore
 import ARCLogger
 import FirebaseStorage
@@ -26,7 +33,7 @@ public final class FirebaseStorageProvider: StorageProviding, @unchecked Sendabl
     // MARK: - Properties
 
     private let storage = Storage.storage()
-    private let logger = ARCLogger(category: "FirebaseStorage")
+    private let logger = ARCLogger(subsystem: ARCFirebaseLogSubsystem.current, category: "FirebaseStorage")
     private let configuration: StorageConfiguration
 
     // MARK: - Initialization
@@ -163,19 +170,19 @@ extension FirebaseStorageProvider {
 
     /// Default live instance for production use.
     ///
-    /// - Important: This will crash if Firebase is not configured.
-    ///              Call ``FirebaseManager/configure()`` first.
+    /// - Important: Production-only. Calls `fatalError` if Firebase is not configured.
+    ///              Call ``FirebaseManager/configure()`` first. Tests should use
+    ///              ``create()`` (throws) or a mock conforming to ``StorageProviding``
+    ///              to avoid the trap.
     public static var live: FirebaseStorageProvider {
         do {
             return try create()
         } catch {
-            fatalError(
-                """
-                FirebaseStorageProvider initialization failed.
-                Ensure FirebaseManager.shared.configure() is called before accessing .live.
-                Error: \(error.localizedDescription)
-                """
-            )
+            fatalError("""
+            FirebaseStorageProvider initialization failed.
+            Ensure FirebaseManager.shared.configure() is called before accessing .live.
+            Error: \(error.localizedDescription)
+            """)
         }
     }
 }

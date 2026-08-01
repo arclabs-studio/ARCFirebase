@@ -1,25 +1,21 @@
+//
+//  StorageProviderKey.swift
+//  ARCFirebase
+//
+//  Created by ARC Labs Studio on 2026-01-13.
+//
+
 import Foundation
 import SwiftUI
 
-/// SwiftUI Environment key for storage provider.
-///
-/// - Important: You must explicitly set `.environment(\.storageProvider, provider)` in your app.
-///   The default value will crash if accessed without setting a provider first.
-public struct StorageProviderKey: EnvironmentKey {
-    public static let defaultValue: any StorageProviding = PlaceholderStorageProvider()
-}
-
 extension EnvironmentValues {
     /// The storage provider in the environment.
-    public var storageProvider: any StorageProviding {
-        get { self[StorageProviderKey.self] }
-        set { self[StorageProviderKey.self] = newValue }
-    }
+    @Entry public var storageProvider: any StorageProviding = PlaceholderStorageProvider()
 }
 
 /// Placeholder provider that crashes with helpful message when accessed.
 /// This avoids crashes at module load time while ensuring proper configuration.
-private struct PlaceholderStorageProvider: StorageProviding {
+private struct PlaceholderStorageProvider: StorageProviding, @unchecked Sendable {
     func upload(data _: Data, path _: String, contentType _: String) async throws -> URL {
         placeholderCrash()
     }
@@ -41,17 +37,15 @@ private struct PlaceholderStorageProvider: StorageProviding {
     }
 
     private func placeholderCrash() -> Never {
-        fatalError(
-            """
-            StorageProvider not configured.
-            You must set the storage provider in your app's environment:
+        fatalError("""
+        StorageProvider not configured.
+        You must set the storage provider in your app's environment:
 
-                .environment(\\.storageProvider, storageProvider)
+            .environment(\\.storageProvider, storageProvider)
 
-            Or use a mock provider for previews/testing:
+        Or use a mock provider for previews/testing:
 
-                .environment(\\.storageProvider, MockStorageProvider())
-            """
-        )
+            .environment(\\.storageProvider, MockStorageProvider())
+        """)
     }
 }

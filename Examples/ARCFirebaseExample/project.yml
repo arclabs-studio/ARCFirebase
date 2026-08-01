@@ -53,6 +53,10 @@ targets:
         product: ARCFirebasePersistence
       - package: ARCFirebase
         product: ARCFirebaseStorage
+      - package: ARCFirebase
+        product: ARCFirebaseAI
+      - package: ARCFirebase
+        product: ARCFirebaseFeatureFlags
 
 schemes:
   ARCFirebaseExample:
