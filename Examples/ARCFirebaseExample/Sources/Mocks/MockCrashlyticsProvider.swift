@@ -45,7 +45,7 @@ final class MockCrashlyticsProvider: CrashlyticsProviding, @unchecked Sendable {
     private(set) var currentUserID: String?
 
     /// Custom key-value pairs.
-    private(set) var customValues: [String: any Sendable] = [:]
+    private(set) var customValues: [String: Any] = [:]
 
     // MARK: Initialization
 
@@ -85,7 +85,7 @@ final class MockCrashlyticsProvider: CrashlyticsProviding, @unchecked Sendable {
         currentUserID = nil
     }
 
-    func setCustomValue(_ value: any Sendable, forKey key: String) {
+    func setCustomValue(_ value: Any, forKey key: String) {
         customValues[key] = value
     }
 

@@ -17,6 +17,10 @@ jobs:
         with:
           submodules: recursive
 
+      - name: Replace local ARCLogger with GitHub URL
+        run: |
+          sed -i '' 's|.package(path: "../ARCLogger")|.package(url: "https://github.com/arclabs-studio/ARCLogger.git", from: "1.0.0")|' Package.swift
+
       - name: Setup Xcode
         uses: maxim-lobanov/setup-xcode@v1
         with:

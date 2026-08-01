@@ -117,12 +117,11 @@ let restaurant = Restaurant.withTimestamps { now in
 ### ViewModel Pattern
 
 ```swift
-@Observable
 @MainActor
-final class RestaurantListViewModel {
-    var restaurants: [Restaurant] = []
-    var isLoading = false
-    var error: Error?
+class RestaurantListViewModel: ObservableObject {
+    @Published var restaurants: [Restaurant] = []
+    @Published var isLoading = false
+    @Published var error: Error?
 
     private let repository: FirestoreRepository<Restaurant>
 
@@ -155,11 +154,7 @@ final class RestaurantListViewModel {
 
 ```swift
 struct RestaurantListView: View {
-    @State private var viewModel: RestaurantListViewModel
-
-    init() throws {
-        _viewModel = State(wrappedValue: try RestaurantListViewModel())
-    }
+    @StateObject private var viewModel = try! RestaurantListViewModel()
 
     var body: some View {
         List(viewModel.restaurants) { restaurant in

@@ -11,11 +11,10 @@
 
 # Brace style
 --allman false
---wraparguments after-first
---wrapparameters after-first
---wrapcollections after-first
---closingparen same-line
---disable wrapMultilineStatementBraces
+--wraparguments before-first
+--wrapparameters before-first
+--wrapcollections before-first
+--closingparen balanced
 
 # Imports
 --importgrouping testable-bottom
@@ -34,12 +33,19 @@
 # Wrapping
 --wrapternary before-operators
 
-# Attributes - Type attributes on previous line (ARC Labs style)
+# Attributes - Declaration attributes on previous line (ARC Labs style)
 --type-attributes prev-line
---func-attributes same-line
+--func-attributes prev-line
 --stored-var-attributes same-line
 --computed-var-attributes same-line
---complex-attributes same-line
+--complex-attributes prev-line
+
+# Attributes - Legacy options (ARC Labs style)
+--varattributes same-line
+--typeattributes prev-line
+--funcattributes prev-line
+--storedvarattrs same-line
+--computedvarattrs same-line
 
 # Organization
 --organizetypes actor,class,enum,struct

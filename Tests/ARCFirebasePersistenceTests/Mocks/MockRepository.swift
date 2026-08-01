@@ -13,7 +13,7 @@ final class MockRepository<Entity: Identifiable & Codable>: Repository, @uncheck
     // MARK: - Mock State
 
     private var storage: [String: Entity] = [:]
-    private(set) var mockError: Error?
+    var mockError: Error?
 
     // MARK: - Call Counts
 

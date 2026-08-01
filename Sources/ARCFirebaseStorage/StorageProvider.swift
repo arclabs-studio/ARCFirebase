@@ -1,11 +1,53 @@
-//
-//  StorageProvider.swift
-//  ARCFirebase
-//
-//  Created by ARC Labs Studio on 2026-01-13.
-//
-
 import Foundation
+
+// MARK: - StorageConfiguration
+
+/// Configuration options for storage providers.
+///
+/// Use this struct to customize storage behavior such as size limits.
+///
+/// ## Usage
+///
+/// ```swift
+/// // Create custom configuration
+/// let config = StorageConfiguration(
+///     maxDownloadSize: 50 * 1024 * 1024  // 50 MB
+/// )
+///
+/// // Use with provider
+/// let storage = try FirebaseStorageProvider(configuration: config)
+/// ```
+///
+/// ## Topics
+///
+/// ### Properties
+/// - ``maxDownloadSize``
+///
+/// ### Presets
+/// - ``default``
+/// - ``largeFiles``
+public struct StorageConfiguration: Sendable {
+    /// Maximum size in bytes for in-memory downloads.
+    ///
+    /// Files larger than this limit will fail when using ``StorageProviding/download(path:)``.
+    /// For larger files, use ``StorageProviding/downloadURL(path:)`` and stream the data.
+    ///
+    /// Default: 10 MB (10,485,760 bytes)
+    public let maxDownloadSize: Int64
+
+    /// Creates a storage configuration with custom settings.
+    ///
+    /// - Parameter maxDownloadSize: Maximum download size in bytes. Default is 10 MB.
+    public init(maxDownloadSize: Int64 = 10 * 1024 * 1024) {
+        self.maxDownloadSize = maxDownloadSize
+    }
+
+    /// Default configuration with 10 MB download limit.
+    public static let `default` = StorageConfiguration()
+
+    /// Configuration for large files with 50 MB download limit.
+    public static let largeFiles = StorageConfiguration(maxDownloadSize: 50 * 1024 * 1024)
+}
 
 // MARK: - StorageProviding Protocol
 
@@ -36,26 +78,21 @@ import Foundation
 /// ## Usage in Tests
 ///
 /// ```swift
-/// final class MockStorageProvider: StorageProviding, @unchecked Sendable {
+/// actor MockStorageProvider: StorageProviding {
 ///     var uploadedFiles: [String: Data] = [:]
-///     var mockDownloadURL: URL = {
-///         guard let url = URL(string: "https://example.com/image.jpg") else {
-///             preconditionFailure("MockStorageProvider: invalid mock URL constant")
-///         }
-///         return url
-///     }()
+///     var mockURL = URL(string: "https://example.com/image.jpg")!
 ///
 ///     func upload(data: Data, path: String, contentType: String) async throws -> URL {
 ///         uploadedFiles[path] = data
-///         return mockDownloadURL
+///         return mockURL
 ///     }
 ///
 ///     func upload(fileURL: URL, path: String) async throws -> URL {
-///         return mockDownloadURL
+///         return mockURL
 ///     }
 ///
 ///     func downloadURL(path: String) async throws -> URL {
-///         return mockDownloadURL
+///         return mockURL
 ///     }
 ///
 ///     func download(path: String) async throws -> Data {
@@ -73,7 +110,7 @@ import Foundation
 ///
 ///     let url = try await uploader.upload(image: testImageData)
 ///
-///     #expect(url == mock.mockDownloadURL)
+///     #expect(url == mock.mockURL)
 /// }
 /// ```
 ///

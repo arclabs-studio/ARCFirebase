@@ -1,37 +1,62 @@
-//
-//  FirebaseManager.swift
-//  ARCFirebase
-//
-//  Created by ARC Labs Studio on 2026-01-13.
-//
-
 import ARCLogger
-import FirebaseAppCheck
+import FirebaseAnalytics
 import FirebaseCore
 import Foundation
 
-// MARK: - AppAttestProviderFactory (private)
+// MARK: - FirebaseConfiguring Protocol
 
-// Custom factory that wraps `AppAttestProvider` for use with `AppCheck.setAppCheckProviderFactory`.
-// Available on iOS 14+, tvOS 15+, watchOS 9+, and visionOS 1+.
-#if os(iOS) || os(tvOS) || os(watchOS) || os(visionOS)
-@available(iOS 14.0, tvOS 15.0, watchOS 9.0, *)
-private final class AppAttestProviderFactory: NSObject, AppCheckProviderFactory {
-    func createProvider(with app: FirebaseApp) -> (any AppCheckProvider)? {
-        AppAttestProvider(app: app)
-    }
-}
-#endif
+/// Protocol defining Firebase configuration capabilities.
+///
+/// Use this protocol for dependency injection to make your code testable
+/// and decoupled from the Firebase singleton.
+///
+/// ## Usage in Production
+///
+/// ```swift
+/// @MainActor
+/// class AppCoordinator {
+///     private let firebase: FirebaseConfiguring
+///
+///     init(firebase: FirebaseConfiguring = FirebaseManager.shared) {
+///         self.firebase = firebase
+///     }
+///
+///     func setup() {
+///         firebase.configure()
+///     }
+/// }
+/// ```
+///
+/// ## Usage in Tests
+///
+/// ```swift
+/// @MainActor
+/// final class MockFirebaseManager: FirebaseConfiguring {
+///     var configureCallCount = 0
+///     var isConfigured = false
+///
+///     func configure() {
+///         configureCallCount += 1
+///         isConfigured = true
+///     }
+/// }
+/// ```
+///
+/// ## Topics
+///
+/// ### Configuration
+/// - ``configure()``
+/// - ``isConfigured``
+///
+/// ### Implementations
+/// - ``FirebaseManager``
+@MainActor
+public protocol FirebaseConfiguring: AnyObject, Sendable {
+    /// Indicates whether Firebase has been configured.
+    var isConfigured: Bool { get }
 
-// MARK: - AppCheckProviderType
-
-/// Specifies which Firebase App Check provider to use at launch.
-public enum AppCheckProviderType: Sendable {
-    /// Debug provider — prints a token to the console for registration in Firebase Console.
-    /// Use in development/simulator environments only.
-    case debug
-    /// App Attest provider — production attestation. Falls back to DeviceCheck on unsupported devices.
-    case appAttest
+    /// Configures Firebase using the GoogleService-Info.plist file.
+    func configure()
 }
 
 // MARK: - FirebaseManager
@@ -52,7 +77,7 @@ public enum AppCheckProviderType: Sendable {
 /// - <doc:GettingStarted>
 /// - <doc:MultiAppSetup>
 @MainActor
-public final class FirebaseManager: FirebaseConfiguring {
+public final class FirebaseManager: FirebaseConfiguring, Sendable {
     // MARK: - Singleton
 
     /// Shared singleton instance.
@@ -60,7 +85,7 @@ public final class FirebaseManager: FirebaseConfiguring {
 
     // MARK: - Properties
 
-    private let logger = ARCLogger(subsystem: ARCFirebaseLogSubsystem.current, category: "Firebase")
+    private let logger = ARCLogger(category: "Firebase")
 
     /// Indicates whether Firebase has been configured.
     ///
@@ -74,69 +99,42 @@ public final class FirebaseManager: FirebaseConfiguring {
 
     // MARK: - FirebaseConfiguring Implementation
 
-    /// Configures Firebase, optionally installing an App Check provider.
+    /// Configures Firebase using the GoogleService-Info.plist file in your app bundle.
     ///
     /// Call this method **once** at app launch, typically in your `App` initializer
     /// or `AppDelegate.didFinishLaunching`.
     ///
     /// ```swift
     /// @main
-    /// struct MyApp: App {
+    /// struct FavResApp: App {
     ///     init() {
-    ///         FirebaseManager.shared.configure(appCheckProvider: .appAttest)
+    ///         FirebaseManager.shared.configure()
     ///     }
     /// }
     /// ```
     ///
-    /// - Parameter appCheckProvider: The App Check provider to install **before** Firebase initializes.
-    ///   Pass `nil` to skip App Check setup (not recommended for production).
-    ///
-    /// - Important: App Check must be set before `FirebaseApp.configure()`.
-    ///              Calling this method multiple times is safe (subsequent calls are ignored).
+    /// - Important: This method must be called before using any Firebase services.
+    ///              Calling it multiple times is safe (subsequent calls are ignored).
     ///
     /// - Warning: Your app must include a valid `GoogleService-Info.plist` file.
-    public func configure(appCheckProvider: AppCheckProviderType? = nil) {
+    public func configure() {
+        // Safe to call multiple times - Firebase handles this
         if FirebaseApp.app() == nil {
-            if let providerType = appCheckProvider {
-                switch providerType {
-                case .debug:
-                    AppCheck.setAppCheckProviderFactory(AppCheckDebugProviderFactory())
-                case .appAttest:
-                    #if os(iOS) || os(tvOS) || os(watchOS) || os(visionOS)
-                    if #available(iOS 14.0, tvOS 15.0, watchOS 9.0, *) {
-                        AppCheck.setAppCheckProviderFactory(AppAttestProviderFactory())
-                    } else {
-                        AppCheck.setAppCheckProviderFactory(DeviceCheckProviderFactory())
-                    }
-                    #else
-                    AppCheck.setAppCheckProviderFactory(DeviceCheckProviderFactory())
-                    #endif
-                }
-            }
             FirebaseApp.configure()
+            isConfigured = true
             logger.info("Firebase configured successfully")
         } else {
             logger.debug("Firebase already configured")
         }
-        isConfigured = true
-    }
-
-    // MARK: - Protocol Conformance
-
-    /// Configures Firebase without App Check. Satisfies ``FirebaseConfiguring`` protocol.
-    ///
-    /// Prefer ``configure(appCheckProvider:)`` for new call sites.
-    public func configure() {
-        configure(appCheckProvider: nil)
     }
 
     // MARK: - Static Convenience Methods
 
-    /// Static convenience method for configuration with App Check.
+    /// Static convenience method for configuration.
     ///
-    /// Equivalent to calling `FirebaseManager.shared.configure(appCheckProvider:)`.
-    public static func configure(appCheckProvider: AppCheckProviderType? = nil) {
-        shared.configure(appCheckProvider: appCheckProvider)
+    /// Equivalent to calling `FirebaseManager.shared.configure()`.
+    public static func configure() {
+        shared.configure()
     }
 
     /// Verifies that Firebase is configured.

@@ -1,10 +1,10 @@
 # Multi-App Firebase Setup
 
-How to use ARCFirebase across multiple apps, each backed by its own Firebase project.
+How to use ARCFirebase across multiple ARC Labs Studio apps.
 
 ## Overview
 
-ARCFirebase is designed to be reused across multiple apps. Each app uses the same package but connects to its own Firebase project.
+ARCFirebase is designed to be reused across all ARC Labs apps (FavRes, FavBook, Spatial Shoes, etc.). Each app uses the same package but connects to its own Firebase project.
 
 ## Architecture
 
@@ -17,9 +17,9 @@ ARCFirebase Package (Shared)
     ├── Persistence
     └── Storage
 
-AppA                            AppB
+FavRes App                      FavBook App
 ├── GoogleService-Info.plist    ├── GoogleService-Info.plist
-│   (AppA project)              │   (AppB project)
+│   (FavRes project)            │   (FavBook project)
 └── Uses ARCFirebase            └── Uses ARCFirebase
 ```
 
@@ -31,19 +31,19 @@ AppA                            AppB
 
 For each app, create a Firebase project:
 
-- **AppA**: Project "AppA" (appa-ios)
-- **AppB**: Project "AppB" (appb-ios)
-- **AppC**: Project "AppC" (appc-ios)
+- **FavRes**: Project "FavRes" (favres-ios)
+- **FavBook**: Project "FavBook" (favbook-ios)
+- **Spatial Shoes**: Project "Spatial Shoes" (spatial-shoes-ios)
 
 ### 2. Download Separate Config Files
 
 Each app gets its own `GoogleService-Info.plist`:
 
 ```
-~/Documents/Firebase-Configs/
-├── AppA-GoogleService-Info.plist
-├── AppB-GoogleService-Info.plist
-└── AppC-GoogleService-Info.plist
+~/Documents/ARC-Labs-Firebase/
+├── FavRes-GoogleService-Info.plist
+├── FavBook-GoogleService-Info.plist
+└── SpatialShoes-GoogleService-Info.plist
 ```
 
 ### 3. Add to Correct App Target
@@ -51,11 +51,11 @@ Each app gets its own `GoogleService-Info.plist`:
 **CRITICAL**: Add the correct plist to each app.
 
 ```
-AppA/
-└── GoogleService-Info.plist  ← AppA config
+FavRes/
+└── GoogleService-Info.plist  ← FavRes config
 
-AppB/
-└── GoogleService-Info.plist  ← AppB config (DIFFERENT file!)
+FavBook/
+└── GoogleService-Info.plist  ← FavBook config (DIFFERENT file!)
 ```
 
 ### 4. Verify Bundle IDs Match
@@ -64,31 +64,31 @@ Your Firebase console settings must match your Xcode bundle IDs:
 
 | App | Firebase Console | Xcode Bundle ID |
 |-----|-----------------|-----------------|
-| AppA | com.example.appA | com.example.appA |
-| AppB | com.example.appB | com.example.appB |
+| FavRes | com.arclabs.favres | com.arclabs.favres |
+| FavBook | com.arclabs.favbook | com.arclabs.favbook |
 
 ## Code Reuse
 
 The beautiful part: **Your code doesn't change**.
 
 ```swift
-// AppA.swift
+// FavResApp.swift
 import ARCFirebaseCore
 
 @main
-struct AppA: App {
+struct FavResApp: App {
     init() {
-        FirebaseManager.configure() // Reads AppA config
+        FirebaseManager.configure() // Reads FavRes config
     }
 }
 
-// AppB.swift
+// FavBookApp.swift
 import ARCFirebaseCore
 
 @main
-struct AppB: App {
+struct FavBookApp: App {
     init() {
-        FirebaseManager.configure() // Reads AppB config
+        FirebaseManager.configure() // Reads FavBook config
     }
 }
 ```
@@ -99,23 +99,23 @@ struct AppB: App {
 
 Each app has **completely separate data**:
 
-### AppA Firebase Project
+### FavRes Firebase Project
 ```
 Firestore:
-├── items/
+├── restaurants/
 ├── users/
 └── favorites/
 ```
 
-### AppB Firebase Project
+### FavBook Firebase Project
 ```
 Firestore:
-├── posts/
-├── users/  ← Different users than AppA
-└── lists/
+├── books/
+├── users/  ← Different users than FavRes
+└── readingLists/
 ```
 
-Users in AppA **cannot** access data from AppB (and vice versa).
+Users in FavRes **cannot** access data from FavBook (and vice versa).
 
 ## Shared Code Patterns
 
@@ -126,14 +126,14 @@ Users in AppA **cannot** access data from AppB (and vice versa).
 public final class FirestoreRepository<Entity> { ... }
 
 // Used differently in each app
-// AppA:
-let itemRepo = try FirestoreRepository<Item>(
-    collectionPath: "items"
+// FavRes:
+let restaurantRepo = try FirestoreRepository<Restaurant>(
+    collectionPath: "restaurants"
 )
 
-// AppB:
-let postRepo = try FirestoreRepository<Post>(
-    collectionPath: "posts"
+// FavBook:
+let bookRepo = try FirestoreRepository<Book>(
+    collectionPath: "books"
 )
 ```
 
@@ -148,16 +148,16 @@ public struct AnalyticsEvent {
     public static let itemFavorited = "item_favorited"
 }
 
-// AppA
+// FavRes
 AnalyticsManager.shared.logEvent(
     AnalyticsEvent.itemViewed,
-    parameters: ["item_type": "product"]
+    parameters: ["item_type": "restaurant"]
 )
 
-// AppB
+// FavBook
 AnalyticsManager.shared.logEvent(
     AnalyticsEvent.itemViewed,
-    parameters: ["item_type": "post"]
+    parameters: ["item_type": "book"]
 )
 ```
 
@@ -167,15 +167,15 @@ AnalyticsManager.shared.logEvent(
 
 **Problem**: All apps point to the same Firebase project.
 
-**Result**: AppA and AppB share users and data (BAD!).
+**Result**: FavRes and FavBook share users and data (BAD!).
 
 **Solution**: Create separate Firebase projects.
 
 ### Mistake 2: Wrong plist in App
 
-**Problem**: AppB has AppA's `GoogleService-Info.plist`.
+**Problem**: FavBook has FavRes's `GoogleService-Info.plist`.
 
-**Result**: AppB writes data to AppA's Firebase project.
+**Result**: FavBook writes data to FavRes's Firebase project.
 
 **Solution**: Double-check each app has the correct plist.
 

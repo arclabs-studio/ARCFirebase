@@ -51,10 +51,10 @@ final class MockAnalyticsProvider: AnalyticsProviding, @unchecked Sendable {
     /// Represents a logged analytics event.
     struct LoggedEvent {
         let name: String
-        let parameters: [String: any Sendable]?
+        let parameters: [String: Any]?
         let timestamp: Date
 
-        init(name: String, parameters: [String: any Sendable]?) {
+        init(name: String, parameters: [String: Any]?) {
             self.name = name
             self.parameters = parameters
             timestamp = Date()
@@ -80,7 +80,7 @@ final class MockAnalyticsProvider: AnalyticsProviding, @unchecked Sendable {
 
     // MARK: AnalyticsProviding Implementation
 
-    func logEvent(_ name: String, parameters: [String: any Sendable]?) {
+    func logEvent(_ name: String, parameters: [String: Any]?) {
         let event = LoggedEvent(name: name, parameters: parameters)
         loggedEvents.append(event)
 

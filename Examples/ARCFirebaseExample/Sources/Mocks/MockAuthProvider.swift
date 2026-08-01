@@ -39,6 +39,7 @@ import Foundation
 ///         .environment(\.authProvider, mockAuth)
 /// }
 /// ```
+@MainActor
 final class MockAuthProvider: AuthProviding, @unchecked Sendable {
     // MARK: Mock Configuration
 
@@ -92,13 +93,15 @@ final class MockAuthProvider: AuthProviding, @unchecked Sendable {
         }
 
         // Create or return mock user
-        let user = mockUser ?? User(id: UUID().uuidString,
-                                    email: email,
-                                    displayName: nil,
-                                    photoURL: nil,
-                                    isEmailVerified: false,
-                                    creationDate: Date(),
-                                    lastSignInDate: Date())
+        let user = mockUser ?? User(
+            id: UUID().uuidString,
+            email: email,
+            displayName: nil,
+            photoURL: nil,
+            isEmailVerified: false,
+            creationDate: Date(),
+            lastSignInDate: Date()
+        )
 
         mockUser = user
         return user
@@ -115,13 +118,15 @@ final class MockAuthProvider: AuthProviding, @unchecked Sendable {
         }
 
         // Create new user
-        let user = User(id: UUID().uuidString,
-                        email: email,
-                        displayName: nil,
-                        photoURL: nil,
-                        isEmailVerified: false,
-                        creationDate: Date(),
-                        lastSignInDate: Date())
+        let user = User(
+            id: UUID().uuidString,
+            email: email,
+            displayName: nil,
+            photoURL: nil,
+            isEmailVerified: false,
+            creationDate: Date(),
+            lastSignInDate: Date()
+        )
 
         mockUser = user
         return user
@@ -139,78 +144,6 @@ final class MockAuthProvider: AuthProviding, @unchecked Sendable {
 
     func updatePassword(_: String) async throws {
         // No-op for mock
-        try await Task.sleep(for: .seconds(simulatedDelay))
-    }
-
-    func signIn(with credential: OAuthCredentialData) async throws -> User {
-        try await Task.sleep(for: .seconds(simulatedDelay))
-
-        let user = mockUser ?? User(id: UUID().uuidString,
-                                    email: "oauth@example.com",
-                                    providerID: credential.providerID,
-                                    linkedProviderIDs: [credential.providerID])
-
-        mockUser = user
-        return user
-    }
-
-    func authStateChanges() -> AsyncStream<User?> {
-        AsyncStream { continuation in
-            continuation.yield(mockUser)
-            continuation.finish()
-        }
-    }
-
-    func deleteAccount() async throws {
-        try await Task.sleep(for: .seconds(simulatedDelay))
-        mockUser = nil
-    }
-
-    func linkAccount(with credential: OAuthCredentialData) async throws -> User {
-        try await Task.sleep(for: .seconds(simulatedDelay))
-
-        guard let user = mockUser else {
-            throw NSError(domain: "MockError", code: 0, userInfo: [NSLocalizedDescriptionKey: "No user signed in"])
-        }
-
-        let updated = User(id: user.id,
-                           email: user.email,
-                           displayName: user.displayName,
-                           photoURL: user.photoURL,
-                           isEmailVerified: user.isEmailVerified,
-                           creationDate: user.creationDate,
-                           lastSignInDate: user.lastSignInDate,
-                           providerID: user.providerID,
-                           linkedProviderIDs: user.linkedProviderIDs + [credential.providerID])
-        mockUser = updated
-        return updated
-    }
-
-    func unlinkProvider(_ providerID: String) async throws -> User {
-        try await Task.sleep(for: .seconds(simulatedDelay))
-
-        guard let user = mockUser else {
-            throw NSError(domain: "MockError", code: 0, userInfo: [NSLocalizedDescriptionKey: "No user signed in"])
-        }
-
-        let updated = User(id: user.id,
-                           email: user.email,
-                           displayName: user.displayName,
-                           photoURL: user.photoURL,
-                           isEmailVerified: user.isEmailVerified,
-                           creationDate: user.creationDate,
-                           lastSignInDate: user.lastSignInDate,
-                           providerID: user.providerID,
-                           linkedProviderIDs: user.linkedProviderIDs.filter { $0 != providerID })
-        mockUser = updated
-        return updated
-    }
-
-    func linkedProviders() async -> [String] {
-        mockUser?.linkedProviderIDs ?? []
-    }
-
-    func sendEmailVerification() async throws {
         try await Task.sleep(for: .seconds(simulatedDelay))
     }
 }
@@ -236,12 +169,14 @@ extension MockAuthProvider {
 extension User {
     /// A mock user for previews and testing.
     static var mock: User {
-        User(id: "mock-user-123",
-             email: "demo@example.com",
-             displayName: "Demo User",
-             photoURL: nil,
-             isEmailVerified: true,
-             creationDate: Date().addingTimeInterval(-86400 * 30), // 30 days ago
-             lastSignInDate: Date())
+        User(
+            id: "mock-user-123",
+            email: "demo@arclabs.studio",
+            displayName: "Demo User",
+            photoURL: nil,
+            isEmailVerified: true,
+            creationDate: Date().addingTimeInterval(-86400 * 30), // 30 days ago
+            lastSignInDate: Date()
+        )
     }
 }

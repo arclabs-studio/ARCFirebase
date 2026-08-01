@@ -179,12 +179,12 @@ In Firebase Console:
 2. Select your iOS API key
 3. Add Application restrictions:
    - iOS apps
-   - Bundle ID: `com.example.myapp`
+   - Bundle ID: `com.arclabs.favres`
 
 ### Use Environment-Specific Configs
 
 ```
-MyApp/
+FavRes/
 ├── Debug/
 │   └── GoogleService-Info.plist  (Development project)
 └── Release/

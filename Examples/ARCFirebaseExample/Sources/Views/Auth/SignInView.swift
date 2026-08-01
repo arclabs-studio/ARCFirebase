@@ -181,8 +181,10 @@ extension SignInView {
 // MARK: - Previews
 
 #Preview("Sign In - Empty") {
-    let viewModel = AuthViewModel(auth: MockAuthProvider.unauthenticated,
-                                  analytics: MockAnalyticsProvider.preview)
+    let viewModel = AuthViewModel(
+        auth: MockAuthProvider.unauthenticated,
+        analytics: MockAnalyticsProvider.preview
+    )
 
     return SignInView()
         .environment(viewModel)
@@ -191,8 +193,10 @@ extension SignInView {
 
 #Preview("Sign In - With Error") {
     let mockAuth = MockAuthProvider.unauthenticated
-    let viewModel = AuthViewModel(auth: mockAuth,
-                                  analytics: MockAnalyticsProvider.preview)
+    let viewModel = AuthViewModel(
+        auth: mockAuth,
+        analytics: MockAnalyticsProvider.preview
+    )
     viewModel.email = "test@example.com"
 
     return SignInView()
@@ -201,8 +205,10 @@ extension SignInView {
 }
 
 #Preview("Sign In - Loading") {
-    let viewModel = AuthViewModel(auth: MockAuthProvider.unauthenticated,
-                                  analytics: MockAnalyticsProvider.preview)
+    let viewModel = AuthViewModel(
+        auth: MockAuthProvider.unauthenticated,
+        analytics: MockAnalyticsProvider.preview
+    )
     viewModel.email = "test@example.com"
     viewModel.password = "password123"
 
@@ -212,8 +218,10 @@ extension SignInView {
 }
 
 #Preview("Sign In - Dark Mode") {
-    let viewModel = AuthViewModel(auth: MockAuthProvider.unauthenticated,
-                                  analytics: MockAnalyticsProvider.preview)
+    let viewModel = AuthViewModel(
+        auth: MockAuthProvider.unauthenticated,
+        analytics: MockAnalyticsProvider.preview
+    )
 
     return SignInView()
         .environment(viewModel)

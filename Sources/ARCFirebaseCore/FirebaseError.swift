@@ -1,10 +1,3 @@
-//
-//  FirebaseError.swift
-//  ARCFirebase
-//
-//  Created by ARC Labs Studio on 2026-01-13.
-//
-
 import Foundation
 
 /// Errors that can occur when using Firebase services.
@@ -28,20 +21,8 @@ public enum FirebaseError: LocalizedError {
     /// Analytics service is not available.
     case analyticsNotAvailable
 
-    /// AI service is not available.
-    case aiNotAvailable
-
-    /// Remote Config service is not available.
-    case remoteConfigNotAvailable
-
-    /// Remote Config fetch was throttled by the server.
-    case fetchThrottled
-
     /// A network error occurred.
     case networkError(underlying: Error)
-
-    /// The requested user was not found.
-    case userNotFound
 
     /// The requested document was not found.
     case documentNotFound
@@ -49,47 +30,8 @@ public enum FirebaseError: LocalizedError {
     /// Permission denied for the requested operation.
     case permissionDenied
 
-    /// The email address is already in use by another account.
-    case emailAlreadyInUse
-
-    /// The email address is malformed.
-    case invalidEmail
-
-    /// The password does not meet strength requirements.
-    case weakPassword
-
-    /// The operation requires recent authentication. Re-authenticate and try again.
-    case requiresRecentLogin
-
-    /// The provider is already linked to this account.
-    case providerAlreadyLinked
-
-    /// The user is not linked to the specified provider.
-    case noSuchProvider
-
-    /// The supplied auth credential is invalid or has expired.
-    case invalidCredential
-
-    /// An account already exists with a different credential for this email.
-    case accountExistsWithDifferentCredential
-
     /// An unknown error occurred.
     case unknown(underlying: Error)
-
-    /// Cloud Functions service is not available.
-    case cloudFunctionsNotAvailable
-
-    /// App Check service is not available.
-    case appCheckNotAvailable
-
-    /// App Check token retrieval failed.
-    case appCheckTokenError(underlying: Error)
-
-    /// A Cloud Function returned an error response.
-    case cloudFunctionError(code: String, message: String)
-
-    /// A Cloud Function call timed out.
-    case cloudFunctionTimeout
 
     // MARK: - LocalizedError
 
@@ -105,48 +47,14 @@ public enum FirebaseError: LocalizedError {
             "Firebase Storage is not available."
         case .analyticsNotAvailable:
             "Firebase Analytics is not available."
-        case .aiNotAvailable:
-            "Firebase AI is not available."
-        case .remoteConfigNotAvailable:
-            "Firebase Remote Config is not available."
-        case .fetchThrottled:
-            "Remote Config fetch was throttled. Try again later."
         case let .networkError(error):
             "Network error: \(error.localizedDescription)"
-        case .userNotFound:
-            "The requested user was not found."
         case .documentNotFound:
             "The requested document was not found."
         case .permissionDenied:
             "Permission denied. Check your Firestore security rules."
-        case .emailAlreadyInUse:
-            "The email address is already in use by another account."
-        case .invalidEmail:
-            "The email address is malformed."
-        case .weakPassword:
-            "The password does not meet strength requirements."
-        case .requiresRecentLogin:
-            "This operation requires recent authentication. Please sign in again."
-        case .providerAlreadyLinked:
-            "This provider is already linked to your account."
-        case .noSuchProvider:
-            "The user is not linked to the specified provider."
-        case .invalidCredential:
-            "The supplied auth credential is invalid or has expired."
-        case .accountExistsWithDifferentCredential:
-            "An account already exists with a different credential for this email."
         case let .unknown(error):
             "An unknown error occurred: \(error.localizedDescription)"
-        case .cloudFunctionsNotAvailable:
-            "Firebase Cloud Functions is not available."
-        case .appCheckNotAvailable:
-            "Firebase App Check is not available."
-        case let .appCheckTokenError(error):
-            "App Check token error: \(error.localizedDescription)"
-        case let .cloudFunctionError(code, message):
-            "Cloud Function error (\(code)): \(message)"
-        case .cloudFunctionTimeout:
-            "The Cloud Function call timed out."
         }
     }
 }

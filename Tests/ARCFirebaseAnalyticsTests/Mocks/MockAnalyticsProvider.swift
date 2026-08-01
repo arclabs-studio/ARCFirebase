@@ -5,14 +5,14 @@ import Foundation
 final class MockAnalyticsProvider: AnalyticsProviding, @unchecked Sendable {
     // MARK: - Mock State
 
-    private(set) var loggedEvents: [(name: String, parameters: [String: any Sendable]?)] = []
-    private(set) var screenViews: [(screenName: String, screenClass: String?)] = []
-    private(set) var userProperties: [String: String] = [:]
-    private(set) var userID: String?
+    var loggedEvents: [(name: String, parameters: [String: Any]?)] = []
+    var screenViews: [(screenName: String, screenClass: String?)] = []
+    var userProperties: [String: String] = [:]
+    var userID: String?
 
     // MARK: - AnalyticsProviding Implementation
 
-    func logEvent(_ name: String, parameters: [String: any Sendable]?) {
+    func logEvent(_ name: String, parameters: [String: Any]?) {
         loggedEvents.append((name, parameters))
     }
 
@@ -45,7 +45,7 @@ final class MockAnalyticsProvider: AnalyticsProviding, @unchecked Sendable {
         loggedEvents.count(where: { $0.name == name })
     }
 
-    func lastEvent(named name: String) -> (name: String, parameters: [String: any Sendable]?)? {
+    func lastEvent(named name: String) -> (name: String, parameters: [String: Any]?)? {
         loggedEvents.last { $0.name == name }
     }
 
