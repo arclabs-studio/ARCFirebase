@@ -195,7 +195,9 @@ final class MockAuthProvider: AuthProviding, @unchecked Sendable {
 
     func updateProfile(displayName: String?, photoURL _: URL?) async throws {
         updateProfileCallCount += 1
-        if let error = mockError { throw error }
+        if let error = mockError {
+            throw error
+        }
         if let name = displayName, var user = mockUser {
             user = User(id: user.id,
                         email: user.email,
