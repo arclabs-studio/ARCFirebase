@@ -179,7 +179,9 @@ struct MessageBubble: View {
 
     var body: some View {
         HStack {
-            if message.role == .user { Spacer(minLength: 60) }
+            if message.role == .user {
+                Spacer(minLength: 60)
+            }
 
             VStack(alignment: message.role == .user ? .trailing : .leading, spacing: 4) {
                 Text(message.role == .user ? "You" : "Gemini")
@@ -196,7 +198,9 @@ struct MessageBubble: View {
                         .clipShape(RoundedRectangle(cornerRadius: 16))
             }
 
-            if message.role == .model { Spacer(minLength: 60) }
+            if message.role == .model {
+                Spacer(minLength: 60)
+            }
         }
     }
 }

@@ -68,19 +68,19 @@ struct ValidationReport {
     }
 
     var failedCount: Int {
-        results.count(where: { !$0.passed })
+        results.filter { !$0.passed }.count
     }
 
     var errorCount: Int {
-        results.count(where: { !$0.passed && $0.severity == .error })
+        results.filter { !$0.passed && $0.severity == .error }.count
     }
 
     var warningCount: Int {
-        results.count(where: { !$0.passed && $0.severity == .warning })
+        results.filter { !$0.passed && $0.severity == .warning }.count
     }
 
     var infoCount: Int {
-        results.count(where: { !$0.passed && $0.severity == .info })
+        results.filter { !$0.passed && $0.severity == .info }.count
     }
 
     var score: Int {
@@ -89,9 +89,15 @@ struct ValidationReport {
     }
 
     var status: String {
-        if results.allSatisfy(\.passed) { return "✅ All checks passed" }
-        if errorCount > 0 { return "❌ Has blocking errors (\(errorCount))" }
-        if warningCount > 0 { return "⚠️ Has warnings (\(warningCount))" }
+        if results.allSatisfy(\.passed) {
+            return "✅ All checks passed"
+        }
+        if errorCount > 0 {
+            return "❌ Has blocking errors (\(errorCount))"
+        }
+        if warningCount > 0 {
+            return "⚠️ Has warnings (\(warningCount))"
+        }
         return "💡 Has suggestions (\(infoCount))"
     }
 
@@ -168,7 +174,9 @@ class ARCPackageValidator {
         fixesApplied = []
 
         // Structure checks
-        if verbose { print("📁 Checking structure...") }
+        if verbose {
+            print("📁 Checking structure...")
+        }
         checkPackageSwift(applyFixes: applyFixes)
         checkReadme(applyFixes: applyFixes)
         checkLicense(applyFixes: applyFixes)
@@ -179,7 +187,9 @@ class ARCPackageValidator {
         checkGitignore(applyFixes: applyFixes)
 
         // Configuration checks
-        if verbose { print("⚙️ Checking configuration...") }
+        if verbose {
+            print("⚙️ Checking configuration...")
+        }
         checkARCDevTools()
         checkSwiftLint(applyFixes: applyFixes)
         checkSwiftFormat(applyFixes: applyFixes)
@@ -187,17 +197,23 @@ class ARCPackageValidator {
         checkMakefile()
 
         // README content checks
-        if verbose { print("📖 Checking README content...") }
+        if verbose {
+            print("📖 Checking README content...")
+        }
         checkReadmeContent()
 
         // Code quality checks
-        if verbose { print("🧹 Checking code quality...") }
+        if verbose {
+            print("🧹 Checking code quality...")
+        }
         runSwiftLintCheck()
         runSwiftFormatCheck()
         checkSwiftBuild()
 
         // Test checks
-        if verbose { print("🧪 Checking tests...") }
+        if verbose {
+            print("🧪 Checking tests...")
+        }
         checkTestsExist()
 
         return ValidationReport(packageName: packageName,
@@ -302,10 +318,8 @@ class ARCPackageValidator {
                                        ? nil
                                        : "Add platforms: [.iOS(.v17), .macOS(.v14), .watchOS(.v10), .tvOS(.v17)]"))
 
-        // Check strict concurrency — accept either the Swift 5.x experimental flag
-        // or Swift 6 language mode (.swiftLanguageMode(.v6)), which enforces it by default.
-        let hasStrictConcurrency = content.contains("StrictConcurrency") ||
-            content.contains("swiftLanguageMode(.v6)")
+        // Check strict concurrency
+        let hasStrictConcurrency = content.contains("StrictConcurrency")
         addResult(ValidationResult(category: category,
                                    name: "Strict concurrency",
                                    passed: hasStrictConcurrency,
@@ -315,8 +329,7 @@ class ARCPackageValidator {
                                        : "Strict concurrency not enabled",
                                    fix: hasStrictConcurrency
                                        ? nil
-                                       :
-                                       "Add swiftSettings: [.swiftLanguageMode(.v6)] (Swift 6) or .enableExperimentalFeature(\"StrictConcurrency\") (Swift 5.x)"))
+                                       : "Add swiftSettings: [.enableExperimentalFeature(\"StrictConcurrency\")]"))
     }
 
     private func checkReadme(applyFixes _: Bool) {
@@ -378,57 +391,29 @@ class ARCPackageValidator {
     }
 
     private func checkSourcesDirectory() {
-        // Support both single-target (Sources/<PackageName>/)
-        // and multi-target (Sources/<PackageName>*/) layouts.
-        let singleTarget = "Sources/\(packageName)"
-        if directoryExists(singleTarget) {
-            addResult(ValidationResult(category: "Structure",
-                                       name: "Sources directory",
-                                       passed: true,
-                                       severity: .error,
-                                       message: "Sources/\(packageName)/ found"))
-            return
-        }
-
-        let sourcesDir = packagePath.appendingPathComponent("Sources")
-        let contents = (try? fileManager.contentsOfDirectory(atPath: sourcesDir.path)) ?? []
-        let matchingTargets = contents.filter { $0.hasPrefix(packageName) }
+        let path = "Sources/\(packageName)"
+        let exists = directoryExists(path)
 
         addResult(ValidationResult(category: "Structure",
                                    name: "Sources directory",
-                                   passed: !matchingTargets.isEmpty,
+                                   passed: exists,
                                    severity: .error,
-                                   message: !matchingTargets.isEmpty
-                                       ? "Multi-target Sources/\(packageName)*/ found (\(matchingTargets.count) targets)"
+                                   message: exists
+                                       ? "Sources/\(packageName)/ found"
                                        : "Sources/\(packageName)/ not found",
-                                   fix: matchingTargets.isEmpty ? "Create Sources/\(packageName)/ directory" : nil))
+                                   fix: exists ? nil : "Create Sources/\(packageName)/ directory"))
     }
 
     private func checkTestsDirectory() {
-        // Support both single-target (Tests/<PackageName>Tests/)
-        // and multi-target (Tests/<PackageName>*Tests/) layouts.
-        let singleTarget = "Tests/\(packageName)Tests"
-        if directoryExists(singleTarget) {
-            addResult(ValidationResult(category: "Structure",
-                                       name: "Tests directory",
-                                       passed: true,
-                                       severity: .error,
-                                       message: "Tests/\(packageName)Tests/ found"))
-            return
-        }
-
-        let testsDir = packagePath.appendingPathComponent("Tests")
-        let contents = (try? fileManager.contentsOfDirectory(atPath: testsDir.path)) ?? []
-        let matchingTargets = contents.filter { $0.hasPrefix(packageName) }
+        let path = "Tests/\(packageName)Tests"
+        let exists = directoryExists(path)
 
         addResult(ValidationResult(category: "Structure",
                                    name: "Tests directory",
-                                   passed: !matchingTargets.isEmpty,
+                                   passed: exists,
                                    severity: .error,
-                                   message: !matchingTargets.isEmpty
-                                       ? "Multi-target Tests/\(packageName)*Tests/ found (\(matchingTargets.count) suites)"
-                                       : "Tests directory not found",
-                                   fix: matchingTargets.isEmpty ? "Create Tests/\(packageName)Tests/ directory" : nil))
+                                   message: exists ? "Tests/\(packageName)Tests/ found" : "Tests directory not found",
+                                   fix: exists ? nil : "Create Tests/\(packageName)Tests/ directory"))
     }
 
     private func checkDocumentation(applyFixes: Bool) {
@@ -640,21 +625,31 @@ class ARCPackageValidator {
 
     // MARK: - Code Quality Checks
 
+    /// Resolves the pinned binary in `.arc-tools/bin` (installed by `make tools`)
+    /// before falling back to PATH, so validation matches what CI runs.
+    private func resolveTool(_ name: String) -> String? {
+        let pinned = packagePath.appendingPathComponent(".arc-tools/bin/\(name)")
+        if FileManager.default.isExecutableFile(atPath: pinned.path) {
+            return pinned.path
+        }
+        let (_, whichExit) = shell("which \(name)")
+        return whichExit == 0 ? name : nil
+    }
+
     private func runSwiftLintCheck() {
         // Check if SwiftLint is available
-        let (_, whichExit) = shell("which swiftlint")
-        guard whichExit == 0 else {
+        guard let swiftlint = resolveTool("swiftlint") else {
             addResult(ValidationResult(category: "Code Quality",
                                        name: "SwiftLint available",
                                        passed: false,
                                        severity: .warning,
                                        message: "SwiftLint not installed",
-                                       fix: "brew install swiftlint"))
+                                       fix: "make tools (installs the pinned version — do not use brew)"))
             return
         }
 
         // Run SwiftLint
-        let (output, exitCode) = shell("swiftlint lint --quiet 2>&1 | head -20", at: packagePath.path)
+        let (output, exitCode) = shell("\(swiftlint) lint --quiet 2>&1 | head -20", at: packagePath.path)
         let passed = exitCode == 0 && output.isEmpty
 
         var message = passed ? "No SwiftLint issues" : "SwiftLint found issues"
@@ -676,24 +671,23 @@ class ARCPackageValidator {
 
     private func runSwiftFormatCheck() {
         // Check if SwiftFormat is available
-        let (_, whichExit) = shell("which swiftformat")
-        guard whichExit == 0 else {
+        guard let swiftformat = resolveTool("swiftformat") else {
             addResult(ValidationResult(category: "Code Quality",
                                        name: "SwiftFormat available",
                                        passed: false,
                                        severity: .warning,
                                        message: "SwiftFormat not installed",
-                                       fix: "brew install swiftformat"))
+                                       fix: "make tools (installs the pinned version — do not use brew)"))
             return
         }
 
         // Run SwiftFormat lint check
-        let (output, exitCode) = shell("swiftformat --lint . 2>&1 | head -20", at: packagePath.path)
+        let (output, exitCode) = shell("\(swiftformat) --lint . 2>&1 | head -20", at: packagePath.path)
         let passed = exitCode == 0
 
         var message = passed ? "Code is properly formatted" : "SwiftFormat found formatting issues"
         if !passed, !output.isEmpty {
-            let lineCount = output.components(separatedBy: "\n").count(where: { !$0.isEmpty })
+            let lineCount = output.components(separatedBy: "\n").filter { !$0.isEmpty }.count
             message = "SwiftFormat found \(lineCount) file(s) with formatting issues"
         }
 
@@ -707,7 +701,9 @@ class ARCPackageValidator {
     }
 
     private func checkSwiftBuild() {
-        if verbose { print("  Building package (this may take a moment)...") }
+        if verbose {
+            print("  Building package (this may take a moment)...")
+        }
 
         let (output, exitCode) = shell("swift build 2>&1", at: packagePath.path)
         let passed = exitCode == 0
@@ -732,13 +728,8 @@ class ARCPackageValidator {
     // MARK: - Test Checks
 
     private func checkTestsExist() {
-        let testsDir = packagePath.appendingPathComponent("Tests")
-
-        // Accept single-target OR multi-target layout
-        let singleTargetExists = directoryExists("Tests/\(packageName)Tests")
-        let testsRootExists = fileManager.fileExists(atPath: testsDir.path)
-
-        guard singleTargetExists || testsRootExists else {
+        let testsPath = "Tests/\(packageName)Tests"
+        guard directoryExists(testsPath) else {
             addResult(ValidationResult(category: "Testing",
                                        name: "Test files exist",
                                        passed: false,
@@ -748,7 +739,7 @@ class ARCPackageValidator {
             return
         }
 
-        // Count Swift test files under Tests/
+        // Check for Swift test files
         let (output, _) = shell("find Tests -name '*.swift' -type f | wc -l", at: packagePath.path)
         let testFileCount = Int(output.trimmingCharacters(in: .whitespacesAndNewlines)) ?? 0
         let hasTests = testFileCount > 0
