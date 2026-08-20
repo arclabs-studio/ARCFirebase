@@ -7,57 +7,14 @@
 
 import SwiftUI
 
-/// SwiftUI Environment key for crashlytics provider.
-///
-/// This allows passing the crashlytics provider through the SwiftUI environment:
-///
-/// ```swift
-/// @main
-/// struct MyApp: App {
-///     let crashlytics: any CrashlyticsProviding
-///
-///     init() {
-///         do {
-///             crashlytics = try FirebaseCrashlyticsProvider.create()
-///         } catch {
-///             fatalError("Firebase not configured: \(error)")
-///         }
-///     }
-///
-///     var body: some Scene {
-///         WindowGroup {
-///             ContentView()
-///                 .environment(\.crashlyticsProvider, crashlytics)
-///         }
-///     }
-/// }
-///
-/// struct MyView: View {
-///     @Environment(\.crashlyticsProvider) var crashlytics
-///
-///     func handleError(_ error: Error) {
-///         crashlytics.record(error: error)
-///     }
-/// }
-/// ```
-///
-/// - Important: You must explicitly set `.environment(\.crashlyticsProvider, provider)` in your app.
-///   The default value will crash if accessed without setting a provider first.
-public struct CrashlyticsProviderKey: EnvironmentKey {
-    public static let defaultValue: any CrashlyticsProviding = PlaceholderCrashlyticsProvider()
-}
-
 extension EnvironmentValues {
     /// The crashlytics provider in the environment.
-    public var crashlyticsProvider: any CrashlyticsProviding {
-        get { self[CrashlyticsProviderKey.self] }
-        set { self[CrashlyticsProviderKey.self] = newValue }
-    }
+    @Entry public var crashlyticsProvider: any CrashlyticsProviding = PlaceholderCrashlyticsProvider()
 }
 
 /// Placeholder provider that crashes with helpful message when accessed.
 /// This avoids crashes at module load time while ensuring proper configuration.
-private struct PlaceholderCrashlyticsProvider: CrashlyticsProviding {
+private struct PlaceholderCrashlyticsProvider: CrashlyticsProviding, @unchecked Sendable {
     func record(error _: Error) {
         placeholderCrash()
     }
@@ -78,22 +35,20 @@ private struct PlaceholderCrashlyticsProvider: CrashlyticsProviding {
         placeholderCrash()
     }
 
-    func setCustomValue(_: Any, forKey _: String) {
+    func setCustomValue(_: any Sendable, forKey _: String) {
         placeholderCrash()
     }
 
     private func placeholderCrash() -> Never {
-        fatalError(
-            """
-            CrashlyticsProvider not configured.
-            You must set the crashlytics provider in your app's environment:
+        fatalError("""
+        CrashlyticsProvider not configured.
+        You must set the crashlytics provider in your app's environment:
 
-                .environment(\\.crashlyticsProvider, crashlyticsProvider)
+            .environment(\\.crashlyticsProvider, crashlyticsProvider)
 
-            Or use a mock provider for previews/testing:
+        Or use a mock provider for previews/testing:
 
-                .environment(\\.crashlyticsProvider, MockCrashlyticsProvider())
-            """
-        )
+            .environment(\\.crashlyticsProvider, MockCrashlyticsProvider())
+        """)
     }
 }

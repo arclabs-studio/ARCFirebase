@@ -1,3 +1,10 @@
+//
+//  AnalyticsProvider.swift
+//  ARCFirebase
+//
+//  Created by ARC Labs Studio on 2026-01-13.
+//
+
 import Foundation
 
 /// Protocol defining analytics tracking capabilities.
@@ -24,9 +31,9 @@ import Foundation
 ///
 /// ```swift
 /// final class MockAnalyticsProvider: AnalyticsProviding {
-///     var loggedEvents: [(String, [String: Any]?)] = []
+///     var loggedEvents: [(String, [String: any Sendable]?)] = []
 ///
-///     func logEvent(_ name: String, parameters: [String: Any]?) {
+///     func logEvent(_ name: String, parameters: [String: any Sendable]?) {
 ///         loggedEvents.append((name, parameters))
 ///     }
 ///
@@ -67,7 +74,7 @@ public protocol AnalyticsProviding: Sendable {
     /// - Parameters:
     ///   - name: The event name (max 40 characters).
     ///   - parameters: Optional event parameters (max 25 per event).
-    func logEvent(_ name: String, parameters: [String: Any]?)
+    func logEvent(_ name: String, parameters: [String: any Sendable]?)
 
     /// Logs a screen view event.
     ///

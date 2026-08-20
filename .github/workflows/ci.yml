@@ -17,10 +17,6 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Replace local ARCLogger with GitHub URL
-        run: |
-          sed -i '' 's|.package(path: "../ARCLogger")|.package(url: "https://github.com/arclabs-studio/ARCLogger.git", from: "1.0.0")|' Package.swift
-
       - name: Setup Xcode
         uses: maxim-lobanov/setup-xcode@v1
         with:
@@ -47,8 +43,14 @@ jobs:
         with:
           xcode-version: 'latest-stable'
 
-      - name: Install SwiftLint
-        run: brew install swiftlint
+      - name: Cache pinned tools
+        uses: actions/cache@v4
+        with:
+          path: .arc-tools
+          key: arc-tools-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('.arc-tool-versions', 'ARCDevTools/configs/tool-versions') }}
+
+      - name: Install pinned SwiftLint
+        run: ./ARCDevTools/scripts/install-tools.sh swiftlint
 
       - name: Run SwiftLint
         run: make lint

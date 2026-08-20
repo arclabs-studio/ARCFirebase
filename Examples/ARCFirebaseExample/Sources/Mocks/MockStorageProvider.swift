@@ -40,7 +40,7 @@ actor MockStorageProvider: StorageProviding {
     private(set) var storedFiles: [String: Data] = [:]
 
     /// Base URL for mock download URLs.
-    private let baseURL = URL(string: "https://mock.storage.arclabs.studio")!
+    private let baseURL = URL(string: "https://mock.storage.example.com")!
 
     // MARK: Call Tracking
 

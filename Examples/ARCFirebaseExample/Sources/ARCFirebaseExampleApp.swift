@@ -28,6 +28,8 @@
 // - ARCFirebaseCrashlytics: Error recording and crash reporting
 // - ARCFirebasePersistence: Firestore CRUD operations
 // - ARCFirebaseStorage: File upload/download
+// - ARCFirebaseAI: Gemini content generation via Firebase AI
+// - ARCFirebaseFeatureFlags: Remote Config feature flags
 //
 // ARCHITECTURE PATTERN:
 // - Protocol-based providers for dependency injection
@@ -37,10 +39,12 @@
 //
 // ============================================================================
 
+import ARCFirebaseAI
 import ARCFirebaseAnalytics
 import ARCFirebaseAuth
 import ARCFirebaseCore
 import ARCFirebaseCrashlytics
+import ARCFirebaseFeatureFlags
 import ARCFirebaseStorage
 import SwiftUI
 
@@ -75,6 +79,12 @@ struct ARCFirebaseExampleApp: App {
     /// Crashlytics provider - records errors and crashes.
     private let crashlyticsProvider: any CrashlyticsProviding
 
+    /// AI provider - generates content via Gemini.
+    private let aiProvider: any AIProviding
+
+    /// Feature flag provider - manages remote configuration.
+    private let featureFlagProvider: any FeatureFlagProviding
+
     /// Indicates if running in demo mode (without Firebase).
     private let isDemoMode: Bool
 
@@ -89,24 +99,24 @@ struct ARCFirebaseExampleApp: App {
         analyticsProvider = config.analytics
         storageProvider = config.storage
         crashlyticsProvider = config.crashlytics
+        aiProvider = config.ai
+        featureFlagProvider = config.featureFlags
         isDemoMode = config.isDemoMode
     }
 
     // MARK: Private Helpers
 
     /// Initializes all providers based on Firebase configuration availability.
-    private static func initializeProviders() -> (
-        auth: any AuthProviding,
-        analytics: any AnalyticsProviding,
-        storage: any StorageProviding,
-        crashlytics: any CrashlyticsProviding,
-        isDemoMode: Bool
-    ) {
+    private static func initializeProviders() -> (auth: any AuthProviding,
+                                                  analytics: any AnalyticsProviding,
+                                                  storage: any StorageProviding,
+                                                  crashlytics: any CrashlyticsProviding,
+                                                  ai: any AIProviding,
+                                                  featureFlags: any FeatureFlagProviding,
+                                                  isDemoMode: Bool) {
         // Check for GoogleService-Info.plist
-        let hasFirebaseConfig = Bundle.main.path(
-            forResource: "GoogleService-Info",
-            ofType: "plist"
-        ) != nil
+        let hasFirebaseConfig = Bundle.main.path(forResource: "GoogleService-Info",
+                                                 ofType: "plist") != nil
 
         guard hasFirebaseConfig else {
             // ================================================================
@@ -124,13 +134,13 @@ struct ARCFirebaseExampleApp: App {
             See README.md for detailed instructions.
             """)
 
-            return (
-                auth: MockAuthProvider.unauthenticated,
-                analytics: MockAnalyticsProvider(),
-                storage: MockStorageProvider(),
-                crashlytics: MockCrashlyticsProvider(),
-                isDemoMode: true
-            )
+            return (auth: MockAuthProvider.unauthenticated,
+                    analytics: MockAnalyticsProvider(),
+                    storage: MockStorageProvider(),
+                    crashlytics: MockCrashlyticsProvider(),
+                    ai: MockAIProvider(),
+                    featureFlags: MockFeatureFlagProvider(),
+                    isDemoMode: true)
         }
 
         // ================================================================
@@ -143,36 +153,34 @@ struct ARCFirebaseExampleApp: App {
             let analytics = try FirebaseAnalyticsProvider.create()
             let storage = try FirebaseStorageProvider.create()
             let crashlytics = try FirebaseCrashlyticsProvider.create()
+            let ai = try FirebaseAIProvider.create()
+            let featureFlags = try FirebaseFeatureFlagProvider.create(configuration: .development)
 
             print("✅ Firebase configured successfully (Production Mode)")
 
             // Track app launch
-            analytics.logEvent(
-                AnalyticsEvent.appOpened,
-                parameters: [
-                    "platform": "iOS",
-                    "mode": "production"
-                ]
-            )
+            analytics.logEvent(AnalyticsEvent.appOpened,
+                               parameters: ["platform": "iOS",
+                                            "mode": "production"])
 
-            return (
-                auth: auth,
-                analytics: analytics,
-                storage: storage,
-                crashlytics: crashlytics,
-                isDemoMode: false
-            )
+            return (auth: auth,
+                    analytics: analytics,
+                    storage: storage,
+                    crashlytics: crashlytics,
+                    ai: ai,
+                    featureFlags: featureFlags,
+                    isDemoMode: false)
 
         } catch {
             // Fall back to demo mode on error
             print("⚠️ Firebase initialization failed, using demo mode: \(error)")
-            return (
-                auth: MockAuthProvider.unauthenticated,
-                analytics: MockAnalyticsProvider(),
-                storage: MockStorageProvider(),
-                crashlytics: MockCrashlyticsProvider(),
-                isDemoMode: true
-            )
+            return (auth: MockAuthProvider.unauthenticated,
+                    analytics: MockAnalyticsProvider(),
+                    storage: MockStorageProvider(),
+                    crashlytics: MockCrashlyticsProvider(),
+                    ai: MockAIProvider(),
+                    featureFlags: MockFeatureFlagProvider(),
+                    isDemoMode: true)
         }
     }
 
@@ -200,6 +208,8 @@ struct ARCFirebaseExampleApp: App {
             .environment(\.analyticsProvider, analyticsProvider)
             .environment(\.storageProvider, storageProvider)
             .environment(\.crashlyticsProvider, crashlyticsProvider)
+            .environment(\.aiProvider, aiProvider)
+            .environment(\.featureFlagProvider, featureFlagProvider)
         }
     }
 }

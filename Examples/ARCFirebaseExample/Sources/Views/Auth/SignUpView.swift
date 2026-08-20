@@ -158,10 +158,8 @@ extension SignUpView {
 // MARK: - Previews
 
 #Preview("Sign Up - Empty") {
-    let viewModel = AuthViewModel(
-        auth: MockAuthProvider.unauthenticated,
-        analytics: MockAnalyticsProvider.preview
-    )
+    let viewModel = AuthViewModel(auth: MockAuthProvider.unauthenticated,
+                                  analytics: MockAnalyticsProvider.preview)
 
     return SignUpView()
         .environment(viewModel)
@@ -169,10 +167,8 @@ extension SignUpView {
 }
 
 #Preview("Sign Up - Filled") {
-    let viewModel = AuthViewModel(
-        auth: MockAuthProvider.unauthenticated,
-        analytics: MockAnalyticsProvider.preview
-    )
+    let viewModel = AuthViewModel(auth: MockAuthProvider.unauthenticated,
+                                  analytics: MockAnalyticsProvider.preview)
     viewModel.email = "newuser@example.com"
     viewModel.password = "securepassword123"
 
@@ -182,10 +178,8 @@ extension SignUpView {
 }
 
 #Preview("Sign Up - Dark Mode") {
-    let viewModel = AuthViewModel(
-        auth: MockAuthProvider.unauthenticated,
-        analytics: MockAnalyticsProvider.preview
-    )
+    let viewModel = AuthViewModel(auth: MockAuthProvider.unauthenticated,
+                                  analytics: MockAnalyticsProvider.preview)
 
     return SignUpView()
         .environment(viewModel)

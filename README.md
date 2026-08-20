@@ -2,7 +2,7 @@
 
 ![Swift](https://img.shields.io/badge/Swift-6.0-orange.svg)
 ![Platforms](https://img.shields.io/badge/Platforms-iOS%2017%20%7C%20macOS%2014%20%7C%20watchOS%2010%20%7C%20visionOS%201-blue.svg)
-![License](https://img.shields.io/badge/License-MIT-green.svg)
+![License](https://img.shields.io/badge/License-PolyForm%20Noncommercial%201.0.0-orange.svg)
 ![Version](https://img.shields.io/badge/Version-1.0.0-blue.svg)
 
 **Modular Firebase integration for ARC Labs Studio apps**
@@ -26,8 +26,8 @@ ARCFirebase provides a clean, modular architecture for integrating Firebase serv
 - **SwiftUI integration**: Environment values support
 - **Comprehensive logging**: ARCLogger integration
 - **Full DocC documentation**: Learn as you code
-- **Multi-app ready**: Reusable across all ARC Labs apps
-- **Production tested**: Used in FavRes, FavBook, and more
+- **Multi-app ready**: Reusable across multiple apps and Firebase projects
+- **Production tested**: Used across ARC Labs Studio apps
 
 ---
 
@@ -36,7 +36,7 @@ ARCFirebase provides a clean, modular architecture for integrating Firebase serv
 - **Swift:** 6.0+
 - **Platforms:** iOS 17.0+ / macOS 14.0+ / watchOS 10.0+ / visionOS 1.0+
 - **Xcode:** 16.0+
-- **Dependencies:** Firebase iOS SDK 10.0+, ARCLogger
+- **Dependencies:** Firebase iOS SDK 11.13.0+, ARCLogger
 
 ---
 
@@ -64,6 +64,7 @@ Perfect for learning how to integrate ARCFirebase in your app!
 | **Crashlytics** | Crash reporting | FirebaseCrashlytics |
 | **Persistence** | Firestore database | FirebaseFirestore |
 | **Storage** | File storage | FirebaseStorage |
+| **AI** | Gemini content generation | FirebaseAI |
 
 ---
 
@@ -73,7 +74,7 @@ Perfect for learning how to integrate ARCFirebase in your app!
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/arclabs/ARCFirebase.git", from: "1.0.0")
+    .package(url: "https://github.com/arclabs-studio/ARCFirebase.git", from: "1.0.0")
 ]
 ```
 
@@ -109,13 +110,15 @@ import ARCFirebaseAuth
 import ARCFirebaseAnalytics
 import ARCFirebaseStorage
 import ARCFirebaseCrashlytics
+import ARCFirebaseAI
 
 @main
-struct FavResApp: App {
+struct MyApp: App {
     // Initialize providers
     private let auth: FirebaseAuthProvider
     private let analytics: FirebaseAnalyticsProvider
     private let storage: FirebaseStorageProvider
+    private let ai: FirebaseAIProvider
 
     init() {
         // Configure Firebase Core
@@ -126,6 +129,7 @@ struct FavResApp: App {
             auth = try FirebaseAuthProvider()
             analytics = FirebaseAnalyticsProvider()
             storage = try FirebaseStorageProvider()
+            ai = try FirebaseAIProvider()
             try CrashlyticsManager.shared.configure()
         } catch {
             fatalError("Firebase configuration failed: \(error)")
@@ -138,6 +142,7 @@ struct FavResApp: App {
                 .environment(\.authProvider, auth)
                 .environment(\.analyticsProvider, analytics)
                 .environment(\.storageProvider, storage)
+                .environment(\.aiProvider, ai)
         }
     }
 }
@@ -368,6 +373,69 @@ CrashlyticsManager.shared.setUserID(user.id)
 CrashlyticsManager.shared.setCustomValue("dark", forKey: "theme")
 ```
 
+### AI (Gemini via Firebase)
+
+#### SwiftUI with Environment
+
+```swift
+import SwiftUI
+import ARCFirebaseAI
+
+struct ChatView: View {
+    @Environment(\.aiProvider) var ai
+    @State private var response = ""
+
+    var body: some View {
+        VStack {
+            Text(response)
+            Button("Generate") {
+                Task {
+                    let result = try await ai.generateContent(
+                        prompt: "Suggest a restaurant"
+                    )
+                    response = result.content
+                }
+            }
+        }
+    }
+}
+```
+
+#### Streaming
+
+```swift
+for try await chunk in ai.streamContent(prompt: "Tell me about sushi") {
+    text += chunk
+}
+```
+
+#### Dependency Injection
+
+```swift
+import ARCFirebaseAI
+
+@Observable
+final class ChatViewModel {
+    private let ai: any AIProviding
+    var response: String = ""
+
+    init(ai: any AIProviding) {
+        self.ai = ai
+    }
+
+    func generate(prompt: String) async throws {
+        let result = try await ai.generateContent(prompt: prompt)
+        response = result.content
+    }
+}
+
+// Production
+let viewModel = ChatViewModel(ai: FirebaseAIProvider.live)
+
+// Testing
+let viewModel = ChatViewModel(ai: MockAIProvider())
+```
+
 ---
 
 ## 🔄 Migration Guide
@@ -579,9 +647,9 @@ GoogleService-Info.plist
 ARCFirebase works across multiple apps. Each app uses its own Firebase project:
 
 ```
-FavRes     → Firebase Project "FavRes"
-FavBook    → Firebase Project "FavBook"
-SpatialShoes → Firebase Project "Spatial Shoes"
+AppA → Firebase Project "AppA"
+AppB → Firebase Project "AppB"
+AppC → Firebase Project "AppC"
 ```
 
 Same package, different configs. See [Multi-App Setup Guide](Sources/ARCFirebaseCore/ARCFirebaseCore.docc/MultiAppSetup.md).
@@ -597,9 +665,53 @@ Same package, different configs. See [Multi-App Setup Guide](Sources/ARCFirebase
 
 ---
 
+## 🏗️ Architecture
+
+ARCFirebase follows the **Protocol + Provider + EnvironmentKey** pattern across all modules:
+
+```
+Protocol          → defines the contract, enables dependency injection
+Provider          → production implementation backed by Firebase SDK
+EnvironmentKey    → SwiftUI Environment integration
+Mock (in Tests)   → test double for unit testing
+```
+
+### Module Dependency Graph
+
+```
+ARCFirebaseCore (required by all)
+    ├── ARCFirebaseAuth         (actor — thread-safe)
+    ├── ARCFirebaseAnalytics    (@unchecked Sendable)
+    ├── ARCFirebaseCrashlytics  (singleton — global logging)
+    ├── ARCFirebasePersistence  (generic Firestore repository)
+    ├── ARCFirebaseStorage      (actor — thread-safe)
+    ├── ARCFirebaseAI           (actor — Gemini via Firebase AI)
+    └── ARCFirebaseFeatureFlags (Remote Config)
+```
+
+Import only the modules your app needs — there is no required umbrella import.
+
+---
+
+## 🤝 Contributing
+
+This package is maintained by ARC Labs Studio. To contribute:
+
+1. Follow the [ARC Labs branch naming conventions](https://github.com/arclabs-studio/ARCKnowledge): `feature/`, `bugfix/`, or `hotfix/` — include the Linear issue ID (e.g. `feature/ARC-42-add-messaging`)
+2. Run the full test suite before opening a PR: `swift test`
+3. Ensure SwiftLint and SwiftFormat pass: `make lint && make format`
+4. Add tests for any new public API — mock providers live in `Tests/*/Mocks/`
+5. Update `CHANGELOG.md` under `[Unreleased]`
+
+---
+
 ## 📄 License
 
-MIT License - ARC Labs Studio
+Source-available under **PolyForm Noncommercial License 1.0.0** © 2025–2026 ARC Labs Studio. Free for non-commercial use (research, study, hobby, evaluation).
+
+ARC Labs Studio holds an internal commercial grant covering its own products — see [INTERNAL-USE.md](INTERNAL-USE.md). External commercial users must contact `arclabs.studio@gmail.com` for a separate license.
+
+See [LICENSE](LICENSE) for the full license text.
 
 ---
 

@@ -10,8 +10,11 @@
 		07C2FA20A728A873C6EBC895 /* ItemsListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7806897504D99B2AF1D85531 /* ItemsListView.swift */; };
 		092A25E3BEB8FCB955B8873C /* AuthViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E52983E31073D94E91AFFB4 /* AuthViewModel.swift */; };
 		1598658485E0E075B90BA469 /* ARCFirebasePersistence in Frameworks */ = {isa = PBXBuildFile; productRef = FB9C21E2F965106AF7B8FAE1 /* ARCFirebasePersistence */; };
+		172FDA2B7C7A74BD501E68AC /* MockFeatureFlagProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0900F1227D62E021327FE67D /* MockFeatureFlagProvider.swift */; };
 		26EF8A34D100B0D61308FB2D /* Item.swift in Sources */ = {isa = PBXBuildFile; fileRef = B74C362B88AA7340496C86E4 /* Item.swift */; };
 		29562CB3313FB10C48685619 /* StorageDemoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5DA85FA3DFF93D2BF1BD3AB /* StorageDemoView.swift */; };
+		2B90EE792953F08F9849E538 /* AIChatView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 96A9F366CFF8309362F52DFE /* AIChatView.swift */; };
+		2CC2718CD75D5FFED6FF3F7D /* ARCFirebaseAI in Frameworks */ = {isa = PBXBuildFile; productRef = A9FE5C2080996970A6DECEB3 /* ARCFirebaseAI */; };
 		433B053B33AD4FC188083E60 /* MockAnalyticsProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 120C88041C6AAAB50DEFEB3A /* MockAnalyticsProvider.swift */; };
 		5531C35449E648A0A4C792D3 /* ARCFirebaseExampleApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE01DD5A5BC5420DA8818C02 /* ARCFirebaseExampleApp.swift */; };
 		5EA010B2F3C00F97DF565E9A /* MockCrashlyticsProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8851E58C24EE3EC922E9F0A /* MockCrashlyticsProvider.swift */; };
@@ -22,23 +25,30 @@
 		860A85C2C938C0FAE3A60D9A /* ARCFirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = B1621B454F8F0A2500D1B72A /* ARCFirebaseStorage */; };
 		91997A54D39FB0B98F113B0B /* PreviewHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0181F302D2F5B3A313250B4D /* PreviewHelpers.swift */; };
 		9472ABD2AB11F53FFAAECD7F /* MockAuthProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED927E85BD4FA93D1E58BB62 /* MockAuthProvider.swift */; };
+		B66220119815BCCE02B88678 /* MockAIProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DA61680B4115D9AA836BF65 /* MockAIProvider.swift */; };
 		BD411BB01FBC7B8F04CFA101 /* ARCFirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = D152D7E032A3951C12B7E658 /* ARCFirebaseCore */; };
 		C5B45503FE46FA76EA19CF90 /* SignUpView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB03E5BD1FE499DA4802236E /* SignUpView.swift */; };
 		DBBAF74297656085D015B222 /* SignInView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91D88D2C7B793E33D1346BBC /* SignInView.swift */; };
 		DD9CB4EA3DC8FC870D25F227 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 113BC39A0473E6CEAA53AA2A /* ContentView.swift */; };
+		DF3D1A1E07115714D30FC360 /* ARCFirebaseFeatureFlags in Frameworks */ = {isa = PBXBuildFile; productRef = C7B1427C05C5AA56C8133137 /* ARCFirebaseFeatureFlags */; };
 		F7CE2889BBEB30BAA2D6BDF5 /* ARCFirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = B64335946AFAC0021E53C3B6 /* ARCFirebaseAnalytics */; };
+		F933A23511CD98BF93A2CF84 /* FeatureFlagsDemoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 096BCC03D3ED9C58B81427BD /* FeatureFlagsDemoView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		0181F302D2F5B3A313250B4D /* PreviewHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewHelpers.swift; sourceTree = "<group>"; };
 		065457D95187465CEA219904 /* MockStorageProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockStorageProvider.swift; sourceTree = "<group>"; };
+		0900F1227D62E021327FE67D /* MockFeatureFlagProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockFeatureFlagProvider.swift; sourceTree = "<group>"; };
+		096BCC03D3ED9C58B81427BD /* FeatureFlagsDemoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeatureFlagsDemoView.swift; sourceTree = "<group>"; };
 		113BC39A0473E6CEAA53AA2A /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		120C88041C6AAAB50DEFEB3A /* MockAnalyticsProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockAnalyticsProvider.swift; sourceTree = "<group>"; };
 		1E52983E31073D94E91AFFB4 /* AuthViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthViewModel.swift; sourceTree = "<group>"; };
 		30D03FFC1158D655F1042003 /* ARCFirebaseExample.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = ARCFirebaseExample.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		3DA61680B4115D9AA836BF65 /* MockAIProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockAIProvider.swift; sourceTree = "<group>"; };
 		7806897504D99B2AF1D85531 /* ItemsListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemsListView.swift; sourceTree = "<group>"; };
 		83284C9480539F7493E52B9C /* ItemsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemsViewModel.swift; sourceTree = "<group>"; };
 		91D88D2C7B793E33D1346BBC /* SignInView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignInView.swift; sourceTree = "<group>"; };
+		96A9F366CFF8309362F52DFE /* AIChatView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIChatView.swift; sourceTree = "<group>"; };
 		B74C362B88AA7340496C86E4 /* Item.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Item.swift; sourceTree = "<group>"; };
 		BB03E5BD1FE499DA4802236E /* SignUpView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignUpView.swift; sourceTree = "<group>"; };
 		D5DA85FA3DFF93D2BF1BD3AB /* StorageDemoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageDemoView.swift; sourceTree = "<group>"; };
@@ -59,6 +69,8 @@
 				7C4863200D1530A156A533F1 /* ARCFirebaseCrashlytics in Frameworks */,
 				1598658485E0E075B90BA469 /* ARCFirebasePersistence in Frameworks */,
 				860A85C2C938C0FAE3A60D9A /* ARCFirebaseStorage in Frameworks */,
+				2CC2718CD75D5FFED6FF3F7D /* ARCFirebaseAI in Frameworks */,
+				DF3D1A1E07115714D30FC360 /* ARCFirebaseFeatureFlags in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -69,7 +81,9 @@
 			isa = PBXGroup;
 			children = (
 				113BC39A0473E6CEAA53AA2A /* ContentView.swift */,
+				6C787CF95E7DA16BFB7ACE7D /* AI */,
 				35548D77FA97115D87C0AF39 /* Auth */,
+				E12F93A6DA1FF1E210023AA2 /* FeatureFlags */,
 				B73242F03E3A15D01D716498 /* Firestore */,
 				5E19141E015BB5A8B893B3DB /* Storage */,
 			);
@@ -101,12 +115,22 @@
 			path = Storage;
 			sourceTree = "<group>";
 		};
+		6C787CF95E7DA16BFB7ACE7D /* AI */ = {
+			isa = PBXGroup;
+			children = (
+				96A9F366CFF8309362F52DFE /* AIChatView.swift */,
+			);
+			path = AI;
+			sourceTree = "<group>";
+		};
 		6FA39840F86146A085D1D195 /* Mocks */ = {
 			isa = PBXGroup;
 			children = (
+				3DA61680B4115D9AA836BF65 /* MockAIProvider.swift */,
 				120C88041C6AAAB50DEFEB3A /* MockAnalyticsProvider.swift */,
 				ED927E85BD4FA93D1E58BB62 /* MockAuthProvider.swift */,
 				D8851E58C24EE3EC922E9F0A /* MockCrashlyticsProvider.swift */,
+				0900F1227D62E021327FE67D /* MockFeatureFlagProvider.swift */,
 				065457D95187465CEA219904 /* MockStorageProvider.swift */,
 				0181F302D2F5B3A313250B4D /* PreviewHelpers.swift */,
 			);
@@ -150,6 +174,14 @@
 			name = Packages;
 			sourceTree = "<group>";
 		};
+		E12F93A6DA1FF1E210023AA2 /* FeatureFlags */ = {
+			isa = PBXGroup;
+			children = (
+				096BCC03D3ED9C58B81427BD /* FeatureFlagsDemoView.swift */,
+			);
+			path = FeatureFlags;
+			sourceTree = "<group>";
+		};
 		F232A1B8000922BEE46736B0 = {
 			isa = PBXGroup;
 			children = (
@@ -189,6 +221,8 @@
 				72482930B081D9D428FFE877 /* ARCFirebaseCrashlytics */,
 				FB9C21E2F965106AF7B8FAE1 /* ARCFirebasePersistence */,
 				B1621B454F8F0A2500D1B72A /* ARCFirebaseStorage */,
+				A9FE5C2080996970A6DECEB3 /* ARCFirebaseAI */,
+				C7B1427C05C5AA56C8133137 /* ARCFirebaseFeatureFlags */,
 			);
 			productName = ARCFirebaseExample;
 			productReference = 30D03FFC1158D655F1042003 /* ARCFirebaseExample.app */;
@@ -236,15 +270,19 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2B90EE792953F08F9849E538 /* AIChatView.swift in Sources */,
 				5531C35449E648A0A4C792D3 /* ARCFirebaseExampleApp.swift in Sources */,
 				092A25E3BEB8FCB955B8873C /* AuthViewModel.swift in Sources */,
 				DD9CB4EA3DC8FC870D25F227 /* ContentView.swift in Sources */,
+				F933A23511CD98BF93A2CF84 /* FeatureFlagsDemoView.swift in Sources */,
 				26EF8A34D100B0D61308FB2D /* Item.swift in Sources */,
 				07C2FA20A728A873C6EBC895 /* ItemsListView.swift in Sources */,
 				6EB6B093F1D3B01673F1E8EC /* ItemsViewModel.swift in Sources */,
+				B66220119815BCCE02B88678 /* MockAIProvider.swift in Sources */,
 				433B053B33AD4FC188083E60 /* MockAnalyticsProvider.swift in Sources */,
 				9472ABD2AB11F53FFAAECD7F /* MockAuthProvider.swift in Sources */,
 				5EA010B2F3C00F97DF565E9A /* MockCrashlyticsProvider.swift in Sources */,
+				172FDA2B7C7A74BD501E68AC /* MockFeatureFlagProvider.swift in Sources */,
 				7AE3EF148A6611DDED4D31E4 /* MockStorageProvider.swift in Sources */,
 				91997A54D39FB0B98F113B0B /* PreviewHelpers.swift in Sources */,
 				DBBAF74297656085D015B222 /* SignInView.swift in Sources */,
@@ -466,6 +504,10 @@
 			isa = XCSwiftPackageProductDependency;
 			productName = ARCFirebaseCrashlytics;
 		};
+		A9FE5C2080996970A6DECEB3 /* ARCFirebaseAI */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = ARCFirebaseAI;
+		};
 		B1621B454F8F0A2500D1B72A /* ARCFirebaseStorage */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = ARCFirebaseStorage;
@@ -473,6 +515,10 @@
 		B64335946AFAC0021E53C3B6 /* ARCFirebaseAnalytics */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = ARCFirebaseAnalytics;
+		};
+		C7B1427C05C5AA56C8133137 /* ARCFirebaseFeatureFlags */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = ARCFirebaseFeatureFlags;
 		};
 		D152D7E032A3951C12B7E658 /* ARCFirebaseCore */ = {
 			isa = XCSwiftPackageProductDependency;

@@ -86,11 +86,9 @@ final class AuthViewModel {
     ///   - auth: The authentication provider to use.
     ///   - analytics: The analytics provider for event tracking.
     ///   - crashlytics: The crashlytics provider for error recording.
-    init(
-        auth: any AuthProviding,
-        analytics: any AnalyticsProviding,
-        crashlytics: any CrashlyticsProviding = MockCrashlyticsProvider()
-    ) {
+    init(auth: any AuthProviding,
+         analytics: any AnalyticsProviding,
+         crashlytics: any CrashlyticsProviding = MockCrashlyticsProvider()) {
         self.auth = auth
         self.analytics = analytics
         self.crashlytics = crashlytics
@@ -127,10 +125,8 @@ final class AuthViewModel {
             // ================================================================
             // Sign In Operation
             // ================================================================
-            let user = try await auth.signIn(
-                email: email,
-                password: password
-            )
+            let user = try await auth.signIn(email: email,
+                                             password: password)
 
             // Update local state
             currentUser = user
@@ -144,9 +140,7 @@ final class AuthViewModel {
             // Analytics Tracking
             // ================================================================
             // Track successful sign in for user funnel analysis.
-            analytics.logEvent("user_signed_in", parameters: [
-                "method": "email"
-            ])
+            analytics.logEvent("user_signed_in", parameters: ["method": "email"])
 
             // Set user ID for analytics attribution
             analytics.setUserID(user.id)
@@ -187,10 +181,8 @@ final class AuthViewModel {
         errorMessage = nil
 
         do {
-            let user = try await auth.signUp(
-                email: email,
-                password: password
-            )
+            let user = try await auth.signUp(email: email,
+                                             password: password)
 
             currentUser = user
             isAuthenticated = true
@@ -200,9 +192,7 @@ final class AuthViewModel {
             password = ""
 
             // Track sign up event (different from sign in for funnel analysis)
-            analytics.logEvent("user_signed_up", parameters: [
-                "method": "email"
-            ])
+            analytics.logEvent("user_signed_up", parameters: ["method": "email"])
 
             analytics.setUserID(user.id)
             crashlytics.setUserID(user.id)
@@ -264,11 +254,9 @@ final class AuthViewModel {
 
     /// Tests non-fatal error recording.
     func testNonFatalError() {
-        let testError = NSError(
-            domain: "com.arclabs.arcfirebase.example",
-            code: 999,
-            userInfo: [NSLocalizedDescriptionKey: "Test non-fatal error"]
-        )
+        let testError = NSError(domain: "com.arclabs.arcfirebase.example",
+                                code: 999,
+                                userInfo: [NSLocalizedDescriptionKey: "Test non-fatal error"])
         crashlytics.recordNonFatal(error: testError)
         print("✅ Test non-fatal error recorded")
     }
