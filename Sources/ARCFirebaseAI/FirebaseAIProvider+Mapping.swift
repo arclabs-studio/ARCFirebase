@@ -14,19 +14,25 @@ extension FirebaseAIProvider {
     func makeModel(configuration: AIConfiguration? = nil,
                    systemInstruction: String? = nil) -> GenerativeModel {
         let genConfig = configuration.map { makeGenerationConfig(configuration: $0) }
-        return makeModel(generationConfig: genConfig, systemInstruction: systemInstruction)
+        return makeModel(generationConfig: genConfig,
+                         safetySettings: configuration?.safetySettings,
+                         systemInstruction: systemInstruction)
     }
 
     func makeModel(generationConfig: GenerationConfig? = nil,
+                   safetySettings: [AISafetySetting]? = nil,
                    systemInstruction: String? = nil) -> GenerativeModel {
-        if let instruction = systemInstruction {
+        let firebaseSafetySettings = safetySettings.map { $0.map(\.firebaseSetting) }
+        return if let instruction = systemInstruction {
             backend.generativeModel(modelName: model.rawValue,
                                     generationConfig: generationConfig,
+                                    safetySettings: firebaseSafetySettings,
                                     systemInstruction: ModelContent(role: "system",
                                                                     parts: instruction))
         } else {
             backend.generativeModel(modelName: model.rawValue,
-                                    generationConfig: generationConfig)
+                                    generationConfig: generationConfig,
+                                    safetySettings: firebaseSafetySettings)
         }
     }
 
@@ -43,6 +49,39 @@ extension FirebaseAIProvider {
                                 stopSequences: configuration?.stopSequences,
                                 responseMIMEType: mimeType,
                                 responseSchema: schema)
+    }
+}
+
+// MARK: - Safety Settings Mapping
+
+extension AISafetySetting {
+    /// The equivalent `FirebaseAI.SafetySetting`.
+    var firebaseSetting: SafetySetting {
+        SafetySetting(harmCategory: category.firebaseCategory,
+                      threshold: threshold.firebaseThreshold)
+    }
+}
+
+extension AISafetySetting.Category {
+    var firebaseCategory: HarmCategory {
+        switch self {
+        case .harassment: .harassment
+        case .hateSpeech: .hateSpeech
+        case .sexuallyExplicit: .sexuallyExplicit
+        case .dangerousContent: .dangerousContent
+        }
+    }
+}
+
+extension AISafetySetting.Threshold {
+    var firebaseThreshold: SafetySetting.HarmBlockThreshold {
+        switch self {
+        case .blockLowAndAbove: .blockLowAndAbove
+        case .blockMediumAndAbove: .blockMediumAndAbove
+        case .blockOnlyHigh: .blockOnlyHigh
+        case .blockNone: .blockNone
+        case .off: .off
+        }
     }
 }
 
