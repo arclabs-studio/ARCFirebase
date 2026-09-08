@@ -27,7 +27,8 @@ import Foundation
 /// let credential = OAuthCredentialData(
 ///     providerID: "apple.com",
 ///     idToken: appleIDToken,
-///     rawNonce: nonce
+///     rawNonce: nonce,
+///     authorizationCode: appleAuthorizationCode
 /// )
 ///
 /// let user = try await auth.signIn(with: credential)
@@ -45,6 +46,14 @@ public struct OAuthCredentialData: Sendable {
     /// The raw nonce used for Apple Sign-In verification, if applicable.
     public let rawNonce: String?
 
+    /// The short-lived Apple authorization code, if applicable.
+    ///
+    /// Only ``AuthProviding/revokeToken(authorizationCode:)`` consumes this — it is not
+    /// part of the sign-in credential Firebase builds. Apple invalidates the code after
+    /// about five minutes and allows a single use, so it cannot be stored and replayed;
+    /// obtain a fresh one by re-running Sign in with Apple at the moment you need it.
+    public let authorizationCode: String?
+
     /// Creates OAuth credential data.
     ///
     /// - Parameters:
@@ -52,13 +61,16 @@ public struct OAuthCredentialData: Sendable {
     ///   - idToken: The ID token from the OAuth provider.
     ///   - accessToken: The access token from the OAuth provider.
     ///   - rawNonce: The raw nonce for Apple Sign-In verification.
+    ///   - authorizationCode: The short-lived Apple authorization code, used for token revocation.
     public init(providerID: String,
                 idToken: String? = nil,
                 accessToken: String? = nil,
-                rawNonce: String? = nil) {
+                rawNonce: String? = nil,
+                authorizationCode: String? = nil) {
         self.providerID = providerID
         self.idToken = idToken
         self.accessToken = accessToken
         self.rawNonce = rawNonce
+        self.authorizationCode = authorizationCode
     }
 }

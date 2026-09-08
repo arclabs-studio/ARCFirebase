@@ -84,18 +84,23 @@ import Foundation
 ///
 /// ### OAuth Sign-In
 /// - ``signIn(with:)``
+/// - ``reauthenticate(with:)``
 ///
 /// ### Auth State
 /// - ``authStateChanges()``
 ///
 /// ### Account Management
 /// - ``deleteAccount()``
+/// - ``revokeToken(authorizationCode:)``
 /// - ``linkAccount(with:)``
 /// - ``unlinkProvider(_:)``
 /// - ``linkedProviders()``
 ///
 /// ### Email Verification
 /// - ``sendEmailVerification()``
+///
+/// ### Profile
+/// - ``updateProfile(displayName:photoURL:)``
 ///
 /// ### Implementations
 /// - ``FirebaseAuthProvider``
@@ -153,6 +158,18 @@ public protocol AuthProviding: Sendable {
     /// - Throws: ``FirebaseError/invalidCredential`` if the credential is invalid.
     func signIn(with credential: OAuthCredentialData) async throws -> User
 
+    /// Re-authenticates the current user with a freshly obtained OAuth credential.
+    ///
+    /// Security-sensitive operations — deleting the account, changing the primary email —
+    /// require a recent sign-in. Call this with a credential obtained moments earlier to
+    /// clear ``FirebaseError/requiresRecentLogin`` before attempting one.
+    ///
+    /// - Parameter credential: A freshly obtained OAuth credential for the signed-in user.
+    /// - Returns: The re-authenticated user.
+    /// - Throws: ``FirebaseError/userNotFound`` if no user is signed in.
+    /// - Throws: ``FirebaseError/invalidCredential`` if the credential is invalid or stale.
+    func reauthenticate(with credential: OAuthCredentialData) async throws -> User
+
     // MARK: - Auth State Observation
 
     /// Returns an asynchronous stream of authentication state changes.
@@ -170,6 +187,26 @@ public protocol AuthProviding: Sendable {
     /// - Throws: ``FirebaseError/userNotFound`` if no user is signed in.
     /// - Throws: ``FirebaseError/requiresRecentLogin`` if re-authentication is needed.
     func deleteAccount() async throws
+
+    /// Revokes the user's Apple tokens ahead of deleting their account.
+    ///
+    /// Apps offering Sign in with Apple must revoke the user's tokens when the account is
+    /// deleted, not merely delete the account — see
+    /// [Apple's account deletion guidance](https://developer.apple.com/support/offering-account-deletion-in-your-app/).
+    ///
+    /// Call this **before** ``deleteAccount()``: the request carries the signed-in user's
+    /// ID token, so it fails once the account is gone. The authorization code must be
+    /// freshly obtained — Apple's codes are single-use and expire after about five minutes.
+    ///
+    /// Requires the *Services ID* and *OAuth code flow configuration* to be filled in on the
+    /// Apple provider in the Firebase console; without them the backend cannot exchange the
+    /// code and the call fails with `Code flow is not enabled for Apple`.
+    ///
+    /// - Parameter authorizationCode: A fresh Apple authorization code.
+    /// - Throws: ``FirebaseError/userNotFound`` if no user is signed in.
+    /// - Throws: ``FirebaseError/invalidCredential`` if the code is stale, already used, or
+    ///   the provider's code flow is not configured.
+    func revokeToken(authorizationCode: String) async throws
 
     /// Links an OAuth credential to the current user's account.
     ///

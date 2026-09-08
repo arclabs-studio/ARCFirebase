@@ -16,6 +16,10 @@ final class MockAuthProvider: AuthProviding, @unchecked Sendable {
     private(set) var passwordResetCallCount = 0
     private(set) var updatePasswordCallCount = 0
     private(set) var oauthSignInCallCount = 0
+    private(set) var reauthenticateCallCount = 0
+    private(set) var revokeTokenCallCount = 0
+    private(set) var lastAuthorizationCode: String?
+    private(set) var lastReauthenticateCredential: OAuthCredentialData?
     private(set) var deleteAccountCallCount = 0
     private(set) var linkAccountCallCount = 0
     private(set) var unlinkProviderCallCount = 0
@@ -106,6 +110,35 @@ final class MockAuthProvider: AuthProviding, @unchecked Sendable {
                         linkedProviderIDs: [credential.providerID])
         mockUser = user
         return user
+    }
+
+    func reauthenticate(with credential: OAuthCredentialData) async throws -> User {
+        reauthenticateCallCount += 1
+        lastReauthenticateCredential = credential
+
+        if let error = mockError {
+            throw error
+        }
+
+        if let user = mockUser {
+            return user
+        }
+
+        let user = User(id: "oauth-user-id",
+                        email: "oauth@example.com",
+                        providerID: credential.providerID,
+                        linkedProviderIDs: [credential.providerID])
+        mockUser = user
+        return user
+    }
+
+    func revokeToken(authorizationCode: String) async throws {
+        revokeTokenCallCount += 1
+        lastAuthorizationCode = authorizationCode
+
+        if let error = mockError {
+            throw error
+        }
     }
 
     func authStateChanges() -> AsyncStream<User?> {
@@ -225,6 +258,10 @@ final class MockAuthProvider: AuthProviding, @unchecked Sendable {
         passwordResetCallCount = 0
         updatePasswordCallCount = 0
         oauthSignInCallCount = 0
+        reauthenticateCallCount = 0
+        revokeTokenCallCount = 0
+        lastAuthorizationCode = nil
+        lastReauthenticateCredential = nil
         deleteAccountCallCount = 0
         linkAccountCallCount = 0
         unlinkProviderCallCount = 0
