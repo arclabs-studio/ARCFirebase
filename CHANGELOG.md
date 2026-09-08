@@ -5,6 +5,40 @@ All notable changes to ARCFirebase will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0] - 2026-09-09
+
+### Added
+
+#### ARCFirebaseAuth
+- `AuthProviding.revokeToken(authorizationCode:)` — revokes a user's Apple tokens ahead of
+  account deletion, as Apple requires of apps offering Sign in with Apple. Must be called
+  while the user is still signed in; the authorization code must be freshly obtained, since
+  Apple's codes are single-use and expire within minutes.
+- `AuthProviding.reauthenticate(with:)` — clears `FirebaseError.requiresRecentLogin` before
+  a security-sensitive operation such as account deletion.
+- `OAuthCredentialData.authorizationCode` — optional, defaulted, so existing call sites are
+  unaffected. Consumed only by `revokeToken(authorizationCode:)`; it is not part of the
+  credential Firebase builds for sign-in.
+
+### Notes
+
+- `revokeToken` requires the *Services ID* and *OAuth code flow configuration* to be filled
+  in on the Apple provider in the Firebase console. Without them the backend cannot exchange
+  the code with Apple and the call fails with `Code flow is not enabled for Apple`.
+
+## [1.1.0] - 2026-09-01
+
+### Added
+
+#### ARCFirebaseAI
+- `AISafetySetting` — provider-agnostic safety filter setting, with `Category`
+  (`harassment`, `hateSpeech`, `sexuallyExplicit`, `dangerousContent`) and `Threshold`
+  (`blockLowAndAbove`, `blockMediumAndAbove`, `blockOnlyHigh`, …). Mapped to
+  `FirebaseAI.SafetySetting` at the provider boundary.
+- `AIConfiguration.safetySettings: [AISafetySetting]?` — optional and defaulted to `nil`,
+  which leaves the provider's own defaults in place. `AISafetySetting.standardModeration`
+  supplies the recommended baseline.
+
 ## [1.0.0] - 2026-08-20
 
 First public release of **ARCFirebase**.
