@@ -5,6 +5,26 @@ All notable changes to ARCFirebase will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Changed
+
+#### ARCFirebaseFeatureFlags
+- `FirebaseFeatureFlagProvider` is now checked `Sendable`; `@unchecked Sendable` is gone.
+  `RemoteConfig` is not `Sendable`, so it lives behind an internal actor, and the synchronous
+  reads are served from an immutable snapshot swapped in atomically. A reader can no longer
+  observe a half-activated config. The public `FeatureFlagProviding` API is unchanged and every
+  read returns the same value as before.
+- The config persisted by a previous launch is now loaded (`ensureInitialized`) and published
+  in the background at init. Previously, reads made before the first fetch could miss it.
+- `configUpdates()` also yields after the persisted config loads and after
+  `fetchAndActivate()`, not only after a real-time update.
+- All `configUpdates()` streams share one real-time listener, which stays open only while at
+  least one stream is alive.
+- `setDefaults(_:)` keeps the defaults in the provider instead of forwarding them to
+  `RemoteConfig`. Read precedence (remote, then default, then the caller's `defaultValue`)
+  and the value conversions are unchanged.
+
 ## [1.2.0] - 2026-09-09
 
 ### Added

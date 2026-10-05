@@ -36,28 +36,56 @@ import Foundation
 /// - ``create(configuration:)``
 /// - ``create()``
 /// - ``live``
-public final class FirebaseFeatureFlagProvider: FeatureFlagProviding, @unchecked Sendable {
+public final class FirebaseFeatureFlagProvider: FeatureFlagProviding {
     // MARK: - Properties
 
-    private let remoteConfig: RemoteConfig
+    private let store: FeatureFlagStore
+    private let controller: RemoteConfigController
+    private let subscriberChanges: AsyncStream<Void>.Continuation
     private let logger: ARCLogger
 
     // MARK: - Initialization
 
     /// Creates a Firebase feature flag provider with the given configuration.
     ///
+    /// Values persisted by a previous launch are loaded in the background; until then, reads return the
+    /// registered defaults.
+    ///
     /// - Parameter configuration: The feature flag configuration to use. Defaults to
     /// ``FeatureFlagConfiguration/default``.
     /// - Throws: ``FirebaseError/notConfigured`` if Firebase hasn't been initialized.
     public init(configuration: FeatureFlagConfiguration = .default) throws {
         try FirebaseManager.ensureConfigured()
-        remoteConfig = RemoteConfig.remoteConfig()
+        let remoteConfig = RemoteConfig.remoteConfig()
         let settings = RemoteConfigSettings()
         settings.minimumFetchInterval = configuration.minimumFetchInterval
         remoteConfig.configSettings = settings
-        logger = ARCLogger(subsystem: ARCFirebaseLogSubsystem.current, category: "FeatureFlags")
+
+        let logger = ARCLogger(subsystem: ARCFirebaseLogSubsystem.current, category: "FeatureFlags")
+        let (changes, changesContinuation) = AsyncStream.makeStream(of: Void.self,
+                                                                    bufferingPolicy: .bufferingNewest(1))
+        let store = FeatureFlagStore { _ in changesContinuation.yield() }
+        let controller = RemoteConfigController(remoteConfig: remoteConfig, store: store, logger: logger)
+
+        self.store = store
+        self.controller = controller
+        subscriberChanges = changesContinuation
+        self.logger = logger
+
+        Task { [weak controller] in
+            await controller?.loadPersistedConfig()
+        }
+        Task { [weak controller] in
+            for await _ in changes {
+                await controller?.reconcileListener()
+            }
+        }
         logger
             .info("FirebaseFeatureFlagProvider initialized with fetchInterval: \(configuration.minimumFetchInterval)s")
+    }
+
+    deinit {
+        subscriberChanges.finish()
     }
 
     // MARK: - FeatureFlagProviding Implementation
@@ -66,7 +94,7 @@ public final class FirebaseFeatureFlagProvider: FeatureFlagProviding, @unchecked
         logger.info("Fetching and activating remote config")
 
         do {
-            let status = try await remoteConfig.fetchAndActivate()
+            let status = try await controller.fetchAndActivate()
             logger.info("Remote config fetch status: \(status)")
         } catch {
             logger.error("Remote config fetch failed: \(error.localizedDescription)")
@@ -76,76 +104,35 @@ public final class FirebaseFeatureFlagProvider: FeatureFlagProviding, @unchecked
 
     public func setDefaults(_ defaults: [String: any Sendable]) {
         logger.debug("Setting \(defaults.count) default values")
-        remoteConfig.setDefaults(defaults as? [String: NSObject])
+        store.replaceDefaults(defaults)
     }
 
     public func bool(forKey key: String, defaultValue: Bool) -> Bool {
-        let configValue = remoteConfig.configValue(forKey: key)
-        guard configValue.source != .static else {
-            return defaultValue
-        }
-        return configValue.boolValue
+        store.snapshot.bool(forKey: key, defaultValue: defaultValue)
     }
 
     public func string(forKey key: String, defaultValue: String) -> String {
-        let configValue = remoteConfig.configValue(forKey: key)
-        guard configValue.source != .static else {
-            return defaultValue
-        }
-        return configValue.stringValue
+        store.snapshot.string(forKey: key, defaultValue: defaultValue)
     }
 
     public func int(forKey key: String, defaultValue: Int) -> Int {
-        let configValue = remoteConfig.configValue(forKey: key)
-        guard configValue.source != .static else {
-            return defaultValue
-        }
-        return configValue.numberValue.intValue
+        store.snapshot.int(forKey: key, defaultValue: defaultValue)
     }
 
     public func double(forKey key: String, defaultValue: Double) -> Double {
-        let configValue = remoteConfig.configValue(forKey: key)
-        guard configValue.source != .static else {
-            return defaultValue
-        }
-        return configValue.numberValue.doubleValue
+        store.snapshot.double(forKey: key, defaultValue: defaultValue)
     }
 
     public func data(forKey key: String, defaultValue: Data) -> Data {
-        let configValue = remoteConfig.configValue(forKey: key)
-        guard configValue.source != .static else {
-            return defaultValue
-        }
-        return configValue.dataValue
+        store.snapshot.data(forKey: key, defaultValue: defaultValue)
     }
 
+    /// Returns a stream that yields each time new remote values become active: after the persisted config
+    /// loads, after ``fetchAndActivate()``, and after a real-time update is activated.
+    ///
+    /// The real-time listener stays open only while at least one stream is alive.
     public func configUpdates() -> AsyncStream<Void> {
-        let (stream, continuation) = AsyncStream.makeStream(of: Void.self)
-        let logger = logger
-
-        let registration = remoteConfig.addOnConfigUpdateListener { [weak remoteConfig] configUpdate, error in
-            if let error {
-                logger.error("Config update error: \(error.localizedDescription)")
-                return
-            }
-
-            guard configUpdate != nil else { return }
-
-            remoteConfig?.activate { _, activateError in
-                if let activateError {
-                    logger.error("Config activation error: \(activateError.localizedDescription)")
-                    return
-                }
-                logger.info("Config updated and activated")
-                continuation.yield()
-            }
-        }
-
-        continuation.onTermination = { _ in
-            registration.remove()
-        }
-
-        return stream
+        store.updates()
     }
 }
 

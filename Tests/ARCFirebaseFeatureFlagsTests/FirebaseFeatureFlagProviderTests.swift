@@ -178,7 +178,7 @@ struct FirebaseFeatureFlagProviderTests {
 
         mock.simulateConfigUpdate()
 
-        let result = await iterator.next()
+        let result: Void? = await iterator.next()
         #expect(result != nil)
     }
 
@@ -189,7 +189,7 @@ struct FirebaseFeatureFlagProviderTests {
 
         mock.finishConfigUpdates()
 
-        let result = await iterator.next()
+        let result: Void? = await iterator.next()
         #expect(result == nil)
     }
 
