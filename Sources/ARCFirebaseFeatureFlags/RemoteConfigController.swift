@@ -46,7 +46,7 @@ actor RemoteConfigController {
     /// no remote values.
     func loadPersistedConfig() async {
         do {
-            try await remoteConfig.ensureInitialized()
+            try await ensureInitialized()
             publishActiveValues()
         } catch {
             logger.error("Remote config initialization failed: \(error.localizedDescription)")
@@ -54,7 +54,7 @@ actor RemoteConfigController {
     }
 
     func fetchAndActivate() async throws -> RemoteConfigFetchAndActivateStatus {
-        let status = try await remoteConfig.fetchAndActivate()
+        let status = try await fetchAndActivateRemoteConfig()
         publishActiveValues()
         return status
     }
@@ -71,10 +71,10 @@ actor RemoteConfigController {
                     logger.error("Config update error: \(error.localizedDescription)")
                     return
                 }
-                guard update != nil else { return }
+                guard update != nil, let self else { return }
                 // The listener is a synchronous callback with no async variant; hop onto the actor to
                 // activate. Back-to-back updates queue serialized, idempotent activations.
-                Task { await self?.activate() }
+                Task { await self.activate() }
             }
             logger.debug("Real-time config listener started")
         case let (false, active?):
@@ -92,11 +92,53 @@ actor RemoteConfigController {
 extension RemoteConfigController {
     private func activate() async {
         do {
-            _ = try await remoteConfig.activate()
+            try await activateRemoteConfig()
             publishActiveValues()
             logger.info("Config updated and activated")
         } catch {
             logger.error("Config activation error: \(error.localizedDescription)")
+        }
+    }
+
+    // The completion-handler forms are used on purpose. Swift 6.0 treats a call to an imported async
+    // method on the actor-owned, non-Sendable `RemoteConfig` as sending it out of the actor and rejects it
+    // ("sending 'self.remoteConfig' risks causing data races"); Swift 6.4 accepts it. The package targets
+    // tools 6.0, so these bridges call the synchronous method on the actor, and only `Sendable` values
+    // (the status enum, `Error`) cross back through the continuation.
+
+    private func ensureInitialized() async throws {
+        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, any Error>) in
+            remoteConfig.ensureInitialized { error in
+                if let error {
+                    continuation.resume(throwing: error)
+                } else {
+                    continuation.resume()
+                }
+            }
+        }
+    }
+
+    private func fetchAndActivateRemoteConfig() async throws -> RemoteConfigFetchAndActivateStatus {
+        try await withCheckedThrowingContinuation { continuation in
+            remoteConfig.fetchAndActivate { status, error in
+                if let error {
+                    continuation.resume(throwing: error)
+                } else {
+                    continuation.resume(returning: status)
+                }
+            }
+        }
+    }
+
+    private func activateRemoteConfig() async throws {
+        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, any Error>) in
+            remoteConfig.activate { _, error in
+                if let error {
+                    continuation.resume(throwing: error)
+                } else {
+                    continuation.resume()
+                }
+            }
         }
     }
 
