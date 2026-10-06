@@ -42,7 +42,15 @@ private struct PlaceholderAuthProvider: AuthProviding, @unchecked Sendable {
         placeholderCrash()
     }
 
+    func reauthenticate(with _: OAuthCredentialData) async throws -> User {
+        placeholderCrash()
+    }
+
     func authStateChanges() -> AsyncStream<User?> {
+        placeholderCrash()
+    }
+
+    func revokeToken(authorizationCode _: String) async throws {
         placeholderCrash()
     }
 

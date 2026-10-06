@@ -154,6 +154,22 @@ final class MockAuthProvider: AuthProviding, @unchecked Sendable {
         return user
     }
 
+    func reauthenticate(with credential: OAuthCredentialData) async throws -> User {
+        try await Task.sleep(for: .seconds(simulatedDelay))
+
+        let user = mockUser ?? User(id: UUID().uuidString,
+                                    email: "oauth@example.com",
+                                    providerID: credential.providerID,
+                                    linkedProviderIDs: [credential.providerID])
+
+        mockUser = user
+        return user
+    }
+
+    func revokeToken(authorizationCode _: String) async throws {
+        try await Task.sleep(for: .seconds(simulatedDelay))
+    }
+
     func authStateChanges() -> AsyncStream<User?> {
         AsyncStream { continuation in
             continuation.yield(mockUser)

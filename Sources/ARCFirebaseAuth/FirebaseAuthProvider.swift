@@ -178,6 +178,26 @@ public final class FirebaseAuthProvider: AuthProviding, @unchecked Sendable {
         }
     }
 
+    public func reauthenticate(with credential: OAuthCredentialData) async throws -> User {
+        logger.info("Attempting re-authentication with provider: \(credential.providerID)")
+
+        guard let currentUser = auth.currentUser else {
+            logger.error("No user signed in")
+            throw FirebaseError.userNotFound
+        }
+
+        do {
+            let authCredential = Self.makeOAuthCredential(from: credential)
+            let result = try await currentUser.reauthenticate(with: authCredential)
+            let user = User(from: result.user)
+            logger.info("Re-authentication successful: \(user.id)")
+            return user
+        } catch {
+            logger.error("Re-authentication failed: \(error.localizedDescription)")
+            throw error.asFirebaseError()
+        }
+    }
+
     // MARK: - Auth State Observation
 
     public func authStateChanges() -> AsyncStream<User?> {
@@ -210,6 +230,25 @@ public final class FirebaseAuthProvider: AuthProviding, @unchecked Sendable {
             logger.info("Account deleted successfully")
         } catch {
             logger.error("Account deletion failed: \(error.localizedDescription)")
+            throw error.asFirebaseError()
+        }
+    }
+
+    public func revokeToken(authorizationCode: String) async throws {
+        logger.info("Attempting Apple token revocation")
+
+        // The revocation request carries the signed-in user's ID token, so it has to run
+        // while the account still exists — before `deleteAccount()`, never after.
+        guard auth.currentUser != nil else {
+            logger.error("No user signed in")
+            throw FirebaseError.userNotFound
+        }
+
+        do {
+            try await auth.revokeToken(withAuthorizationCode: authorizationCode)
+            logger.info("Apple token revoked successfully")
+        } catch {
+            logger.error("Apple token revocation failed: \(error.localizedDescription)")
             throw error.asFirebaseError()
         }
     }

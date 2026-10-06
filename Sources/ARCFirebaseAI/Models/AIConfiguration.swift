@@ -91,6 +91,12 @@ public struct AIConfiguration: @unchecked Sendable, Equatable {
     /// grounding silently ignore this flag.
     public let groundingEnabled: Bool
 
+    /// Safety filter thresholds per harm category.
+    ///
+    /// `nil` means the provider applies its own defaults. Pass
+    /// ``AISafetySetting/standardModeration`` for the recommended baseline.
+    public let safetySettings: [AISafetySetting]?
+
     /// Creates an AI configuration with custom settings.
     ///
     /// - Parameters:
@@ -102,6 +108,7 @@ public struct AIConfiguration: @unchecked Sendable, Equatable {
     ///   - responseMIMEType: MIME type for the response. Default: nil (plain text).
     ///   - responseSchema: JSON schema for structured output. Default: nil.
     ///   - groundingEnabled: Enable search grounding when supported. Default: false.
+    ///   - safetySettings: Safety filter thresholds per harm category. Default: nil (provider defaults).
     public init(temperature: Float? = nil,
                 maxOutputTokens: Int? = nil,
                 topP: Float? = nil,
@@ -109,7 +116,8 @@ public struct AIConfiguration: @unchecked Sendable, Equatable {
                 stopSequences: [String]? = nil,
                 responseMIMEType: String? = nil,
                 responseSchema: AISchema? = nil,
-                groundingEnabled: Bool = false) {
+                groundingEnabled: Bool = false,
+                safetySettings: [AISafetySetting]? = nil) {
         self.temperature = temperature
         self.maxOutputTokens = maxOutputTokens
         self.topP = topP
@@ -118,6 +126,7 @@ public struct AIConfiguration: @unchecked Sendable, Equatable {
         self.responseMIMEType = responseMIMEType
         self.responseSchema = responseSchema
         self.groundingEnabled = groundingEnabled
+        self.safetySettings = safetySettings
     }
 
     // MARK: - Equatable
@@ -133,6 +142,7 @@ public struct AIConfiguration: @unchecked Sendable, Equatable {
             lhs.stopSequences == rhs.stopSequences &&
             lhs.responseMIMEType == rhs.responseMIMEType &&
             lhs.groundingEnabled == rhs.groundingEnabled &&
+            lhs.safetySettings == rhs.safetySettings &&
             (lhs.responseSchema == nil) == (rhs.responseSchema == nil)
     }
 

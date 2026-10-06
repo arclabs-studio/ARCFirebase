@@ -15,7 +15,7 @@ extension EnvironmentValues {
 
 /// Placeholder provider that crashes with helpful message when accessed.
 /// This avoids crashes at module load time while ensuring proper configuration.
-private struct PlaceholderFeatureFlagProvider: FeatureFlagProviding, @unchecked Sendable {
+private struct PlaceholderFeatureFlagProvider: FeatureFlagProviding {
     func fetchAndActivate() async throws {
         placeholderCrash()
     }
