@@ -5,7 +5,7 @@ All notable changes to ARCFirebase will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [1.3.0] - 2026-10-06
 
 ### Changed
 
@@ -24,6 +24,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `setDefaults(_:)` keeps the defaults in the provider instead of forwarding them to
   `RemoteConfig`. Read precedence (remote, then default, then the caller's `defaultValue`)
   and the value conversions are unchanged.
+
+### Notes
+
+- Source-compatible with 1.2.0. `FeatureFlagProviding` is unchanged.
 
 ## [1.2.0] - 2026-09-09
 
