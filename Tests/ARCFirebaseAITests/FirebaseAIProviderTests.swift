@@ -5,7 +5,7 @@
 //  Created by ARC Labs Studio on 2026-02-17.
 //
 
-import FirebaseAI
+import FirebaseAILogic
 import Foundation
 import Testing
 @testable import ARCFirebaseAI

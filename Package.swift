@@ -44,7 +44,7 @@ let package = Package(name: "ARCFirebase",
                                              "ARCFirebaseAppCheck",
                                              "ARCFirebaseCloudFunctions"])],
                       dependencies: [// Firebase iOS SDK
-                          .package(url: "https://github.com/firebase/firebase-ios-sdk.git", from: "11.13.0"),
+                          .package(url: "https://github.com/firebase/firebase-ios-sdk.git", "12.8.0" ..< "13.0.0"),
 
                           // ARC Labs Logger
                           .package(url: "https://github.com/arclabs-studio/ARCLogger.git", from: "1.0.0")],
@@ -106,7 +106,7 @@ let package = Package(name: "ARCFirebase",
 
                           .target(name: "ARCFirebaseAI",
                                   dependencies: ["ARCFirebaseCore",
-                                                 .product(name: "FirebaseAI", package: "firebase-ios-sdk"),
+                                                 .product(name: "FirebaseAILogic", package: "firebase-ios-sdk"),
                                                  .product(name: "ARCLogger", package: "ARCLogger")],
                                   path: "Sources/ARCFirebaseAI",
                                   swiftSettings: [.swiftLanguageMode(.v6)]),

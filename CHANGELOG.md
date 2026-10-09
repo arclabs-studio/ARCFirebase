@@ -5,6 +5,27 @@ All notable changes to ARCFirebase will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0] - 2026-10-09
+
+### Changed (breaking)
+
+- **firebase-ios-sdk 12.x** (`"12.8.0"..<"13.0.0"`, resolves 12.19.2), up from 11.x.
+  Firebase 13 is not reachable yet: every GoogleSignIn release requires app-check `from: "11.0.0"`,
+  while Firebase 13 needs app-check 12.x, so any app also using Google Sign-In cannot resolve it.
+- **ARCFirebaseAI now links `FirebaseAILogic`**, the product Firebase renamed `FirebaseAI` to in
+  12.5 (the old name is removed in 13). A consumer that writes `import FirebaseAI` must switch to
+  `import FirebaseAILogic`. The `FirebaseAI` class itself keeps its name.
+- Toolchain: Firebase 12.15+ declares swift-tools-version 6.1, so building needs Xcode 16.3 or
+  later. CI moves to `macos-15`.
+
+### Added
+
+#### ARCFirebaseAI
+- `AIThinkingLevel` (`minimal`, `low`, `medium`, `high`) and `AIConfiguration.thinkingLevel`,
+  forwarded to Gemini as `generationConfig.thinkingConfig.thinkingLevel`. `nil` (the default)
+  sends no thinking config, so existing callers keep the model's own default. Thinking tokens
+  are billed as output, which makes this the main per-request cost lever on Gemini 3.x.
+
 ## [1.3.0] - 2026-10-06
 
 ### Changed

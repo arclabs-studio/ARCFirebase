@@ -7,7 +7,7 @@
 
 import ARCFirebaseCore
 import ARCLogger
-import FirebaseAI
+import FirebaseAILogic
 import Foundation
 
 /// Firebase implementation of ``AIProviding``.
@@ -160,9 +160,9 @@ public final class FirebaseAIProvider: AIProviding, @unchecked Sendable {
                                           configuration: AIConfiguration?) async throws -> AIResponse {
         logger.info("Generating structured content")
 
-        let genConfig = makeGenerationConfig(configuration: configuration,
-                                             responseMIMEType: "application/json",
-                                             responseSchema: responseSchema)
+        let genConfig = Self.makeGenerationConfig(configuration: configuration,
+                                                  responseMIMEType: "application/json",
+                                                  responseSchema: responseSchema)
 
         let model = makeModel(generationConfig: genConfig,
                               systemInstruction: systemInstruction)
