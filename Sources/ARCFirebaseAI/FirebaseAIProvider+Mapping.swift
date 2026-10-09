@@ -5,7 +5,7 @@
 //  Created by ARC Labs Studio on 2026-02-18.
 //
 
-import FirebaseAI
+import FirebaseAILogic
 import Foundation
 
 // MARK: - Internal Model Builders
@@ -13,7 +13,7 @@ import Foundation
 extension FirebaseAIProvider {
     func makeModel(configuration: AIConfiguration? = nil,
                    systemInstruction: String? = nil) -> GenerativeModel {
-        let genConfig = configuration.map { makeGenerationConfig(configuration: $0) }
+        let genConfig = configuration.map { Self.makeGenerationConfig(configuration: $0) }
         return makeModel(generationConfig: genConfig,
                          safetySettings: configuration?.safetySettings,
                          systemInstruction: systemInstruction)
@@ -36,9 +36,11 @@ extension FirebaseAIProvider {
         }
     }
 
-    func makeGenerationConfig(configuration: AIConfiguration?,
-                              responseMIMEType: String? = nil,
-                              responseSchema: AISchema? = nil) -> GenerationConfig {
+    /// `static`: it reads no provider state, so tests can check the request it builds
+    /// without a configured `FirebaseApp`.
+    static func makeGenerationConfig(configuration: AIConfiguration?,
+                                     responseMIMEType: String? = nil,
+                                     responseSchema: AISchema? = nil) -> GenerationConfig {
         // Prefer explicit overrides; fall back to values from AIConfiguration
         let mimeType = responseMIMEType ?? configuration?.responseMIMEType
         let schema = responseSchema ?? configuration?.responseSchema
@@ -48,14 +50,32 @@ extension FirebaseAIProvider {
                                 maxOutputTokens: configuration?.maxOutputTokens,
                                 stopSequences: configuration?.stopSequences,
                                 responseMIMEType: mimeType,
-                                responseSchema: schema)
+                                responseSchema: schema,
+                                thinkingConfig: configuration?.thinkingLevel.map {
+                                    ThinkingConfig(thinkingLevel: $0.firebaseLevel)
+                                })
+    }
+}
+
+// MARK: - Thinking Level Mapping
+
+extension AIThinkingLevel {
+    /// The equivalent `FirebaseAILogic.ThinkingConfig.ThinkingLevel`. An explicit switch:
+    /// the SDK type exposes no raw value to map through.
+    var firebaseLevel: ThinkingConfig.ThinkingLevel {
+        switch self {
+        case .minimal: .minimal
+        case .low: .low
+        case .medium: .medium
+        case .high: .high
+        }
     }
 }
 
 // MARK: - Safety Settings Mapping
 
 extension AISafetySetting {
-    /// The equivalent `FirebaseAI.SafetySetting`.
+    /// The equivalent `FirebaseAILogic.SafetySetting`.
     var firebaseSetting: SafetySetting {
         SafetySetting(harmCategory: category.firebaseCategory,
                       threshold: threshold.firebaseThreshold)

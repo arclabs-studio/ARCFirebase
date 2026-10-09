@@ -5,7 +5,7 @@
 //  Created by ARC Labs Studio on 2026-02-17.
 //
 
-import FirebaseAI
+import FirebaseAILogic
 import Foundation
 
 /// Configuration for AI content generation.
@@ -47,7 +47,7 @@ import Foundation
 /// - ``creative``
 /// - ``factual``
 /// - ``structured``
-/// `@unchecked Sendable` because `AISchema` (= `FirebaseAI.Schema`) may not satisfy
+/// `@unchecked Sendable` because `AISchema` (= `FirebaseAILogic.Schema`) may not satisfy
 /// the automatic Sendable check. The schema is set once at creation and never mutated.
 public struct AIConfiguration: @unchecked Sendable, Equatable {
     /// Controls randomness in generation. Higher values produce more creative output.
@@ -97,6 +97,12 @@ public struct AIConfiguration: @unchecked Sendable, Equatable {
     /// ``AISafetySetting/standardModeration`` for the recommended baseline.
     public let safetySettings: [AISafetySetting]?
 
+    /// Reasoning effort for Gemini 3.x models. `nil` keeps the model's default.
+    ///
+    /// Thinking tokens are billed as output, so lowering this is the main per-request cost
+    /// lever on Gemini 3.x. See ``AIThinkingLevel``.
+    public let thinkingLevel: AIThinkingLevel?
+
     /// Creates an AI configuration with custom settings.
     ///
     /// - Parameters:
@@ -109,6 +115,7 @@ public struct AIConfiguration: @unchecked Sendable, Equatable {
     ///   - responseSchema: JSON schema for structured output. Default: nil.
     ///   - groundingEnabled: Enable search grounding when supported. Default: false.
     ///   - safetySettings: Safety filter thresholds per harm category. Default: nil (provider defaults).
+    ///   - thinkingLevel: Reasoning effort for Gemini 3.x models. Default: nil (model default).
     public init(temperature: Float? = nil,
                 maxOutputTokens: Int? = nil,
                 topP: Float? = nil,
@@ -117,7 +124,8 @@ public struct AIConfiguration: @unchecked Sendable, Equatable {
                 responseMIMEType: String? = nil,
                 responseSchema: AISchema? = nil,
                 groundingEnabled: Bool = false,
-                safetySettings: [AISafetySetting]? = nil) {
+                safetySettings: [AISafetySetting]? = nil,
+                thinkingLevel: AIThinkingLevel? = nil) {
         self.temperature = temperature
         self.maxOutputTokens = maxOutputTokens
         self.topP = topP
@@ -127,6 +135,7 @@ public struct AIConfiguration: @unchecked Sendable, Equatable {
         self.responseSchema = responseSchema
         self.groundingEnabled = groundingEnabled
         self.safetySettings = safetySettings
+        self.thinkingLevel = thinkingLevel
     }
 
     // MARK: - Equatable
@@ -143,6 +152,7 @@ public struct AIConfiguration: @unchecked Sendable, Equatable {
             lhs.responseMIMEType == rhs.responseMIMEType &&
             lhs.groundingEnabled == rhs.groundingEnabled &&
             lhs.safetySettings == rhs.safetySettings &&
+            lhs.thinkingLevel == rhs.thinkingLevel &&
             (lhs.responseSchema == nil) == (rhs.responseSchema == nil)
     }
 
