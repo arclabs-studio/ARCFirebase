@@ -6,72 +6,120 @@
 //
 
 import Foundation
+import os
 @testable import ARCFirebaseCrashlytics
 
 /// Mock crashlytics provider for testing.
-final class MockCrashlyticsProvider: CrashlyticsProviding, @unchecked Sendable {
+final class MockCrashlyticsProvider: CrashlyticsProviding {
+    private struct State {
+        var recordedErrors: [Error] = []
+        var recordedNonFatalErrors: [Error] = []
+        var loggedMessages: [String] = []
+        var currentUserID: String?
+        var customValues: [String: any Sendable] = [:]
+        var recordErrorCallCount: Int = 0
+        var recordNonFatalCallCount: Int = 0
+        var logCallCount: Int = 0
+        var setUserIDCallCount: Int = 0
+        var clearUserIDCallCount: Int = 0
+        var setCustomValueCallCount: Int = 0
+    }
+
+    private let state = OSAllocatedUnfairLock(initialState: State())
+
     // MARK: - Mock State
 
-    private(set) var recordedErrors: [Error] = []
-    private(set) var recordedNonFatalErrors: [Error] = []
-    private(set) var loggedMessages: [String] = []
-    private(set) var currentUserID: String?
-    private(set) var customValues: [String: any Sendable] = [:]
+    var recordedErrors: [Error] {
+        state.withLock { $0.recordedErrors }
+    }
+
+    var recordedNonFatalErrors: [Error] {
+        state.withLock { $0.recordedNonFatalErrors }
+    }
+
+    var loggedMessages: [String] {
+        state.withLock { $0.loggedMessages }
+    }
+
+    var currentUserID: String? {
+        state.withLock { $0.currentUserID }
+    }
+
+    var customValues: [String: any Sendable] {
+        state.withLock { $0.customValues }
+    }
 
     // MARK: - Call Counts
 
-    private(set) var recordErrorCallCount = 0
-    private(set) var recordNonFatalCallCount = 0
-    private(set) var logCallCount = 0
-    private(set) var setUserIDCallCount = 0
-    private(set) var clearUserIDCallCount = 0
-    private(set) var setCustomValueCallCount = 0
+    var recordErrorCallCount: Int {
+        state.withLock { $0.recordErrorCallCount }
+    }
+
+    var recordNonFatalCallCount: Int {
+        state.withLock { $0.recordNonFatalCallCount }
+    }
+
+    var logCallCount: Int {
+        state.withLock { $0.logCallCount }
+    }
+
+    var setUserIDCallCount: Int {
+        state.withLock { $0.setUserIDCallCount }
+    }
+
+    var clearUserIDCallCount: Int {
+        state.withLock { $0.clearUserIDCallCount }
+    }
+
+    var setCustomValueCallCount: Int {
+        state.withLock { $0.setCustomValueCallCount }
+    }
 
     // MARK: - CrashlyticsProviding Implementation
 
     func record(error: Error) {
-        recordErrorCallCount += 1
-        recordedErrors.append(error)
+        state.withLock { $0.recordErrorCallCount += 1 }
+        state.withLock { $0.recordedErrors.append(error) }
     }
 
     func recordNonFatal(error: Error) {
-        recordNonFatalCallCount += 1
-        recordedNonFatalErrors.append(error)
+        state.withLock { $0.recordNonFatalCallCount += 1 }
+        state.withLock { $0.recordedNonFatalErrors.append(error) }
     }
 
     func log(_ message: String) {
-        logCallCount += 1
-        loggedMessages.append(message)
+        state.withLock { $0.logCallCount += 1 }
+        state.withLock { $0.loggedMessages.append(message) }
     }
 
     func setUserID(_ userID: String) {
-        setUserIDCallCount += 1
-        currentUserID = userID
+        state.withLock { $0.setUserIDCallCount += 1 }
+        state.withLock { $0.currentUserID = userID }
     }
 
     func clearUserID() {
-        clearUserIDCallCount += 1
-        currentUserID = nil
+        state.withLock { $0.clearUserIDCallCount += 1 }
+        state.withLock { $0.currentUserID = nil }
     }
 
     func setCustomValue(_ value: any Sendable, forKey key: String) {
-        setCustomValueCallCount += 1
-        customValues[key] = value
+        state.withLock { $0.setCustomValueCallCount += 1 }
+        state.withLock { $0.customValues[key] = value }
     }
 
     // MARK: - Test Helpers
 
     func reset() {
-        recordedErrors = []
-        recordedNonFatalErrors = []
-        loggedMessages = []
-        currentUserID = nil
-        customValues = [:]
-        recordErrorCallCount = 0
-        recordNonFatalCallCount = 0
-        logCallCount = 0
-        setUserIDCallCount = 0
-        clearUserIDCallCount = 0
-        setCustomValueCallCount = 0
+        state.withLock { $0.recordedErrors = [] }
+        state.withLock { $0.recordedNonFatalErrors = [] }
+        state.withLock { $0.loggedMessages = [] }
+        state.withLock { $0.currentUserID = nil }
+        state.withLock { $0.customValues = [:] }
+        state.withLock { $0.recordErrorCallCount = 0 }
+        state.withLock { $0.recordNonFatalCallCount = 0 }
+        state.withLock { $0.logCallCount = 0 }
+        state.withLock { $0.setUserIDCallCount = 0 }
+        state.withLock { $0.clearUserIDCallCount = 0 }
+        state.withLock { $0.setCustomValueCallCount = 0 }
     }
 }

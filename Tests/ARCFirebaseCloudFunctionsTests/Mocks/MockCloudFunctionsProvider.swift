@@ -1,28 +1,67 @@
 import Foundation
+import os
 @testable import ARCFirebaseCloudFunctions
 
 /// Mock Cloud Functions provider for testing.
-final class MockCloudFunctionsProvider: CloudFunctionsProviding, @unchecked Sendable {
+final class MockCloudFunctionsProvider: CloudFunctionsProviding {
+    private struct State {
+        var mockError: Error?
+        var mockResponseData: Data?
+        var mockIsAvailable: Bool = true
+        var callCallCount: Int = 0
+        var callVoidCallCount: Int = 0
+        var isAvailableCallCount: Int = 0
+        var lastFunctionName: String?
+        var lastTimeout: TimeInterval?
+    }
+
+    private let state = OSAllocatedUnfairLock(initialState: State())
+
     // MARK: - Mock State
 
-    var mockError: Error?
-    var mockResponseData: Any?
-    var mockIsAvailable = true
+    var mockError: Error? {
+        get { state.withLock { $0.mockError } }
+        set { state.withLock { $0.mockError = newValue } }
+    }
 
-    private(set) var callCallCount = 0
-    private(set) var callVoidCallCount = 0
-    private(set) var isAvailableCallCount = 0
-    private(set) var lastFunctionName: String?
-    private(set) var lastTimeout: TimeInterval?
+    var mockResponseData: Data? {
+        get { state.withLock { $0.mockResponseData } }
+        set { state.withLock { $0.mockResponseData = newValue } }
+    }
+
+    var mockIsAvailable: Bool {
+        get { state.withLock { $0.mockIsAvailable } }
+        set { state.withLock { $0.mockIsAvailable = newValue } }
+    }
+
+    var callCallCount: Int {
+        state.withLock { $0.callCallCount }
+    }
+
+    var callVoidCallCount: Int {
+        state.withLock { $0.callVoidCallCount }
+    }
+
+    var isAvailableCallCount: Int {
+        state.withLock { $0.isAvailableCallCount }
+    }
+
+    var lastFunctionName: String? {
+        state.withLock { $0.lastFunctionName }
+    }
+
+    var lastTimeout: TimeInterval? {
+        state.withLock { $0.lastTimeout }
+    }
 
     // MARK: - CloudFunctionsProviding Implementation
 
     func call<Response: Decodable & Sendable>(_ name: String,
                                               data _: some Encodable & Sendable,
                                               timeout: TimeInterval?) async throws -> Response {
-        callCallCount += 1
-        lastFunctionName = name
-        lastTimeout = timeout
+        state.withLock { $0.callCallCount += 1 }
+        state.withLock { $0.lastFunctionName = name }
+        state.withLock { $0.lastTimeout = timeout }
 
         if let error = mockError {
             throw error
@@ -33,15 +72,14 @@ final class MockCloudFunctionsProvider: CloudFunctionsProviding, @unchecked Send
                           userInfo: [NSLocalizedDescriptionKey: "No mock response configured"])
         }
 
-        let data = try JSONSerialization.data(withJSONObject: responseData)
-        return try JSONDecoder().decode(Response.self, from: data)
+        return try JSONDecoder().decode(Response.self, from: responseData)
     }
 
     func call<Response: Decodable & Sendable>(_ name: String,
                                               timeout: TimeInterval?) async throws -> Response {
-        callCallCount += 1
-        lastFunctionName = name
-        lastTimeout = timeout
+        state.withLock { $0.callCallCount += 1 }
+        state.withLock { $0.lastFunctionName = name }
+        state.withLock { $0.lastTimeout = timeout }
 
         if let error = mockError {
             throw error
@@ -52,16 +90,15 @@ final class MockCloudFunctionsProvider: CloudFunctionsProviding, @unchecked Send
                           userInfo: [NSLocalizedDescriptionKey: "No mock response configured"])
         }
 
-        let data = try JSONSerialization.data(withJSONObject: responseData)
-        return try JSONDecoder().decode(Response.self, from: data)
+        return try JSONDecoder().decode(Response.self, from: responseData)
     }
 
     func callVoid(_ name: String,
                   data _: some Encodable & Sendable,
                   timeout: TimeInterval?) async throws {
-        callVoidCallCount += 1
-        lastFunctionName = name
-        lastTimeout = timeout
+        state.withLock { $0.callVoidCallCount += 1 }
+        state.withLock { $0.lastFunctionName = name }
+        state.withLock { $0.lastTimeout = timeout }
 
         if let error = mockError {
             throw error
@@ -69,7 +106,7 @@ final class MockCloudFunctionsProvider: CloudFunctionsProviding, @unchecked Send
     }
 
     func isAvailable() async -> Bool {
-        isAvailableCallCount += 1
+        state.withLock { $0.isAvailableCallCount += 1 }
         return mockIsAvailable
     }
 
@@ -77,17 +114,17 @@ final class MockCloudFunctionsProvider: CloudFunctionsProviding, @unchecked Send
 
     func setMockResponse(_ response: some Encodable) throws {
         let data = try JSONEncoder().encode(response)
-        mockResponseData = try JSONSerialization.jsonObject(with: data)
+        state.withLock { $0.mockResponseData = data }
     }
 
     func reset() {
-        mockError = nil
-        mockResponseData = nil
-        mockIsAvailable = true
-        callCallCount = 0
-        callVoidCallCount = 0
-        isAvailableCallCount = 0
-        lastFunctionName = nil
-        lastTimeout = nil
+        state.withLock { $0.mockError = nil }
+        state.withLock { $0.mockResponseData = nil }
+        state.withLock { $0.mockIsAvailable = true }
+        state.withLock { $0.callCallCount = 0 }
+        state.withLock { $0.callVoidCallCount = 0 }
+        state.withLock { $0.isAvailableCallCount = 0 }
+        state.withLock { $0.lastFunctionName = nil }
+        state.withLock { $0.lastTimeout = nil }
     }
 }

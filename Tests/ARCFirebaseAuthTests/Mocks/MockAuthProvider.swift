@@ -1,32 +1,124 @@
 import Foundation
+import os
 @testable import ARCFirebaseAuth
 
 /// Mock authentication provider for testing.
-final class MockAuthProvider: AuthProviding, @unchecked Sendable {
+final class MockAuthProvider: AuthProviding {
+    private struct State {
+        var mockUser: User?
+        var mockError: Error?
+        var mockLinkedProviders: [String] = []
+        var mockAuthStateUsers: [User?] = []
+        var signInCallCount: Int = 0
+        var signUpCallCount: Int = 0
+        var signOutCallCount: Int = 0
+        var passwordResetCallCount: Int = 0
+        var updatePasswordCallCount: Int = 0
+        var oauthSignInCallCount: Int = 0
+        var reauthenticateCallCount: Int = 0
+        var revokeTokenCallCount: Int = 0
+        var lastAuthorizationCode: String?
+        var lastReauthenticateCredential: OAuthCredentialData?
+        var deleteAccountCallCount: Int = 0
+        var linkAccountCallCount: Int = 0
+        var unlinkProviderCallCount: Int = 0
+        var linkedProvidersCallCount: Int = 0
+        var authStateChangesCallCount: Int = 0
+        var sendEmailVerificationCallCount: Int = 0
+        var updateProfileCallCount: Int = 0
+    }
+
+    private let state = OSAllocatedUnfairLock(initialState: State())
+
     // MARK: - Mock State
 
-    var mockUser: User?
-    var mockError: Error?
-    var mockLinkedProviders: [String] = []
-    var mockAuthStateUsers: [User?] = []
+    var mockUser: User? {
+        get { state.withLock { $0.mockUser } }
+        set { state.withLock { $0.mockUser = newValue } }
+    }
 
-    private(set) var signInCallCount = 0
-    private(set) var signUpCallCount = 0
-    private(set) var signOutCallCount = 0
-    private(set) var passwordResetCallCount = 0
-    private(set) var updatePasswordCallCount = 0
-    private(set) var oauthSignInCallCount = 0
-    private(set) var reauthenticateCallCount = 0
-    private(set) var revokeTokenCallCount = 0
-    private(set) var lastAuthorizationCode: String?
-    private(set) var lastReauthenticateCredential: OAuthCredentialData?
-    private(set) var deleteAccountCallCount = 0
-    private(set) var linkAccountCallCount = 0
-    private(set) var unlinkProviderCallCount = 0
-    private(set) var linkedProvidersCallCount = 0
-    private(set) var authStateChangesCallCount = 0
-    private(set) var sendEmailVerificationCallCount = 0
-    private(set) var updateProfileCallCount = 0
+    var mockError: Error? {
+        get { state.withLock { $0.mockError } }
+        set { state.withLock { $0.mockError = newValue } }
+    }
+
+    var mockLinkedProviders: [String] {
+        get { state.withLock { $0.mockLinkedProviders } }
+        set { state.withLock { $0.mockLinkedProviders = newValue } }
+    }
+
+    var mockAuthStateUsers: [User?] {
+        get { state.withLock { $0.mockAuthStateUsers } }
+        set { state.withLock { $0.mockAuthStateUsers = newValue } }
+    }
+
+    var signInCallCount: Int {
+        state.withLock { $0.signInCallCount }
+    }
+
+    var signUpCallCount: Int {
+        state.withLock { $0.signUpCallCount }
+    }
+
+    var signOutCallCount: Int {
+        state.withLock { $0.signOutCallCount }
+    }
+
+    var passwordResetCallCount: Int {
+        state.withLock { $0.passwordResetCallCount }
+    }
+
+    var updatePasswordCallCount: Int {
+        state.withLock { $0.updatePasswordCallCount }
+    }
+
+    var oauthSignInCallCount: Int {
+        state.withLock { $0.oauthSignInCallCount }
+    }
+
+    var reauthenticateCallCount: Int {
+        state.withLock { $0.reauthenticateCallCount }
+    }
+
+    var revokeTokenCallCount: Int {
+        state.withLock { $0.revokeTokenCallCount }
+    }
+
+    var lastAuthorizationCode: String? {
+        state.withLock { $0.lastAuthorizationCode }
+    }
+
+    var lastReauthenticateCredential: OAuthCredentialData? {
+        state.withLock { $0.lastReauthenticateCredential }
+    }
+
+    var deleteAccountCallCount: Int {
+        state.withLock { $0.deleteAccountCallCount }
+    }
+
+    var linkAccountCallCount: Int {
+        state.withLock { $0.linkAccountCallCount }
+    }
+
+    var unlinkProviderCallCount: Int {
+        state.withLock { $0.unlinkProviderCallCount }
+    }
+
+    var linkedProvidersCallCount: Int {
+        state.withLock { $0.linkedProvidersCallCount }
+    }
+
+    var authStateChangesCallCount: Int {
+        state.withLock { $0.authStateChangesCallCount }
+    }
+
+    var sendEmailVerificationCallCount: Int {
+        state.withLock { $0.sendEmailVerificationCallCount }
+    }
+
+    var updateProfileCallCount: Int {
+        state.withLock { $0.updateProfileCallCount }
+    }
 
     // MARK: - AuthProviding Implementation
 
@@ -39,7 +131,7 @@ final class MockAuthProvider: AuthProviding, @unchecked Sendable {
     }
 
     func signIn(email: String, password _: String) async throws -> User {
-        signInCallCount += 1
+        state.withLock { $0.signInCallCount += 1 }
 
         if let error = mockError {
             throw error
@@ -51,34 +143,34 @@ final class MockAuthProvider: AuthProviding, @unchecked Sendable {
 
         // Create a default mock user
         let user = User(id: "mock-user-id", email: email)
-        mockUser = user
+        state.withLock { [user] in $0.mockUser = user }
         return user
     }
 
     func signUp(email: String, password _: String) async throws -> User {
-        signUpCallCount += 1
+        state.withLock { $0.signUpCallCount += 1 }
 
         if let error = mockError {
             throw error
         }
 
         let user = User(id: "new-user-\(UUID().uuidString)", email: email)
-        mockUser = user
+        state.withLock { [user] in $0.mockUser = user }
         return user
     }
 
     func signOut() async throws {
-        signOutCallCount += 1
+        state.withLock { $0.signOutCallCount += 1 }
 
         if let error = mockError {
             throw error
         }
 
-        mockUser = nil
+        state.withLock { $0.mockUser = nil }
     }
 
     func sendPasswordReset(email _: String) async throws {
-        passwordResetCallCount += 1
+        state.withLock { $0.passwordResetCallCount += 1 }
 
         if let error = mockError {
             throw error
@@ -86,7 +178,7 @@ final class MockAuthProvider: AuthProviding, @unchecked Sendable {
     }
 
     func updatePassword(_: String) async throws {
-        updatePasswordCallCount += 1
+        state.withLock { $0.updatePasswordCallCount += 1 }
 
         if let error = mockError {
             throw error
@@ -94,7 +186,7 @@ final class MockAuthProvider: AuthProviding, @unchecked Sendable {
     }
 
     func signIn(with credential: OAuthCredentialData) async throws -> User {
-        oauthSignInCallCount += 1
+        state.withLock { $0.oauthSignInCallCount += 1 }
 
         if let error = mockError {
             throw error
@@ -108,13 +200,13 @@ final class MockAuthProvider: AuthProviding, @unchecked Sendable {
                         email: "oauth@example.com",
                         providerID: credential.providerID,
                         linkedProviderIDs: [credential.providerID])
-        mockUser = user
+        state.withLock { [user] in $0.mockUser = user }
         return user
     }
 
     func reauthenticate(with credential: OAuthCredentialData) async throws -> User {
-        reauthenticateCallCount += 1
-        lastReauthenticateCredential = credential
+        state.withLock { $0.reauthenticateCallCount += 1 }
+        state.withLock { $0.lastReauthenticateCredential = credential }
 
         if let error = mockError {
             throw error
@@ -128,13 +220,13 @@ final class MockAuthProvider: AuthProviding, @unchecked Sendable {
                         email: "oauth@example.com",
                         providerID: credential.providerID,
                         linkedProviderIDs: [credential.providerID])
-        mockUser = user
+        state.withLock { [user] in $0.mockUser = user }
         return user
     }
 
     func revokeToken(authorizationCode: String) async throws {
-        revokeTokenCallCount += 1
-        lastAuthorizationCode = authorizationCode
+        state.withLock { $0.revokeTokenCallCount += 1 }
+        state.withLock { $0.lastAuthorizationCode = authorizationCode }
 
         if let error = mockError {
             throw error
@@ -142,7 +234,7 @@ final class MockAuthProvider: AuthProviding, @unchecked Sendable {
     }
 
     func authStateChanges() -> AsyncStream<User?> {
-        authStateChangesCallCount += 1
+        state.withLock { $0.authStateChangesCallCount += 1 }
 
         let users = mockAuthStateUsers
         return AsyncStream { continuation in
@@ -154,17 +246,17 @@ final class MockAuthProvider: AuthProviding, @unchecked Sendable {
     }
 
     func deleteAccount() async throws {
-        deleteAccountCallCount += 1
+        state.withLock { $0.deleteAccountCallCount += 1 }
 
         if let error = mockError {
             throw error
         }
 
-        mockUser = nil
+        state.withLock { $0.mockUser = nil }
     }
 
     func linkAccount(with credential: OAuthCredentialData) async throws -> User {
-        linkAccountCallCount += 1
+        state.withLock { $0.linkAccountCallCount += 1 }
 
         if let error = mockError {
             throw error
@@ -184,12 +276,12 @@ final class MockAuthProvider: AuthProviding, @unchecked Sendable {
                     lastSignInDate: user.lastSignInDate,
                     providerID: user.providerID,
                     linkedProviderIDs: updatedProviders)
-        mockUser = user
+        state.withLock { [user] in $0.mockUser = user }
         return user
     }
 
     func unlinkProvider(_ providerID: String) async throws -> User {
-        unlinkProviderCallCount += 1
+        state.withLock { $0.unlinkProviderCallCount += 1 }
 
         if let error = mockError {
             throw error
@@ -209,17 +301,17 @@ final class MockAuthProvider: AuthProviding, @unchecked Sendable {
                     lastSignInDate: user.lastSignInDate,
                     providerID: user.providerID,
                     linkedProviderIDs: updatedProviders)
-        mockUser = user
+        state.withLock { [user] in $0.mockUser = user }
         return user
     }
 
     func linkedProviders() async -> [String] {
-        linkedProvidersCallCount += 1
+        state.withLock { $0.linkedProvidersCallCount += 1 }
         return mockLinkedProviders
     }
 
     func sendEmailVerification() async throws {
-        sendEmailVerificationCallCount += 1
+        state.withLock { $0.sendEmailVerificationCallCount += 1 }
 
         if let error = mockError {
             throw error
@@ -227,7 +319,7 @@ final class MockAuthProvider: AuthProviding, @unchecked Sendable {
     }
 
     func updateProfile(displayName: String?, photoURL _: URL?) async throws {
-        updateProfileCallCount += 1
+        state.withLock { $0.updateProfileCallCount += 1 }
         if let error = mockError {
             throw error
         }
@@ -241,37 +333,37 @@ final class MockAuthProvider: AuthProviding, @unchecked Sendable {
                         lastSignInDate: user.lastSignInDate,
                         providerID: user.providerID,
                         linkedProviderIDs: user.linkedProviderIDs)
-            mockUser = user
+            state.withLock { [user] in $0.mockUser = user }
         }
     }
 
     // MARK: - Test Helpers
 
     func reset() {
-        mockUser = nil
-        mockError = nil
-        mockLinkedProviders = []
-        mockAuthStateUsers = []
-        signInCallCount = 0
-        signUpCallCount = 0
-        signOutCallCount = 0
-        passwordResetCallCount = 0
-        updatePasswordCallCount = 0
-        oauthSignInCallCount = 0
-        reauthenticateCallCount = 0
-        revokeTokenCallCount = 0
-        lastAuthorizationCode = nil
-        lastReauthenticateCredential = nil
-        deleteAccountCallCount = 0
-        linkAccountCallCount = 0
-        unlinkProviderCallCount = 0
-        linkedProvidersCallCount = 0
-        authStateChangesCallCount = 0
-        sendEmailVerificationCallCount = 0
-        updateProfileCallCount = 0
+        state.withLock { $0.mockUser = nil }
+        state.withLock { $0.mockError = nil }
+        state.withLock { $0.mockLinkedProviders = [] }
+        state.withLock { $0.mockAuthStateUsers = [] }
+        state.withLock { $0.signInCallCount = 0 }
+        state.withLock { $0.signUpCallCount = 0 }
+        state.withLock { $0.signOutCallCount = 0 }
+        state.withLock { $0.passwordResetCallCount = 0 }
+        state.withLock { $0.updatePasswordCallCount = 0 }
+        state.withLock { $0.oauthSignInCallCount = 0 }
+        state.withLock { $0.reauthenticateCallCount = 0 }
+        state.withLock { $0.revokeTokenCallCount = 0 }
+        state.withLock { $0.lastAuthorizationCode = nil }
+        state.withLock { $0.lastReauthenticateCredential = nil }
+        state.withLock { $0.deleteAccountCallCount = 0 }
+        state.withLock { $0.linkAccountCallCount = 0 }
+        state.withLock { $0.unlinkProviderCallCount = 0 }
+        state.withLock { $0.linkedProvidersCallCount = 0 }
+        state.withLock { $0.authStateChangesCallCount = 0 }
+        state.withLock { $0.sendEmailVerificationCallCount = 0 }
+        state.withLock { $0.updateProfileCallCount = 0 }
     }
 
     func setMockError(_ error: Error?) {
-        mockError = error
+        state.withLock { $0.mockError = error }
     }
 }
