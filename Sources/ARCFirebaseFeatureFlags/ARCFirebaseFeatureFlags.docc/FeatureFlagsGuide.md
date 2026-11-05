@@ -264,7 +264,7 @@ Remove flags from your codebase after they have been fully rolled out to avoid d
 Create a mock provider for testing:
 
 ```swift
-final class MockFeatureFlagProvider: FeatureFlagProviding, @unchecked Sendable {
+final class MockFeatureFlagProvider: FeatureFlagProviding {
     var mockFlags: [String: any Sendable] = [:]
 
     func fetchAndActivate() async throws { }

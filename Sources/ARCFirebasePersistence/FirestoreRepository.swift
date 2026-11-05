@@ -54,16 +54,17 @@ import Foundation
 ///
 /// ### Guide
 /// - <doc:FirestorePatterns>
-public final class FirestoreRepository<Entity: Identifiable & Codable>: Repository, @unchecked Sendable
+public final class FirestoreRepository<Entity: Identifiable & Codable>: Repository
 where Entity.ID == String {
     // MARK: - Properties
 
     private let collectionPath: String
-    private let db: Firestore
     private let logger: ARCLogger
 
+    /// Resolved per call: `Firestore` is not `Sendable`, and `Firestore.firestore()` returns the shared default
+    /// instance.
     private var collection: CollectionReference {
-        db.collection(collectionPath)
+        Firestore.firestore().collection(collectionPath)
     }
 
     // MARK: - Initialization
@@ -77,7 +78,6 @@ where Entity.ID == String {
         try FirebaseManager.ensureConfigured()
 
         self.collectionPath = collectionPath
-        db = Firestore.firestore()
         logger = ARCLogger(subsystem: ARCFirebaseLogSubsystem.current, category: "Firestore[\(collectionPath)]")
 
         logger.info("Repository initialized for collection: \(collectionPath)")

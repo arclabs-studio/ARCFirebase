@@ -54,12 +54,7 @@ import Foundation
 /// - ``call(_:timeout:)``
 /// - ``callVoid(_:data:timeout:)``
 /// - ``isAvailable()``
-/// `@unchecked Sendable` rationale: the Firebase SDK `Functions` type is not
-/// statically `Sendable` (Objective-C class without explicit annotations). All
-/// stored properties here are `let`, set once in `init`, and never mutated.
-/// `Functions` itself is documented as safe for concurrent use across threads
-/// (each call returns its own task), so cross-actor reads are safe.
-public final class FirebaseCloudFunctionsProvider: CloudFunctionsProviding, @unchecked Sendable {
+public final class FirebaseCloudFunctionsProvider: CloudFunctionsProviding {
     // MARK: - Properties
 
     private let functions: Functions

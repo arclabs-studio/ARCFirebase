@@ -57,13 +57,7 @@ import Foundation
 /// - ``streamContent(prompt:configuration:)``
 /// - ``sendMessage(_:history:systemInstruction:configuration:)``
 /// - ``isAvailable()``
-/// `@unchecked Sendable` rationale: the Firebase SDK `FirebaseAI` backend type
-/// is not statically `Sendable` (Objective-C-bridged), and `GeminiModel` here is
-/// `Sendable` but stored alongside it. All stored properties are `let`, set once
-/// in `init`, never mutated. `FirebaseAI` is documented as thread-safe — each
-/// request returns its own session — so cross-actor reads of `backend` and
-/// `model` are safe.
-public final class FirebaseAIProvider: AIProviding, @unchecked Sendable {
+public final class FirebaseAIProvider: AIProviding {
     // MARK: - Properties
 
     /// Default Gemini model used when no model is specified.

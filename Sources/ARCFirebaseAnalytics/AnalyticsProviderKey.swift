@@ -14,7 +14,7 @@ extension EnvironmentValues {
 
 /// Placeholder provider that crashes with helpful message when accessed.
 /// This avoids crashes at module load time while ensuring proper configuration.
-private struct PlaceholderAnalyticsProvider: AnalyticsProviding, @unchecked Sendable {
+private struct PlaceholderAnalyticsProvider: AnalyticsProviding {
     func logEvent(_: String, parameters _: [String: any Sendable]?) {
         placeholderCrash()
     }

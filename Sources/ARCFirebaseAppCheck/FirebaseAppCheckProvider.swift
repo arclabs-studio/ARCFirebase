@@ -10,6 +10,7 @@ import ARCLogger
 import FirebaseAppCheck
 import FirebaseCore
 import Foundation
+import os
 
 /// Firebase implementation of ``AppCheckProviding``.
 ///
@@ -52,19 +53,12 @@ import Foundation
 /// - ``configure()``
 /// - ``getLimitedUseToken()``
 /// - ``isConfigured``
-/// `@unchecked Sendable` rationale: `_isConfigured` is a `var Bool` so the class
-/// is not statically `Sendable`. Mutation contract: set exactly once during
-/// `configure()` (called at app launch, before any other thread reads it) and
-/// read-only thereafter. Boolean writes are word-atomic on supported platforms,
-/// and the read path (`isConfigured`) only ever observes `false → true`. No
-/// reordering hazard is introduced because callers never use `isConfigured` to
-/// gate concurrent state.
-public final class FirebaseAppCheckProvider: AppCheckProviding, @unchecked Sendable {
+public final class FirebaseAppCheckProvider: AppCheckProviding {
     // MARK: - Properties
 
     private let configuration: AppCheckConfiguration
     private let logger = ARCLogger(subsystem: ARCFirebaseLogSubsystem.current, category: "AppCheck")
-    private var _isConfigured = false
+    private let configuredFlag = OSAllocatedUnfairLock(initialState: false)
 
     // MARK: - Initialization
 
@@ -77,7 +71,7 @@ public final class FirebaseAppCheckProvider: AppCheckProviding, @unchecked Senda
     public init() throws {
         configuration = .default
         try FirebaseManager.ensureConfigured()
-        _isConfigured = true
+        configuredFlag.withLock { $0 = true }
     }
 
     /// Creates an App Check provider with the given configuration.
@@ -91,7 +85,7 @@ public final class FirebaseAppCheckProvider: AppCheckProviding, @unchecked Senda
 
     /// Whether the App Check provider factory has been registered.
     public var isConfigured: Bool {
-        _isConfigured
+        configuredFlag.withLock { $0 }
     }
 
     /// Registers the App Check provider factory with Firebase.
@@ -115,7 +109,7 @@ public final class FirebaseAppCheckProvider: AppCheckProviding, @unchecked Senda
             Use FirebaseManager.configure(appCheckProvider:) to install factories \
             before Firebase setup.
             """)
-            _isConfigured = true
+            configuredFlag.withLock { $0 = true }
             return
         }
 
@@ -128,7 +122,7 @@ public final class FirebaseAppCheckProvider: AppCheckProviding, @unchecked Senda
             logger.info("AppCheck configured with DeviceCheck provider")
         }
         AppCheck.setAppCheckProviderFactory(factory)
-        _isConfigured = true
+        configuredFlag.withLock { $0 = true }
     }
 
     /// Returns a limited-use App Check token for a single Cloud Functions call.
@@ -136,7 +130,7 @@ public final class FirebaseAppCheckProvider: AppCheckProviding, @unchecked Senda
     /// - Returns: The App Check token string.
     /// - Throws: ``FirebaseError/appCheckTokenError(underlying:)`` if token retrieval fails.
     public func getLimitedUseToken() async throws -> String {
-        guard _isConfigured else {
+        guard isConfigured else {
             logger.error("AppCheck not configured — call FirebaseManager.configure(appCheckProvider:) at app launch")
             throw FirebaseError.appCheckNotAvailable
         }
