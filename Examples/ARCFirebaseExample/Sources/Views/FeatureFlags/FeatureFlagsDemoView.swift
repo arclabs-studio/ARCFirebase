@@ -79,52 +79,12 @@ extension FeatureFlagsDemoView {
             // ==============================================================
             // Boolean Flags Section
             // ==============================================================
-            Section("Boolean Flags") {
-                FlagRow(icon: "sparkles",
-                        title: "New Onboarding v2",
-                        value: viewModel.isNewOnboardingEnabled ? "Enabled" : "Disabled",
-                        isEnabled: viewModel.isNewOnboardingEnabled)
-
-                FlagRow(icon: "moon.fill",
-                        title: "Dark Mode",
-                        value: viewModel.isDarkModeEnabled ? "Enabled" : "Disabled",
-                        isEnabled: viewModel.isDarkModeEnabled)
-
-                FlagRow(icon: "star.fill",
-                        title: "Premium Features",
-                        value: viewModel.isPremiumEnabled ? "Enabled" : "Disabled",
-                        isEnabled: viewModel.isPremiumEnabled)
-
-                FlagRow(icon: "wrench.fill",
-                        title: "Maintenance Mode",
-                        value: viewModel.isMaintenanceMode ? "Active" : "Inactive",
-                        isEnabled: viewModel.isMaintenanceMode)
-            }
+            FeatureFlagsBooleanSection(viewModel: viewModel)
 
             // ==============================================================
             // Configuration Values Section
             // ==============================================================
-            Section("Configuration Values") {
-                FlagRow(icon: "arrow.up.circle",
-                        title: "Max Upload Size",
-                        value: "\(viewModel.maxUploadSizeMB) MB",
-                        isEnabled: true)
-
-                FlagRow(icon: "clock",
-                        title: "API Timeout",
-                        value: String(format: "%.0fs", viewModel.apiTimeout),
-                        isEnabled: true)
-
-                FlagRow(icon: "text.bubble",
-                        title: "Welcome Message",
-                        value: viewModel.welcomeMessage,
-                        isEnabled: true)
-
-                FlagRow(icon: "app.badge",
-                        title: "Min App Version",
-                        value: viewModel.minAppVersion,
-                        isEnabled: true)
-            }
+            FeatureFlagsConfigSection(viewModel: viewModel)
 
             // ==============================================================
             // How It Works Section

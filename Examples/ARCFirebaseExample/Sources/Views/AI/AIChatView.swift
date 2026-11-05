@@ -63,102 +63,17 @@ struct AIChatView: View {
 // MARK: - Private Views
 
 extension AIChatView {
-    @ViewBuilder private func chatContent(_ viewModel: AIChatViewModel) -> some View {
-        @Bindable var vm = viewModel
-
+    private func chatContent(_ viewModel: AIChatViewModel) -> some View {
         VStack(spacing: 0) {
-            // ==============================================================
-            // Messages List
-            // ==============================================================
-            ScrollViewReader { proxy in
-                ScrollView {
-                    LazyVStack(alignment: .leading, spacing: 12) {
-                        ForEach(Array(viewModel.messages.enumerated()),
-                                id: \.offset) { index, message in
-                            MessageBubble(message: message)
-                                .id(index)
-                        }
-
-                        // Streaming indicator
-                        if viewModel.isStreaming {
-                            HStack(spacing: 8) {
-                                ProgressView()
-                                    .controlSize(.small)
-                                Text("Generating...")
-                                    .font(.caption)
-                                    .foregroundStyle(.secondary)
-                            }
-                            .padding(.leading, 16)
-                            .id("streaming")
-                        }
-                    }
-                    .padding()
-                }
-                .onChange(of: viewModel.messages.count) {
-                    withAnimation {
-                        proxy.scrollTo(viewModel.messages.count - 1, anchor: .bottom)
-                    }
-                }
-            }
+            AIChatMessagesList(viewModel: viewModel)
 
             Divider()
 
-            // ==============================================================
-            // Mode Picker
-            // ==============================================================
-            Picker("Mode", selection: $vm.selectedMode) {
-                ForEach(AIChatViewModel.ChatMode.allCases) { mode in
-                    Text(mode.rawValue).tag(mode)
-                }
-            }
-            .pickerStyle(.segmented)
-            .padding(.horizontal)
-            .padding(.top, 8)
-
-            // ==============================================================
-            // Input Area
-            // ==============================================================
-            HStack(spacing: 12) {
-                TextField("Ask something...", text: $vm.inputText, axis: .vertical)
-                    .textFieldStyle(.roundedBorder)
-                    .lineLimit(1 ... 4)
-                    .onSubmit {
-                        Task { await viewModel.send() }
-                    }
-
-                Button {
-                    Task { await viewModel.send() }
-                } label: {
-                    Image(systemName: viewModel.isLoading ? "hourglass" : "arrow.up.circle.fill")
-                        .font(.title2)
-                }
-                .disabled(viewModel.isLoading || viewModel.inputText.trimmingCharacters(in: .whitespaces).isEmpty)
-            }
-            .padding()
+            AIChatInputBar(viewModel: viewModel)
         }
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
-                Menu {
-                    Button("Clear Chat", systemImage: "trash") {
-                        viewModel.clearChat()
-                    }
-
-                    Divider()
-
-                    Section("Configuration") {
-                        Button("Default") { viewModel.configuration = .default }
-                        Button("Creative") { viewModel.configuration = .creative }
-                        Button("Factual") { viewModel.configuration = .factual }
-                    }
-
-                    Section("Info") {
-                        if let tokens = viewModel.lastTokenCount {
-                            Text("Last response: \(tokens) tokens")
-                        }
-                    }
-                } label: {
-                    Image(systemName: "ellipsis.circle")
-                }
+                AIChatOptionsMenu(viewModel: viewModel)
             }
         }
         .alert("Error", isPresented: .constant(viewModel.errorMessage != nil)) {

@@ -110,6 +110,6 @@ enum SampleData {
 
     /// A single sample item.
     static var singleItem: Item {
-        items.first!
+        items[0]
     }
 }

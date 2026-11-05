@@ -154,7 +154,6 @@ final class AuthViewModel {
             crashlytics.log("User signed in successfully")
 
             print("✅ Sign in successful: \(user.email ?? "unknown")")
-
         } catch {
             // ================================================================
             // Error Handling
@@ -199,7 +198,6 @@ final class AuthViewModel {
             crashlytics.log("New user account created")
 
             print("✅ Sign up successful: \(user.email ?? "unknown")")
-
         } catch {
             errorMessage = mapAuthError(error)
             crashlytics.record(error: error)
@@ -229,7 +227,6 @@ final class AuthViewModel {
             crashlytics.log("User signed out")
 
             print("✅ Sign out successful")
-
         } catch {
             errorMessage = error.localizedDescription
             crashlytics.record(error: error)

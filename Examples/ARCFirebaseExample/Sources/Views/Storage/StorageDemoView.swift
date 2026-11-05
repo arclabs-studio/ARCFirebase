@@ -342,7 +342,6 @@ final class StorageDemoViewModel {
             fileContent = "Hello from ARCFirebase Example App!"
 
             print("✅ File uploaded: \(path)")
-
         } catch {
             errorMessage = error.localizedDescription
             print("❌ Upload failed: \(error)")
@@ -364,7 +363,6 @@ final class StorageDemoViewModel {
             analytics.logEvent("file_deleted")
 
             print("✅ File deleted: \(file.path)")
-
         } catch {
             errorMessage = error.localizedDescription
             print("❌ Delete failed: \(error)")
