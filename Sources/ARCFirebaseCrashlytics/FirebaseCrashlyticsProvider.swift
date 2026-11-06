@@ -54,10 +54,14 @@ import Foundation
 /// - ``setUserID(_:)``
 /// - ``clearUserID()``
 /// - ``setCustomValue(_:forKey:)``
-public final class FirebaseCrashlyticsProvider: CrashlyticsProviding, @unchecked Sendable {
+public final class FirebaseCrashlyticsProvider: CrashlyticsProviding {
     // MARK: - Properties
 
-    private let crashlytics: Crashlytics
+    /// Resolved per call: `Crashlytics` is not `Sendable`, and `Crashlytics.crashlytics()` returns the shared instance.
+    private var crashlytics: Crashlytics {
+        Crashlytics.crashlytics()
+    }
+
     private let logger: ARCLogger
 
     // MARK: - Initialization
@@ -67,7 +71,6 @@ public final class FirebaseCrashlyticsProvider: CrashlyticsProviding, @unchecked
     /// - Throws: ``FirebaseError/notConfigured`` if Firebase hasn't been initialized.
     public init() throws {
         try FirebaseManager.ensureConfigured()
-        crashlytics = Crashlytics.crashlytics()
         logger = ARCLogger(subsystem: ARCFirebaseLogSubsystem.current, category: "Crashlytics")
         logger.info("FirebaseCrashlyticsProvider initialized")
     }

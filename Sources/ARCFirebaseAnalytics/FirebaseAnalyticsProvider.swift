@@ -30,7 +30,7 @@ import Foundation
 /// ### Initialization
 /// - ``init()``
 /// - ``live``
-public final class FirebaseAnalyticsProvider: AnalyticsProviding, @unchecked Sendable {
+public final class FirebaseAnalyticsProvider: AnalyticsProviding {
     // MARK: - Properties
 
     private let logger = ARCLogger(subsystem: ARCFirebaseLogSubsystem.current, category: "FirebaseAnalytics")

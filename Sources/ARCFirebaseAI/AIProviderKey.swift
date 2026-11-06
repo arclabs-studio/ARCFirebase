@@ -9,7 +9,7 @@ import SwiftUI
 
 /// Placeholder provider that crashes with helpful message when accessed.
 /// This avoids crashes at module load time while ensuring proper configuration.
-private struct PlaceholderAIProvider: AIProviding, @unchecked Sendable {
+private struct PlaceholderAIProvider: AIProviding {
     func generateContent(prompt _: String,
                          configuration _: AIConfiguration?) async throws -> AIResponse {
         placeholderCrash()

@@ -9,7 +9,7 @@ import SwiftUI
 
 /// Placeholder provider that crashes with a helpful message when accessed.
 /// This avoids crashes at module load time while ensuring proper configuration.
-private struct PlaceholderCloudFunctionsProvider: CloudFunctionsProviding, @unchecked Sendable {
+private struct PlaceholderCloudFunctionsProvider: CloudFunctionsProviding {
     func call<Response: Decodable & Sendable>(_: String, data _: some Encodable & Sendable,
                                               timeout _: TimeInterval?) async throws -> Response {
         placeholderCrash()

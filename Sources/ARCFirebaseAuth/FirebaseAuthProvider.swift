@@ -61,10 +61,14 @@ import Foundation
 /// - ``unlinkProvider(_:)``
 /// - ``linkedProviders()``
 /// - ``sendEmailVerification()``
-public final class FirebaseAuthProvider: AuthProviding, @unchecked Sendable {
+public final class FirebaseAuthProvider: AuthProviding {
     // MARK: - Properties
 
-    private let auth = Auth.auth()
+    /// Resolved per call: `Auth` is not `Sendable`, and `Auth.auth()` returns the shared default instance.
+    private var auth: Auth {
+        Auth.auth()
+    }
+
     private let logger = ARCLogger(subsystem: ARCFirebaseLogSubsystem.current, category: "FirebaseAuth")
 
     // MARK: - Initialization
@@ -201,16 +205,17 @@ public final class FirebaseAuthProvider: AuthProviding, @unchecked Sendable {
     // MARK: - Auth State Observation
 
     public func authStateChanges() -> AsyncStream<User?> {
-        let auth = auth
+        let listenerID = UUID()
         return AsyncStream { continuation in
-            let handle = auth.addStateDidChangeListener { _, firebaseUser in
-                let user = firebaseUser.map { User(from: $0) }
-                continuation.yield(user)
+            // Listener handles are not Sendable, so they live in a main-actor registry
+            // instead of being captured by the @Sendable termination handler.
+            Task { @MainActor in
+                AuthStateListenerRegistry.shared.register(listenerID, continuation: continuation)
             }
-
-            let sendableHandle = UncheckedSendableBox(handle)
             continuation.onTermination = { _ in
-                auth.removeStateDidChangeListener(sendableHandle.value)
+                Task { @MainActor in
+                    AuthStateListenerRegistry.shared.unregister(listenerID)
+                }
             }
         }
     }
@@ -424,12 +429,31 @@ extension FirebaseAuthProvider {
     }
 }
 
-// MARK: - Sendable Wrapper
+// MARK: - Auth State Listener Registry
 
-/// Wraps a non-Sendable value for use in `@Sendable` closures where safety is guaranteed by design.
-private struct UncheckedSendableBox<T>: @unchecked Sendable {
-    let value: T
-    init(_ value: T) {
-        self.value = value
+/// Owns the Firebase auth-state listener handles on the main actor.
+///
+/// Registration and removal both hop to the main actor. If a stream terminates before its
+/// registration ran, the identifier is remembered so the late registration is skipped.
+@MainActor
+private final class AuthStateListenerRegistry {
+    static let shared = AuthStateListenerRegistry()
+
+    private var handles: [UUID: any NSObjectProtocol] = [:]
+    private var terminatedBeforeRegistration: Set<UUID> = []
+
+    func register(_ id: UUID, continuation: AsyncStream<User?>.Continuation) {
+        guard terminatedBeforeRegistration.remove(id) == nil else { return }
+        handles[id] = Auth.auth().addStateDidChangeListener { _, firebaseUser in
+            continuation.yield(firebaseUser.map { User(from: $0) })
+        }
+    }
+
+    func unregister(_ id: UUID) {
+        if let handle = handles.removeValue(forKey: id) {
+            Auth.auth().removeStateDidChangeListener(handle)
+        } else {
+            terminatedBeforeRegistration.insert(id)
+        }
     }
 }

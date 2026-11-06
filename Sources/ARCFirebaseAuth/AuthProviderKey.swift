@@ -9,7 +9,7 @@ import SwiftUI
 
 /// Placeholder provider that crashes with helpful message when accessed.
 /// This avoids crashes at module load time while ensuring proper configuration.
-private struct PlaceholderAuthProvider: AuthProviding, @unchecked Sendable {
+private struct PlaceholderAuthProvider: AuthProviding {
     var currentUser: User? {
         placeholderCrash()
     }

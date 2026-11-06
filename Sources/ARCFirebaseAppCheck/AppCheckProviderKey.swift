@@ -9,7 +9,7 @@ import SwiftUI
 
 /// Placeholder provider that crashes with a helpful message when accessed.
 /// This avoids crashes at module load time while ensuring proper configuration.
-private struct PlaceholderAppCheckProvider: AppCheckProviding, @unchecked Sendable {
+private struct PlaceholderAppCheckProvider: AppCheckProviding {
     var isConfigured: Bool {
         placeholderCrash()
     }

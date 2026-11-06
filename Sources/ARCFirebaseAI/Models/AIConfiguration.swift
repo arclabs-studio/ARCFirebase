@@ -47,9 +47,7 @@ import Foundation
 /// - ``creative``
 /// - ``factual``
 /// - ``structured``
-/// `@unchecked Sendable` because `AISchema` (= `FirebaseAILogic.Schema`) may not satisfy
-/// the automatic Sendable check. The schema is set once at creation and never mutated.
-public struct AIConfiguration: @unchecked Sendable, Equatable {
+public struct AIConfiguration: Sendable, Equatable {
     /// Controls randomness in generation. Higher values produce more creative output.
     ///
     /// Range: 0.0 to 2.0. Default: 1.0
