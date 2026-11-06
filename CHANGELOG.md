@@ -5,6 +5,12 @@ All notable changes to ARCFirebase will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Removed (breaking)
+
+- **Retired and retiring Gemini models.** `GeminiModel.pro25`, `.flash25`, `.flashLite25`, `.flash20` and `.flashLite20` are gone. The 2.0 models were retired on 2026-06-01 and the 2.5 models on 2026-10-16, so calls to them already failed. Use `.flash36` instead of the Flash models, `.flashLite35` instead of the Flash-Lite models, and a Gemini 3.x model instead of `.pro25`.
+
 ## [2.0.0] - 2026-10-09
 
 ### Changed (breaking)
