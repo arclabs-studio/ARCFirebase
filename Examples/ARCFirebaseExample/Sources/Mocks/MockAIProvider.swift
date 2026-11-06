@@ -7,6 +7,7 @@
 
 import ARCFirebaseAI
 import Foundation
+import os
 
 // MARK: - MockAIProvider
 
@@ -25,31 +26,53 @@ import Foundation
 /// let response = try await mockAI.generateContent(prompt: "Hello")
 /// print(response.content) // "This is a mock AI response..."
 /// ```
-final class MockAIProvider: AIProviding, @unchecked Sendable {
+final class MockAIProvider: AIProviding {
+    private struct State {
+        var simulatedDelay: TimeInterval = 0.8
+        var customResponse: String?
+        var generateCount: Int = 0
+        var streamCount: Int = 0
+        var chatCount: Int = 0
+    }
+
+    private let state = OSAllocatedUnfairLock(initialState: State())
+
     // MARK: Mock Configuration
 
     /// Simulated delay in seconds for async operations.
-    var simulatedDelay: TimeInterval = 0.8
+    var simulatedDelay: TimeInterval {
+        get { state.withLock { $0.simulatedDelay } }
+        set { state.withLock { $0.simulatedDelay = newValue } }
+    }
 
     /// Custom response override. If nil, generates contextual responses.
-    var customResponse: String?
+    var customResponse: String? {
+        get { state.withLock { $0.customResponse } }
+        set { state.withLock { $0.customResponse = newValue } }
+    }
 
     // MARK: Call Tracking
 
     /// Number of generate operations performed.
-    private(set) var generateCount = 0
+    var generateCount: Int {
+        state.withLock { $0.generateCount }
+    }
 
     /// Number of stream operations performed.
-    private(set) var streamCount = 0
+    var streamCount: Int {
+        state.withLock { $0.streamCount }
+    }
 
     /// Number of chat messages sent.
-    private(set) var chatCount = 0
+    var chatCount: Int {
+        state.withLock { $0.chatCount }
+    }
 
     // MARK: AIProviding Implementation
 
     func generateContent(prompt: String,
                          configuration _: AIConfiguration?) async throws -> AIResponse {
-        generateCount += 1
+        state.withLock { $0.generateCount += 1 }
         try await Task.sleep(for: .seconds(simulatedDelay))
 
         let content = customResponse ?? mockResponse(for: prompt)
@@ -70,7 +93,7 @@ final class MockAIProvider: AIProviding, @unchecked Sendable {
                                    responseSchema _: AISchema,
                                    systemInstruction _: String?,
                                    configuration _: AIConfiguration?) async throws -> AIResponse {
-        generateCount += 1
+        state.withLock { $0.generateCount += 1 }
         try await Task.sleep(for: .seconds(simulatedDelay))
 
         let json = """
@@ -85,7 +108,7 @@ final class MockAIProvider: AIProviding, @unchecked Sendable {
 
     func streamContent(prompt: String,
                        configuration _: AIConfiguration?) -> AsyncThrowingStream<String, Error> {
-        streamCount += 1
+        state.withLock { $0.streamCount += 1 }
         let response = customResponse ?? mockResponse(for: prompt)
         let delay = simulatedDelay
 
@@ -112,7 +135,7 @@ final class MockAIProvider: AIProviding, @unchecked Sendable {
                      history: [AIMessage],
                      systemInstruction _: String?,
                      configuration _: AIConfiguration?) async throws -> AIResponse {
-        chatCount += 1
+        state.withLock { $0.chatCount += 1 }
         try await Task.sleep(for: .seconds(simulatedDelay))
 
         let content = customResponse ?? mockChatResponse(for: message, history: history)

@@ -7,6 +7,7 @@
 
 import ARCFirebaseAI
 import ARCFirebaseAnalytics
+import os
 import SwiftUI
 
 // MARK: - AIChatView
@@ -201,7 +202,7 @@ final class AIChatViewModel {
             analytics.logEvent("ai_message_sent", parameters: ["mode": selectedMode.rawValue.lowercased()])
         } catch {
             errorMessage = error.localizedDescription
-            print("AI error: \(error)")
+            demoLogger.error("AI error: \(error.localizedDescription, privacy: .public)")
         }
 
         isLoading = false

@@ -9,6 +9,7 @@ import ARCFirebaseAnalytics
 import ARCFirebaseCrashlytics
 import ARCFirebasePersistence
 import Foundation
+import os
 
 // MARK: - ItemsViewModel
 
@@ -108,7 +109,8 @@ final class ItemsViewModel {
 
         analytics.logEvent("items_loaded", parameters: ["count": items.count])
 
-        print("✅ Loaded \(items.count) items")
+        let itemCount = items.count
+        demoLogger.info("Loaded \(itemCount) items")
         isLoading = false
     }
 
@@ -156,7 +158,7 @@ final class ItemsViewModel {
 
         analytics.logEvent("item_created", parameters: ["title_length": title.count])
 
-        print("✅ Item added: \(item.title)")
+        demoLogger.info("Item added: \(item.title)")
         isLoading = false
     }
 
@@ -191,7 +193,7 @@ final class ItemsViewModel {
 
         analytics.logEvent("item_deleted")
 
-        print("✅ Item deleted: \(item.title)")
+        demoLogger.info("Item deleted: \(item.title)")
         isLoading = false
     }
 
@@ -208,6 +210,6 @@ extension ItemsViewModel {
     private func handleError(_ error: Error, context: String) {
         errorMessage = "Failed to \(context). Please try again."
         crashlytics.record(error: error)
-        print("❌ Error \(context): \(error)")
+        demoLogger.error("Error \(context): \(error.localizedDescription, privacy: .public)")
     }
 }
