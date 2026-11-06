@@ -107,13 +107,7 @@ struct ARCFirebaseExampleApp: App {
     // MARK: Private Helpers
 
     /// Initializes all providers based on Firebase configuration availability.
-    private static func initializeProviders() -> (auth: any AuthProviding,
-                                                  analytics: any AnalyticsProviding,
-                                                  storage: any StorageProviding,
-                                                  crashlytics: any CrashlyticsProviding,
-                                                  ai: any AIProviding,
-                                                  featureFlags: any FeatureFlagProviding,
-                                                  isDemoMode: Bool) {
+    private static func initializeProviders() -> AppProviders {
         // Check for GoogleService-Info.plist
         let hasFirebaseConfig = Bundle.main.path(forResource: "GoogleService-Info",
                                                  ofType: "plist") != nil
@@ -134,13 +128,7 @@ struct ARCFirebaseExampleApp: App {
             See README.md for detailed instructions.
             """)
 
-            return (auth: MockAuthProvider.unauthenticated,
-                    analytics: MockAnalyticsProvider(),
-                    storage: MockStorageProvider(),
-                    crashlytics: MockCrashlyticsProvider(),
-                    ai: MockAIProvider(),
-                    featureFlags: MockFeatureFlagProvider(),
-                    isDemoMode: true)
+            return .demo()
         }
 
         // ================================================================
@@ -163,24 +151,17 @@ struct ARCFirebaseExampleApp: App {
                                parameters: ["platform": "iOS",
                                             "mode": "production"])
 
-            return (auth: auth,
-                    analytics: analytics,
-                    storage: storage,
-                    crashlytics: crashlytics,
-                    ai: ai,
-                    featureFlags: featureFlags,
-                    isDemoMode: false)
-
+            return AppProviders(auth: auth,
+                                analytics: analytics,
+                                storage: storage,
+                                crashlytics: crashlytics,
+                                ai: ai,
+                                featureFlags: featureFlags,
+                                isDemoMode: false)
         } catch {
             // Fall back to demo mode on error
             print("⚠️ Firebase initialization failed, using demo mode: \(error)")
-            return (auth: MockAuthProvider.unauthenticated,
-                    analytics: MockAnalyticsProvider(),
-                    storage: MockStorageProvider(),
-                    crashlytics: MockCrashlyticsProvider(),
-                    ai: MockAIProvider(),
-                    featureFlags: MockFeatureFlagProvider(),
-                    isDemoMode: true)
+            return .demo()
         }
     }
 

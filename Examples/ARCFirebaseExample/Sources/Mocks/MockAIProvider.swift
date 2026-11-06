@@ -90,16 +90,21 @@ final class MockAIProvider: AIProviding, @unchecked Sendable {
         let delay = simulatedDelay
 
         return AsyncThrowingStream { continuation in
-            Task {
-                // Simulate word-by-word streaming
-                let words = response.split(separator: " ")
-                for (index, word) in words.enumerated() {
-                    try await Task.sleep(for: .seconds(delay / Double(words.count)))
-                    let chunk = index == 0 ? String(word) : " " + String(word)
-                    continuation.yield(chunk)
+            let task = Task {
+                do {
+                    // Simulate word-by-word streaming
+                    let words = response.split(separator: " ")
+                    for (index, word) in words.enumerated() {
+                        try await Task.sleep(for: .seconds(delay / Double(words.count)))
+                        let chunk = index == 0 ? String(word) : " " + String(word)
+                        continuation.yield(chunk)
+                    }
+                    continuation.finish()
+                } catch {
+                    continuation.finish(throwing: error)
                 }
-                continuation.finish()
             }
+            continuation.onTermination = { _ in task.cancel() }
         }
     }
 

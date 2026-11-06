@@ -229,6 +229,24 @@ final class MockAuthProvider: AuthProviding, @unchecked Sendable {
     func sendEmailVerification() async throws {
         try await Task.sleep(for: .seconds(simulatedDelay))
     }
+
+    func updateProfile(displayName: String?, photoURL: URL?) async throws {
+        try await Task.sleep(for: .seconds(simulatedDelay))
+
+        guard let user = mockUser else {
+            throw NSError(domain: "MockError", code: 0, userInfo: [NSLocalizedDescriptionKey: "No user signed in"])
+        }
+
+        mockUser = User(id: user.id,
+                        email: user.email,
+                        displayName: displayName ?? user.displayName,
+                        photoURL: photoURL ?? user.photoURL,
+                        isEmailVerified: user.isEmailVerified,
+                        creationDate: user.creationDate,
+                        lastSignInDate: user.lastSignInDate,
+                        providerID: user.providerID,
+                        linkedProviderIDs: user.linkedProviderIDs)
+    }
 }
 
 // MARK: - Convenience Initializers

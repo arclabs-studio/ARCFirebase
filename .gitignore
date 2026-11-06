@@ -58,7 +58,7 @@ Package.resolved# ARC Labs Security - Archivos sensibles
 
 
 # ARCDevTools pinned tool binaries
-.arc-tools/
+.arc-tools
 
 
 # ARCKnowledge agents (symlinks)
