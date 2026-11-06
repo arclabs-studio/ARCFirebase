@@ -34,4 +34,9 @@ final class AuthListenerSpy {
             callback(user)
         }
     }
+
+    /// Simulates an auth-state change delivered to a single listener, in registration order.
+    func emit(_ user: User?, toListenerAt index: Int) {
+        callbacks[index](user)
+    }
 }

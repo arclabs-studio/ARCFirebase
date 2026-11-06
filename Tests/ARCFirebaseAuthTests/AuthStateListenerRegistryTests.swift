@@ -65,6 +65,33 @@ import Testing
         #expect(spy.removedHandles.count == 1)
     }
 
+    @Test("Each stream receives only its own listener's changes", .tags(.critical)) func streamsAreIsolated() async {
+        // Given
+        let (spy, sut) = makeSUT()
+        let (firstStream, firstContinuation) = AsyncStream<User?>.makeStream()
+        let (secondStream, secondContinuation) = AsyncStream<User?>.makeStream()
+        sut.register(UUID(), continuation: firstContinuation)
+        sut.register(UUID(), continuation: secondContinuation)
+
+        // When
+        spy.emit(User(id: "uid-1"), toListenerAt: 0)
+        spy.emit(User(id: "uid-2"), toListenerAt: 1)
+        firstContinuation.finish()
+        secondContinuation.finish()
+
+        // Then
+        var first: [String?] = []
+        for await value in firstStream {
+            first.append(value?.id)
+        }
+        var second: [String?] = []
+        for await value in secondStream {
+            second.append(value?.id)
+        }
+        #expect(first == ["uid-1"])
+        #expect(second == ["uid-2"])
+    }
+
     // MARK: - Termination Before Registration
 
     @Test("A stream that terminated before registering never adds a listener", .tags(.critical))
