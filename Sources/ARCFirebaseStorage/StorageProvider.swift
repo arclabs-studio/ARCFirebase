@@ -36,7 +36,7 @@ import Foundation
 /// ## Usage in Tests
 ///
 /// ```swift
-/// final class MockStorageProvider: StorageProviding, @unchecked Sendable {
+/// final class MockStorageProvider: StorageProviding {
 ///     var uploadedFiles: [String: Data] = [:]
 ///     var mockDownloadURL: URL = {
 ///         guard let url = URL(string: "https://example.com/image.jpg") else {

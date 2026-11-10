@@ -108,7 +108,7 @@ for try await chunk in ai.streamContent(prompt: "Tell me about sushi") {
 Extract structured data using Firebase's `Schema` type:
 
 ```swift
-import FirebaseAI
+import FirebaseAILogic
 
 let schema = Schema.object(properties: [
     "name": .string(),

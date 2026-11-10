@@ -7,6 +7,7 @@
 
 import ARCFirebaseAnalytics
 import Foundation
+import os
 
 // MARK: - MockAnalyticsProvider
 
@@ -31,20 +32,37 @@ import Foundation
 /// #expect(mockAnalytics.loggedEvents.count == 1)
 /// #expect(mockAnalytics.loggedEvents.first?.name == "button_tapped")
 /// ```
-final class MockAnalyticsProvider: AnalyticsProviding, @unchecked Sendable {
+final class MockAnalyticsProvider: AnalyticsProviding {
+    private struct State {
+        var loggedEvents: [LoggedEvent] = []
+        var loggedScreenViews: [ScreenView] = []
+        var userProperties: [String: String] = [:]
+        var userID: String?
+    }
+
+    private let state = OSAllocatedUnfairLock(initialState: State())
+
     // MARK: Event Storage
 
     /// All logged events with their parameters.
-    private(set) var loggedEvents: [LoggedEvent] = []
+    var loggedEvents: [LoggedEvent] {
+        state.withLock { $0.loggedEvents }
+    }
 
     /// All logged screen views.
-    private(set) var loggedScreenViews: [ScreenView] = []
+    var loggedScreenViews: [ScreenView] {
+        state.withLock { $0.loggedScreenViews }
+    }
 
     /// Current user properties.
-    private(set) var userProperties: [String: String] = [:]
+    var userProperties: [String: String] {
+        state.withLock { $0.userProperties }
+    }
 
     /// Current user ID.
-    private(set) var userID: String?
+    var userID: String? {
+        state.withLock { $0.userID }
+    }
 
     // MARK: Types
 
@@ -82,43 +100,43 @@ final class MockAnalyticsProvider: AnalyticsProviding, @unchecked Sendable {
 
     func logEvent(_ name: String, parameters: [String: any Sendable]?) {
         let event = LoggedEvent(name: name, parameters: parameters)
-        loggedEvents.append(event)
+        state.withLock { $0.loggedEvents.append(event) }
 
         // Print for debugging in previews
         #if DEBUG
-        print("[MockAnalytics] Event: \(name), params: \(parameters ?? [:])")
+        demoLogger.info("[MockAnalytics] Event: \(name), params: \(String(describing: parameters ?? [:]))")
         #endif
     }
 
     func logScreenView(_ screenName: String, screenClass: String?) {
         let screenView = ScreenView(screenName: screenName, screenClass: screenClass)
-        loggedScreenViews.append(screenView)
+        state.withLock { $0.loggedScreenViews.append(screenView) }
 
         #if DEBUG
-        print("[MockAnalytics] Screen: \(screenName)")
+        demoLogger.info("[MockAnalytics] Screen: \(screenName)")
         #endif
     }
 
     func setUserProperty(_ name: String, value: String?) {
         if let value {
-            userProperties[name] = value
+            state.withLock { $0.userProperties[name] = value }
         } else {
-            userProperties.removeValue(forKey: name)
+            state.withLock { _ = $0.userProperties.removeValue(forKey: name) }
         }
     }
 
     func setUserID(_ userID: String?) {
-        self.userID = userID
+        state.withLock { $0.userID = userID }
     }
 
     // MARK: Testing Helpers
 
     /// Clears all logged events and screen views.
     func reset() {
-        loggedEvents.removeAll()
-        loggedScreenViews.removeAll()
-        userProperties.removeAll()
-        userID = nil
+        state.withLock { $0.loggedEvents.removeAll() }
+        state.withLock { $0.loggedScreenViews.removeAll() }
+        state.withLock { $0.userProperties.removeAll() }
+        state.withLock { $0.userID = nil }
     }
 
     /// Returns true if an event with the given name was logged.

@@ -7,6 +7,7 @@
 
 import ARCFirebaseAnalytics
 import ARCFirebaseStorage
+import os
 import SwiftUI
 
 // MARK: - StorageDemoView
@@ -341,11 +342,10 @@ final class StorageDemoViewModel {
             // Reset form
             fileContent = "Hello from ARCFirebase Example App!"
 
-            print("✅ File uploaded: \(path)")
-
+            demoLogger.info("File uploaded: \(path)")
         } catch {
             errorMessage = error.localizedDescription
-            print("❌ Upload failed: \(error)")
+            demoLogger.error("Upload failed: \(error.localizedDescription, privacy: .public)")
         }
 
         isLoading = false
@@ -363,11 +363,10 @@ final class StorageDemoViewModel {
 
             analytics.logEvent("file_deleted")
 
-            print("✅ File deleted: \(file.path)")
-
+            demoLogger.info("File deleted: \(file.path)")
         } catch {
             errorMessage = error.localizedDescription
-            print("❌ Delete failed: \(error)")
+            demoLogger.error("Delete failed: \(error.localizedDescription, privacy: .public)")
         }
 
         isLoading = false

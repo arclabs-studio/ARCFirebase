@@ -5,6 +5,60 @@ All notable changes to ARCFirebase will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.1] - 2026-11-06
+
+### Fixed
+
+- **Every provider is now checked `Sendable`.** `FirebaseAIProvider`, `FirebaseAnalyticsProvider`,
+  `FirebaseAppCheckProvider`, `FirebaseAuthProvider`, `FirebaseCloudFunctionsProvider`,
+  `FirebaseCrashlyticsProvider`, `FirebaseStorageProvider`, `FirestoreRepository` and
+  `AIConfiguration` drop `@unchecked Sendable`, so the compiler now verifies their thread safety.
+  The provider protocols already require `Sendable`, so conformances and the public API are
+  unchanged ([#43](https://github.com/arclabs-studio/ARCFirebase/pull/43)).
+- **Firebase singletons are resolved per call instead of stored.** The Auth, Storage, Firestore
+  and Crashlytics providers call `Auth.auth()`, `Storage.storage()`, `Firestore.firestore()` and
+  `Crashlytics.crashlytics()` on each use, because those SDK types are not `Sendable`. Each call
+  returns the same shared default instance, so behaviour is unchanged
+  ([#43](https://github.com/arclabs-studio/ARCFirebase/pull/43)).
+- **`FirebaseAppCheckProvider.isConfigured` is lock-protected.** The configured flag is held in an
+  `OSAllocatedUnfairLock` instead of an unsynchronised `var`
+  ([#43](https://github.com/arclabs-studio/ARCFirebase/pull/43)).
+- **`authStateChanges()` no longer smuggles listener handles across isolation.** Handles are kept
+  in an internal `@MainActor` registry instead of an `@unchecked Sendable` box. Registration and
+  removal both run on the main actor. A stream that is cancelled before its listener registers no
+  longer leaks a listener. Firebase sends the current auth state when a listener registers, so the
+  initial event still arrives. The registry's bookkeeping is now covered by unit tests through an injected listener source ([#43](https://github.com/arclabs-studio/ARCFirebase/pull/43), [#44](https://github.com/arclabs-studio/ARCFirebase/pull/44)).
+- **DocC and doc-comment mock examples** no longer show `@unchecked Sendable`.
+
+### Examples
+
+- The demo app builds again (`MockAuthProvider` implements `updateProfile(displayName:photoURL:)`),
+  logs through `os.Logger` instead of `print`, uses lock-backed mocks, cancels the mock AI stream
+  task on termination, and splits large screens into one type per file
+  ([#42](https://github.com/arclabs-studio/ARCFirebase/pull/42),
+  [#43](https://github.com/arclabs-studio/ARCFirebase/pull/43)).
+
+## [2.0.0] - 2026-10-09
+
+### Changed (breaking)
+
+- **firebase-ios-sdk 12.x** (`"12.8.0"..<"13.0.0"`, resolves 12.19.2), up from 11.x.
+  Firebase 13 is not reachable yet: every GoogleSignIn release requires app-check `from: "11.0.0"`,
+  while Firebase 13 needs app-check 12.x, so any app also using Google Sign-In cannot resolve it.
+- **ARCFirebaseAI now links `FirebaseAILogic`**, the product Firebase renamed `FirebaseAI` to in
+  12.5 (the old name is removed in 13). A consumer that writes `import FirebaseAI` must switch to
+  `import FirebaseAILogic`. The `FirebaseAI` class itself keeps its name.
+- Toolchain: Firebase 12.15+ declares swift-tools-version 6.1, so building needs Xcode 16.3 or
+  later. CI moves to `macos-15`.
+
+### Added
+
+#### ARCFirebaseAI
+- `AIThinkingLevel` (`minimal`, `low`, `medium`, `high`) and `AIConfiguration.thinkingLevel`,
+  forwarded to Gemini as `generationConfig.thinkingConfig.thinkingLevel`. `nil` (the default)
+  sends no thinking config, so existing callers keep the model's own default. Thinking tokens
+  are billed as output, which makes this the main per-request cost lever on Gemini 3.x.
+
 ## [1.3.0] - 2026-10-06
 
 ### Changed

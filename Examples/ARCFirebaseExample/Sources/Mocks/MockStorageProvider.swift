@@ -7,6 +7,7 @@
 
 import ARCFirebaseStorage
 import Foundation
+import os
 
 // MARK: - MockStorageProvider
 
@@ -40,7 +41,12 @@ actor MockStorageProvider: StorageProviding {
     private(set) var storedFiles: [String: Data] = [:]
 
     /// Base URL for mock download URLs.
-    private let baseURL = URL(string: "https://mock.storage.example.com")!
+    private let baseURL: URL = {
+        guard let url = URL(string: "https://mock.storage.example.com") else {
+            preconditionFailure("MockStorageProvider: invalid base URL constant")
+        }
+        return url
+    }()
 
     // MARK: Call Tracking
 
@@ -84,7 +90,7 @@ actor MockStorageProvider: StorageProviding {
         storedFiles[path] = data
 
         #if DEBUG
-        print("[MockStorage] Uploaded \(data.count) bytes to \(path)")
+        demoLogger.info("[MockStorage] Uploaded \(data.count) bytes to \(path)")
         #endif
 
         return baseURL.appendingPathComponent(path)
@@ -144,7 +150,7 @@ actor MockStorageProvider: StorageProviding {
         storedFiles.removeValue(forKey: path)
 
         #if DEBUG
-        print("[MockStorage] Deleted file at \(path)")
+        demoLogger.info("[MockStorage] Deleted file at \(path)")
         #endif
     }
 

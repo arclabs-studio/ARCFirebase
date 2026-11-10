@@ -7,6 +7,7 @@
 
 import ARCFirebaseCrashlytics
 import Foundation
+import os
 
 // MARK: - MockCrashlyticsProvider
 
@@ -29,23 +30,43 @@ import Foundation
 /// // Verify in tests
 /// #expect(mockCrashlytics.recordedErrors.count == 1)
 /// ```
-final class MockCrashlyticsProvider: CrashlyticsProviding, @unchecked Sendable {
+final class MockCrashlyticsProvider: CrashlyticsProviding {
+    private struct State {
+        var recordedErrors: [Error] = []
+        var nonFatalErrors: [Error] = []
+        var loggedMessages: [String] = []
+        var currentUserID: String?
+        var customValues: [String: any Sendable] = [:]
+    }
+
+    private let state = OSAllocatedUnfairLock(initialState: State())
+
     // MARK: Recorded Data
 
     /// All recorded errors.
-    private(set) var recordedErrors: [Error] = []
+    var recordedErrors: [Error] {
+        state.withLock { $0.recordedErrors }
+    }
 
     /// All recorded non-fatal errors.
-    private(set) var nonFatalErrors: [Error] = []
+    var nonFatalErrors: [Error] {
+        state.withLock { $0.nonFatalErrors }
+    }
 
     /// All logged messages.
-    private(set) var loggedMessages: [String] = []
+    var loggedMessages: [String] {
+        state.withLock { $0.loggedMessages }
+    }
 
     /// Current user ID.
-    private(set) var currentUserID: String?
+    var currentUserID: String? {
+        state.withLock { $0.currentUserID }
+    }
 
     /// Custom key-value pairs.
-    private(set) var customValues: [String: any Sendable] = [:]
+    var customValues: [String: any Sendable] {
+        state.withLock { $0.customValues }
+    }
 
     // MARK: Initialization
 
@@ -54,50 +75,50 @@ final class MockCrashlyticsProvider: CrashlyticsProviding, @unchecked Sendable {
     // MARK: CrashlyticsProviding Implementation
 
     func record(error: Error) {
-        recordedErrors.append(error)
+        state.withLock { $0.recordedErrors.append(error) }
 
         #if DEBUG
-        print("[MockCrashlytics] Recorded error: \(error.localizedDescription)")
+        demoLogger.error("[MockCrashlytics] Recorded error: \(error.localizedDescription)")
         #endif
     }
 
     func recordNonFatal(error: Error) {
-        nonFatalErrors.append(error)
+        state.withLock { $0.nonFatalErrors.append(error) }
 
         #if DEBUG
-        print("[MockCrashlytics] Recorded non-fatal: \(error.localizedDescription)")
+        demoLogger.error("[MockCrashlytics] Recorded non-fatal: \(error.localizedDescription)")
         #endif
     }
 
     func log(_ message: String) {
-        loggedMessages.append(message)
+        state.withLock { $0.loggedMessages.append(message) }
 
         #if DEBUG
-        print("[MockCrashlytics] Log: \(message)")
+        demoLogger.info("[MockCrashlytics] Log: \(message)")
         #endif
     }
 
     func setUserID(_ userID: String) {
-        currentUserID = userID
+        state.withLock { $0.currentUserID = userID }
     }
 
     func clearUserID() {
-        currentUserID = nil
+        state.withLock { $0.currentUserID = nil }
     }
 
     func setCustomValue(_ value: any Sendable, forKey key: String) {
-        customValues[key] = value
+        state.withLock { $0.customValues[key] = value }
     }
 
     // MARK: Testing Helpers
 
     /// Clears all recorded data.
     func reset() {
-        recordedErrors.removeAll()
-        nonFatalErrors.removeAll()
-        loggedMessages.removeAll()
-        currentUserID = nil
-        customValues.removeAll()
+        state.withLock { $0.recordedErrors.removeAll() }
+        state.withLock { $0.nonFatalErrors.removeAll() }
+        state.withLock { $0.loggedMessages.removeAll() }
+        state.withLock { $0.currentUserID = nil }
+        state.withLock { $0.customValues.removeAll() }
     }
 
     /// Returns true if any error was recorded.

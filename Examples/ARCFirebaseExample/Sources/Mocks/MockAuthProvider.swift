@@ -7,6 +7,7 @@
 
 import ARCFirebaseAuth
 import Foundation
+import os
 
 // MARK: - MockAuthProvider
 
@@ -39,31 +40,61 @@ import Foundation
 ///         .environment(\.authProvider, mockAuth)
 /// }
 /// ```
-final class MockAuthProvider: AuthProviding, @unchecked Sendable {
+final class MockAuthProvider: AuthProviding {
+    private struct State {
+        var mockUser: User?
+        var signInError: Error?
+        var signUpError: Error?
+        var simulatedDelay: TimeInterval = 0.5
+        var signInCallCount: Int = 0
+        var signUpCallCount: Int = 0
+        var signOutCallCount: Int = 0
+    }
+
+    private let state = OSAllocatedUnfairLock(initialState: State())
+
     // MARK: Mock Configuration
 
     /// The mock user to return. Set to `nil` for unauthenticated state.
-    var mockUser: User?
+    var mockUser: User? {
+        get { state.withLock { $0.mockUser } }
+        set { state.withLock { $0.mockUser = newValue } }
+    }
 
     /// Error to throw on sign in. Set to `nil` for success.
-    var signInError: Error?
+    var signInError: Error? {
+        get { state.withLock { $0.signInError } }
+        set { state.withLock { $0.signInError = newValue } }
+    }
 
     /// Error to throw on sign up. Set to `nil` for success.
-    var signUpError: Error?
+    var signUpError: Error? {
+        get { state.withLock { $0.signUpError } }
+        set { state.withLock { $0.signUpError = newValue } }
+    }
 
     /// Simulated delay in seconds for async operations.
-    var simulatedDelay: TimeInterval = 0.5
+    var simulatedDelay: TimeInterval {
+        get { state.withLock { $0.simulatedDelay } }
+        set { state.withLock { $0.simulatedDelay = newValue } }
+    }
 
     // MARK: Call Tracking
 
     /// Number of times `signIn` was called.
-    private(set) var signInCallCount = 0
+    var signInCallCount: Int {
+        state.withLock { $0.signInCallCount }
+    }
 
     /// Number of times `signUp` was called.
-    private(set) var signUpCallCount = 0
+    var signUpCallCount: Int {
+        state.withLock { $0.signUpCallCount }
+    }
 
     /// Number of times `signOut` was called.
-    private(set) var signOutCallCount = 0
+    var signOutCallCount: Int {
+        state.withLock { $0.signOutCallCount }
+    }
 
     // MARK: Initialization
 
@@ -82,7 +113,7 @@ final class MockAuthProvider: AuthProviding, @unchecked Sendable {
     }
 
     func signIn(email: String, password _: String) async throws -> User {
-        signInCallCount += 1
+        state.withLock { $0.signInCallCount += 1 }
 
         // Simulate network delay
         try await Task.sleep(for: .seconds(simulatedDelay))
@@ -100,12 +131,12 @@ final class MockAuthProvider: AuthProviding, @unchecked Sendable {
                                     creationDate: Date(),
                                     lastSignInDate: Date())
 
-        mockUser = user
+        state.withLock { $0.mockUser = user }
         return user
     }
 
     func signUp(email: String, password _: String) async throws -> User {
-        signUpCallCount += 1
+        state.withLock { $0.signUpCallCount += 1 }
 
         // Simulate network delay
         try await Task.sleep(for: .seconds(simulatedDelay))
@@ -123,13 +154,13 @@ final class MockAuthProvider: AuthProviding, @unchecked Sendable {
                         creationDate: Date(),
                         lastSignInDate: Date())
 
-        mockUser = user
+        state.withLock { $0.mockUser = user }
         return user
     }
 
     func signOut() async throws {
-        signOutCallCount += 1
-        mockUser = nil
+        state.withLock { $0.signOutCallCount += 1 }
+        state.withLock { $0.mockUser = nil }
     }
 
     func sendPasswordReset(email _: String) async throws {
@@ -150,7 +181,7 @@ final class MockAuthProvider: AuthProviding, @unchecked Sendable {
                                     providerID: credential.providerID,
                                     linkedProviderIDs: [credential.providerID])
 
-        mockUser = user
+        state.withLock { $0.mockUser = user }
         return user
     }
 
@@ -162,7 +193,7 @@ final class MockAuthProvider: AuthProviding, @unchecked Sendable {
                                     providerID: credential.providerID,
                                     linkedProviderIDs: [credential.providerID])
 
-        mockUser = user
+        state.withLock { $0.mockUser = user }
         return user
     }
 
@@ -179,7 +210,7 @@ final class MockAuthProvider: AuthProviding, @unchecked Sendable {
 
     func deleteAccount() async throws {
         try await Task.sleep(for: .seconds(simulatedDelay))
-        mockUser = nil
+        state.withLock { $0.mockUser = nil }
     }
 
     func linkAccount(with credential: OAuthCredentialData) async throws -> User {
@@ -198,7 +229,7 @@ final class MockAuthProvider: AuthProviding, @unchecked Sendable {
                            lastSignInDate: user.lastSignInDate,
                            providerID: user.providerID,
                            linkedProviderIDs: user.linkedProviderIDs + [credential.providerID])
-        mockUser = updated
+        state.withLock { $0.mockUser = updated }
         return updated
     }
 
@@ -218,7 +249,7 @@ final class MockAuthProvider: AuthProviding, @unchecked Sendable {
                            lastSignInDate: user.lastSignInDate,
                            providerID: user.providerID,
                            linkedProviderIDs: user.linkedProviderIDs.filter { $0 != providerID })
-        mockUser = updated
+        state.withLock { $0.mockUser = updated }
         return updated
     }
 
@@ -228,6 +259,25 @@ final class MockAuthProvider: AuthProviding, @unchecked Sendable {
 
     func sendEmailVerification() async throws {
         try await Task.sleep(for: .seconds(simulatedDelay))
+    }
+
+    func updateProfile(displayName: String?, photoURL: URL?) async throws {
+        try await Task.sleep(for: .seconds(simulatedDelay))
+
+        guard let user = mockUser else {
+            throw NSError(domain: "MockError", code: 0, userInfo: [NSLocalizedDescriptionKey: "No user signed in"])
+        }
+
+        let updatedUser = User(id: user.id,
+                               email: user.email,
+                               displayName: displayName ?? user.displayName,
+                               photoURL: photoURL ?? user.photoURL,
+                               isEmailVerified: user.isEmailVerified,
+                               creationDate: user.creationDate,
+                               lastSignInDate: user.lastSignInDate,
+                               providerID: user.providerID,
+                               linkedProviderIDs: user.linkedProviderIDs)
+        state.withLock { [updatedUser] in $0.mockUser = updatedUser }
     }
 }
 

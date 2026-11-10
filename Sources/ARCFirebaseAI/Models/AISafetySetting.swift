@@ -11,7 +11,7 @@ import Foundation
 ///
 /// Pass an array of settings via ``AIConfiguration/safetySettings`` to control
 /// the harm-category thresholds the underlying provider enforces on generated
-/// content. Mapped to `FirebaseAI.SafetySetting` at the provider boundary.
+/// content. Mapped to `FirebaseAILogic.SafetySetting` at the provider boundary.
 ///
 /// ## Usage
 ///

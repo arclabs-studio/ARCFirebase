@@ -5,7 +5,7 @@
 //  Created by ARC Labs Studio on 2026-02-18.
 //
 
-import FirebaseAI
+import FirebaseAILogic
 
 /// A type alias for Firebase AI `Schema`, re-exported for convenience.
 ///

@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 77;
+	objectVersion = 63;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -12,6 +12,12 @@
 		1598658485E0E075B90BA469 /* ARCFirebasePersistence in Frameworks */ = {isa = PBXBuildFile; productRef = FB9C21E2F965106AF7B8FAE1 /* ARCFirebasePersistence */; };
 		172FDA2B7C7A74BD501E68AC /* MockFeatureFlagProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0900F1227D62E021327FE67D /* MockFeatureFlagProvider.swift */; };
 		26EF8A34D100B0D61308FB2D /* Item.swift in Sources */ = {isa = PBXBuildFile; fileRef = B74C362B88AA7340496C86E4 /* Item.swift */; };
+		29270CDD30935F1E0054492C /* AppProviders.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29270CDC30935F1E0054492C /* AppProviders.swift */; };
+		29270CE130935F360054492C /* AIChatOptionsMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29270CE030935F360054492C /* AIChatOptionsMenu.swift */; };
+		29270CE230935F360054492C /* AIChatMessagesList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29270CDF30935F360054492C /* AIChatMessagesList.swift */; };
+		29270CE330935F360054492C /* AIChatInputBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29270CDE30935F360054492C /* AIChatInputBar.swift */; };
+		29270CE630935F420054492C /* FeatureFlagsBooleanSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29270CE430935F420054492C /* FeatureFlagsBooleanSection.swift */; };
+		29270CE730935F420054492C /* FeatureFlagsConfigSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29270CE530935F420054492C /* FeatureFlagsConfigSection.swift */; };
 		29562CB3313FB10C48685619 /* StorageDemoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5DA85FA3DFF93D2BF1BD3AB /* StorageDemoView.swift */; };
 		2B90EE792953F08F9849E538 /* AIChatView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 96A9F366CFF8309362F52DFE /* AIChatView.swift */; };
 		2CC2718CD75D5FFED6FF3F7D /* ARCFirebaseAI in Frameworks */ = {isa = PBXBuildFile; productRef = A9FE5C2080996970A6DECEB3 /* ARCFirebaseAI */; };
@@ -43,7 +49,13 @@
 		113BC39A0473E6CEAA53AA2A /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		120C88041C6AAAB50DEFEB3A /* MockAnalyticsProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockAnalyticsProvider.swift; sourceTree = "<group>"; };
 		1E52983E31073D94E91AFFB4 /* AuthViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthViewModel.swift; sourceTree = "<group>"; };
-		30D03FFC1158D655F1042003 /* ARCFirebaseExample.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = ARCFirebaseExample.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		29270CDC30935F1E0054492C /* AppProviders.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppProviders.swift; sourceTree = "<group>"; };
+		29270CDE30935F360054492C /* AIChatInputBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIChatInputBar.swift; sourceTree = "<group>"; };
+		29270CDF30935F360054492C /* AIChatMessagesList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIChatMessagesList.swift; sourceTree = "<group>"; };
+		29270CE030935F360054492C /* AIChatOptionsMenu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIChatOptionsMenu.swift; sourceTree = "<group>"; };
+		29270CE430935F420054492C /* FeatureFlagsBooleanSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeatureFlagsBooleanSection.swift; sourceTree = "<group>"; };
+		29270CE530935F420054492C /* FeatureFlagsConfigSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeatureFlagsConfigSection.swift; sourceTree = "<group>"; };
+		30D03FFC1158D655F1042003 /* ARCFirebaseExample.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; name = ARCFirebaseExample.app; path = "ARCFirebase Example.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		3DA61680B4115D9AA836BF65 /* MockAIProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockAIProvider.swift; sourceTree = "<group>"; };
 		7806897504D99B2AF1D85531 /* ItemsListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemsListView.swift; sourceTree = "<group>"; };
 		83284C9480539F7493E52B9C /* ItemsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemsViewModel.swift; sourceTree = "<group>"; };
@@ -118,6 +130,9 @@
 		6C787CF95E7DA16BFB7ACE7D /* AI */ = {
 			isa = PBXGroup;
 			children = (
+				29270CDE30935F360054492C /* AIChatInputBar.swift */,
+				29270CDF30935F360054492C /* AIChatMessagesList.swift */,
+				29270CE030935F360054492C /* AIChatOptionsMenu.swift */,
 				96A9F366CFF8309362F52DFE /* AIChatView.swift */,
 			);
 			path = AI;
@@ -157,6 +172,7 @@
 		C8A22016B61FE1FA953A5B9B /* Sources */ = {
 			isa = PBXGroup;
 			children = (
+				29270CDC30935F1E0054492C /* AppProviders.swift */,
 				FE01DD5A5BC5420DA8818C02 /* ARCFirebaseExampleApp.swift */,
 				6FA39840F86146A085D1D195 /* Mocks */,
 				FC3B9CB8BBE6A2AE05DAF4F7 /* Models */,
@@ -177,6 +193,8 @@
 		E12F93A6DA1FF1E210023AA2 /* FeatureFlags */ = {
 			isa = PBXGroup;
 			children = (
+				29270CE430935F420054492C /* FeatureFlagsBooleanSection.swift */,
+				29270CE530935F420054492C /* FeatureFlagsConfigSection.swift */,
 				096BCC03D3ED9C58B81427BD /* FeatureFlagsDemoView.swift */,
 			);
 			path = FeatureFlags;
@@ -256,7 +274,6 @@
 			packageReferences = (
 				9A7C1EA24AC02D11A5335C62 /* XCLocalSwiftPackageReference "../..//" */,
 			);
-			preferredProjectObjectVersion = 77;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
@@ -278,13 +295,19 @@
 				26EF8A34D100B0D61308FB2D /* Item.swift in Sources */,
 				07C2FA20A728A873C6EBC895 /* ItemsListView.swift in Sources */,
 				6EB6B093F1D3B01673F1E8EC /* ItemsViewModel.swift in Sources */,
+				29270CDD30935F1E0054492C /* AppProviders.swift in Sources */,
 				B66220119815BCCE02B88678 /* MockAIProvider.swift in Sources */,
 				433B053B33AD4FC188083E60 /* MockAnalyticsProvider.swift in Sources */,
 				9472ABD2AB11F53FFAAECD7F /* MockAuthProvider.swift in Sources */,
+				29270CE630935F420054492C /* FeatureFlagsBooleanSection.swift in Sources */,
+				29270CE730935F420054492C /* FeatureFlagsConfigSection.swift in Sources */,
 				5EA010B2F3C00F97DF565E9A /* MockCrashlyticsProvider.swift in Sources */,
 				172FDA2B7C7A74BD501E68AC /* MockFeatureFlagProvider.swift in Sources */,
 				7AE3EF148A6611DDED4D31E4 /* MockStorageProvider.swift in Sources */,
 				91997A54D39FB0B98F113B0B /* PreviewHelpers.swift in Sources */,
+				29270CE130935F360054492C /* AIChatOptionsMenu.swift in Sources */,
+				29270CE230935F360054492C /* AIChatMessagesList.swift in Sources */,
+				29270CE330935F360054492C /* AIChatInputBar.swift in Sources */,
 				DBBAF74297656085D015B222 /* SignInView.swift in Sources */,
 				C5B45503FE46FA76EA19CF90 /* SignUpView.swift in Sources */,
 				29562CB3313FB10C48685619 /* StorageDemoView.swift in Sources */,

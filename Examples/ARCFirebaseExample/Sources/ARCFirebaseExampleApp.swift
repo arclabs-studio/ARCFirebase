@@ -46,7 +46,11 @@ import ARCFirebaseCore
 import ARCFirebaseCrashlytics
 import ARCFirebaseFeatureFlags
 import ARCFirebaseStorage
+import os
 import SwiftUI
+
+/// Shared logger for the demo app, so console output goes through unified logging.
+let demoLogger = Logger(subsystem: "com.arclabs.arcfirebase.example", category: "Demo")
 
 // MARK: - App Entry Point
 
@@ -107,13 +111,7 @@ struct ARCFirebaseExampleApp: App {
     // MARK: Private Helpers
 
     /// Initializes all providers based on Firebase configuration availability.
-    private static func initializeProviders() -> (auth: any AuthProviding,
-                                                  analytics: any AnalyticsProviding,
-                                                  storage: any StorageProviding,
-                                                  crashlytics: any CrashlyticsProviding,
-                                                  ai: any AIProviding,
-                                                  featureFlags: any FeatureFlagProviding,
-                                                  isDemoMode: Bool) {
+    private static func initializeProviders() -> AppProviders {
         // Check for GoogleService-Info.plist
         let hasFirebaseConfig = Bundle.main.path(forResource: "GoogleService-Info",
                                                  ofType: "plist") != nil
@@ -122,8 +120,8 @@ struct ARCFirebaseExampleApp: App {
             // ================================================================
             // DEMO MODE: Use mock providers
             // ================================================================
-            print("""
-            ℹ️  Running in DEMO MODE
+            demoLogger.info("""
+            Running in DEMO MODE
 
             To enable Firebase integration:
             1. Create a Firebase project at console.firebase.google.com
@@ -134,13 +132,7 @@ struct ARCFirebaseExampleApp: App {
             See README.md for detailed instructions.
             """)
 
-            return (auth: MockAuthProvider.unauthenticated,
-                    analytics: MockAnalyticsProvider(),
-                    storage: MockStorageProvider(),
-                    crashlytics: MockCrashlyticsProvider(),
-                    ai: MockAIProvider(),
-                    featureFlags: MockFeatureFlagProvider(),
-                    isDemoMode: true)
+            return .demo()
         }
 
         // ================================================================
@@ -156,31 +148,25 @@ struct ARCFirebaseExampleApp: App {
             let ai = try FirebaseAIProvider.create()
             let featureFlags = try FirebaseFeatureFlagProvider.create(configuration: .development)
 
-            print("✅ Firebase configured successfully (Production Mode)")
+            demoLogger.info("Firebase configured successfully (Production Mode)")
 
             // Track app launch
             analytics.logEvent(AnalyticsEvent.appOpened,
                                parameters: ["platform": "iOS",
                                             "mode": "production"])
 
-            return (auth: auth,
-                    analytics: analytics,
-                    storage: storage,
-                    crashlytics: crashlytics,
-                    ai: ai,
-                    featureFlags: featureFlags,
-                    isDemoMode: false)
-
+            return AppProviders(auth: auth,
+                                analytics: analytics,
+                                storage: storage,
+                                crashlytics: crashlytics,
+                                ai: ai,
+                                featureFlags: featureFlags,
+                                isDemoMode: false)
         } catch {
             // Fall back to demo mode on error
-            print("⚠️ Firebase initialization failed, using demo mode: \(error)")
-            return (auth: MockAuthProvider.unauthenticated,
-                    analytics: MockAnalyticsProvider(),
-                    storage: MockStorageProvider(),
-                    crashlytics: MockCrashlyticsProvider(),
-                    ai: MockAIProvider(),
-                    featureFlags: MockFeatureFlagProvider(),
-                    isDemoMode: true)
+            let reason = error.localizedDescription
+            demoLogger.error("Firebase initialization failed, using demo mode: \(reason, privacy: .public)")
+            return .demo()
         }
     }
 

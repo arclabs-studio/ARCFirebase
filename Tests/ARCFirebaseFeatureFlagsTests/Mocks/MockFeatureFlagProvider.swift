@@ -1,22 +1,53 @@
 import Foundation
+import os
 @testable import ARCFirebaseFeatureFlags
 
 /// Mock feature flag provider for testing.
-final class MockFeatureFlagProvider: FeatureFlagProviding, @unchecked Sendable {
+final class MockFeatureFlagProvider: FeatureFlagProviding {
+    private struct State {
+        var mockFlags: [String: any Sendable] = [:]
+        var mockError: Error?
+        var fetchAndActivateCallCount: Int = 0
+        var setDefaultsCallCount: Int = 0
+        var lastSetDefaults: [String: any Sendable]?
+        var configUpdateContinuation: AsyncStream<Void>.Continuation?
+    }
+
+    private let state = OSAllocatedUnfairLock(initialState: State())
+
     // MARK: - Mock State
 
-    var mockFlags: [String: any Sendable] = [:]
-    var mockError: Error?
-    private(set) var fetchAndActivateCallCount = 0
-    private(set) var setDefaultsCallCount = 0
-    private(set) var lastSetDefaults: [String: any Sendable]?
+    var mockFlags: [String: any Sendable] {
+        get { state.withLock { $0.mockFlags } }
+        set { state.withLock { $0.mockFlags = newValue } }
+    }
 
-    private var configUpdateContinuation: AsyncStream<Void>.Continuation?
+    var mockError: Error? {
+        get { state.withLock { $0.mockError } }
+        set { state.withLock { $0.mockError = newValue } }
+    }
+
+    var fetchAndActivateCallCount: Int {
+        state.withLock { $0.fetchAndActivateCallCount }
+    }
+
+    var setDefaultsCallCount: Int {
+        state.withLock { $0.setDefaultsCallCount }
+    }
+
+    var lastSetDefaults: [String: any Sendable]? {
+        state.withLock { $0.lastSetDefaults }
+    }
+
+    private var configUpdateContinuation: AsyncStream<Void>.Continuation? {
+        get { state.withLock { $0.configUpdateContinuation } }
+        set { state.withLock { $0.configUpdateContinuation = newValue } }
+    }
 
     // MARK: - FeatureFlagProviding Implementation
 
     func fetchAndActivate() async throws {
-        fetchAndActivateCallCount += 1
+        state.withLock { $0.fetchAndActivateCallCount += 1 }
 
         if let error = mockError {
             throw error
@@ -24,12 +55,12 @@ final class MockFeatureFlagProvider: FeatureFlagProviding, @unchecked Sendable {
     }
 
     func setDefaults(_ defaults: [String: any Sendable]) {
-        setDefaultsCallCount += 1
-        lastSetDefaults = defaults
+        state.withLock { $0.setDefaultsCallCount += 1 }
+        state.withLock { $0.lastSetDefaults = defaults }
 
         // Merge defaults (don't overwrite existing mock values)
         for (key, value) in defaults where mockFlags[key] == nil {
-            mockFlags[key] = value
+            state.withLock { $0.mockFlags[key] = value }
         }
     }
 
@@ -55,7 +86,7 @@ final class MockFeatureFlagProvider: FeatureFlagProviding, @unchecked Sendable {
 
     func configUpdates() -> AsyncStream<Void> {
         let (stream, continuation) = AsyncStream.makeStream(of: Void.self)
-        configUpdateContinuation = continuation
+        state.withLock { $0.configUpdateContinuation = continuation }
         return stream
     }
 
@@ -72,12 +103,12 @@ final class MockFeatureFlagProvider: FeatureFlagProviding, @unchecked Sendable {
     }
 
     func reset() {
-        mockFlags.removeAll()
-        mockError = nil
-        fetchAndActivateCallCount = 0
-        setDefaultsCallCount = 0
-        lastSetDefaults = nil
-        configUpdateContinuation = nil
+        state.withLock { $0.mockFlags.removeAll() }
+        state.withLock { $0.mockError = nil }
+        state.withLock { $0.fetchAndActivateCallCount = 0 }
+        state.withLock { $0.setDefaultsCallCount = 0 }
+        state.withLock { $0.lastSetDefaults = nil }
+        state.withLock { $0.configUpdateContinuation = nil }
     }
 }
 

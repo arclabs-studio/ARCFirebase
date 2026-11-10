@@ -6,37 +6,104 @@
 //
 
 import Foundation
+import os
 @testable import ARCFirebaseAI
 
 /// Mock AI provider for testing.
-final class MockAIProvider: AIProviding, @unchecked Sendable {
+final class MockAIProvider: AIProviding {
+    private struct State {
+        var mockResponse: AIResponse = .init(content: "Mock response")
+        var mockError: Error?
+        var mockStreamChunks: [String] = ["Hello", " World"]
+        var mockAvailable: Bool = true
+        var generateContentCallCount: Int = 0
+        var generateContentWithSystemCallCount: Int = 0
+        var generateStructuredContentCallCount: Int = 0
+        var streamContentCallCount: Int = 0
+        var sendMessageCallCount: Int = 0
+        var isAvailableCallCount: Int = 0
+        var lastPrompt: String?
+        var lastSystemInstruction: String?
+        var lastConfiguration: AIConfiguration?
+        var lastMessage: String?
+        var lastHistory: [AIMessage]?
+    }
+
+    private let state = OSAllocatedUnfairLock(initialState: State())
+
     // MARK: - Mock State
 
-    var mockResponse = AIResponse(content: "Mock response")
-    var mockError: Error?
-    var mockStreamChunks: [String] = ["Hello", " World"]
-    var mockAvailable = true
+    var mockResponse: AIResponse {
+        get { state.withLock { $0.mockResponse } }
+        set { state.withLock { $0.mockResponse = newValue } }
+    }
 
-    private(set) var generateContentCallCount = 0
-    private(set) var generateContentWithSystemCallCount = 0
-    private(set) var generateStructuredContentCallCount = 0
-    private(set) var streamContentCallCount = 0
-    private(set) var sendMessageCallCount = 0
-    private(set) var isAvailableCallCount = 0
+    var mockError: Error? {
+        get { state.withLock { $0.mockError } }
+        set { state.withLock { $0.mockError = newValue } }
+    }
 
-    private(set) var lastPrompt: String?
-    private(set) var lastSystemInstruction: String?
-    private(set) var lastConfiguration: AIConfiguration?
-    private(set) var lastMessage: String?
-    private(set) var lastHistory: [AIMessage]?
+    var mockStreamChunks: [String] {
+        get { state.withLock { $0.mockStreamChunks } }
+        set { state.withLock { $0.mockStreamChunks = newValue } }
+    }
+
+    var mockAvailable: Bool {
+        get { state.withLock { $0.mockAvailable } }
+        set { state.withLock { $0.mockAvailable = newValue } }
+    }
+
+    var generateContentCallCount: Int {
+        state.withLock { $0.generateContentCallCount }
+    }
+
+    var generateContentWithSystemCallCount: Int {
+        state.withLock { $0.generateContentWithSystemCallCount }
+    }
+
+    var generateStructuredContentCallCount: Int {
+        state.withLock { $0.generateStructuredContentCallCount }
+    }
+
+    var streamContentCallCount: Int {
+        state.withLock { $0.streamContentCallCount }
+    }
+
+    var sendMessageCallCount: Int {
+        state.withLock { $0.sendMessageCallCount }
+    }
+
+    var isAvailableCallCount: Int {
+        state.withLock { $0.isAvailableCallCount }
+    }
+
+    var lastPrompt: String? {
+        state.withLock { $0.lastPrompt }
+    }
+
+    var lastSystemInstruction: String? {
+        state.withLock { $0.lastSystemInstruction }
+    }
+
+    var lastConfiguration: AIConfiguration? {
+        state.withLock { $0.lastConfiguration }
+    }
+
+    var lastMessage: String? {
+        state.withLock { $0.lastMessage }
+    }
+
+    var lastHistory: [AIMessage]? {
+        state.withLock { $0.lastHistory }
+    }
 
     // MARK: - AIProviding Implementation
 
     func generateContent(prompt: String,
                          configuration: AIConfiguration?) async throws -> AIResponse {
-        generateContentCallCount += 1
-        lastPrompt = prompt
-        lastConfiguration = configuration
+        state.withLock { $0.generateContentCallCount += 1 }
+        state.withLock { $0.lastPrompt = prompt }
+        state.withLock { $0.lastConfiguration = configuration }
 
         if let error = mockError {
             throw error
@@ -48,10 +115,10 @@ final class MockAIProvider: AIProviding, @unchecked Sendable {
     func generateContent(prompt: String,
                          systemInstruction: String,
                          configuration: AIConfiguration?) async throws -> AIResponse {
-        generateContentWithSystemCallCount += 1
-        lastPrompt = prompt
-        lastSystemInstruction = systemInstruction
-        lastConfiguration = configuration
+        state.withLock { $0.generateContentWithSystemCallCount += 1 }
+        state.withLock { $0.lastPrompt = prompt }
+        state.withLock { $0.lastSystemInstruction = systemInstruction }
+        state.withLock { $0.lastConfiguration = configuration }
 
         if let error = mockError {
             throw error
@@ -64,10 +131,10 @@ final class MockAIProvider: AIProviding, @unchecked Sendable {
                                    responseSchema _: AISchema,
                                    systemInstruction: String?,
                                    configuration: AIConfiguration?) async throws -> AIResponse {
-        generateStructuredContentCallCount += 1
-        lastPrompt = prompt
-        lastSystemInstruction = systemInstruction
-        lastConfiguration = configuration
+        state.withLock { $0.generateStructuredContentCallCount += 1 }
+        state.withLock { $0.lastPrompt = prompt }
+        state.withLock { $0.lastSystemInstruction = systemInstruction }
+        state.withLock { $0.lastConfiguration = configuration }
 
         if let error = mockError {
             throw error
@@ -78,9 +145,9 @@ final class MockAIProvider: AIProviding, @unchecked Sendable {
 
     func streamContent(prompt: String,
                        configuration: AIConfiguration?) -> AsyncThrowingStream<String, Error> {
-        streamContentCallCount += 1
-        lastPrompt = prompt
-        lastConfiguration = configuration
+        state.withLock { $0.streamContentCallCount += 1 }
+        state.withLock { $0.lastPrompt = prompt }
+        state.withLock { $0.lastConfiguration = configuration }
 
         let chunks = mockStreamChunks
         let error = mockError
@@ -102,11 +169,11 @@ final class MockAIProvider: AIProviding, @unchecked Sendable {
                      history: [AIMessage],
                      systemInstruction: String?,
                      configuration: AIConfiguration?) async throws -> AIResponse {
-        sendMessageCallCount += 1
-        lastMessage = message
-        lastHistory = history
-        lastSystemInstruction = systemInstruction
-        lastConfiguration = configuration
+        state.withLock { $0.sendMessageCallCount += 1 }
+        state.withLock { $0.lastMessage = message }
+        state.withLock { $0.lastHistory = history }
+        state.withLock { $0.lastSystemInstruction = systemInstruction }
+        state.withLock { $0.lastConfiguration = configuration }
 
         if let error = mockError {
             throw error
@@ -116,29 +183,29 @@ final class MockAIProvider: AIProviding, @unchecked Sendable {
     }
 
     func isAvailable() async -> Bool {
-        isAvailableCallCount += 1
+        state.withLock { $0.isAvailableCallCount += 1 }
         return mockAvailable
     }
 
     // MARK: - Test Helpers
 
     func reset() {
-        mockResponse = AIResponse(content: "Mock response")
-        mockError = nil
-        mockStreamChunks = ["Hello", " World"]
-        mockAvailable = true
+        state.withLock { $0.mockResponse = AIResponse(content: "Mock response") }
+        state.withLock { $0.mockError = nil }
+        state.withLock { $0.mockStreamChunks = ["Hello", " World"] }
+        state.withLock { $0.mockAvailable = true }
 
-        generateContentCallCount = 0
-        generateContentWithSystemCallCount = 0
-        generateStructuredContentCallCount = 0
-        streamContentCallCount = 0
-        sendMessageCallCount = 0
-        isAvailableCallCount = 0
+        state.withLock { $0.generateContentCallCount = 0 }
+        state.withLock { $0.generateContentWithSystemCallCount = 0 }
+        state.withLock { $0.generateStructuredContentCallCount = 0 }
+        state.withLock { $0.streamContentCallCount = 0 }
+        state.withLock { $0.sendMessageCallCount = 0 }
+        state.withLock { $0.isAvailableCallCount = 0 }
 
-        lastPrompt = nil
-        lastSystemInstruction = nil
-        lastConfiguration = nil
-        lastMessage = nil
-        lastHistory = nil
+        state.withLock { $0.lastPrompt = nil }
+        state.withLock { $0.lastSystemInstruction = nil }
+        state.withLock { $0.lastConfiguration = nil }
+        state.withLock { $0.lastMessage = nil }
+        state.withLock { $0.lastHistory = nil }
     }
 }

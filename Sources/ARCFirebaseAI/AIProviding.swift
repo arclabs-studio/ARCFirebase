@@ -34,7 +34,7 @@ import Foundation
 /// ## Usage in Tests
 ///
 /// ```swift
-/// final class MockAIProvider: AIProviding, @unchecked Sendable {
+/// final class MockAIProvider: AIProviding {
 ///     var mockResponse = AIResponse(content: "Mock response")
 ///
 ///     func generateContent(

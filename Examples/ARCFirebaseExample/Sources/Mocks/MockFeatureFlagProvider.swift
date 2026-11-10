@@ -7,6 +7,7 @@
 
 import ARCFirebaseFeatureFlags
 import Foundation
+import os
 
 // MARK: - MockFeatureFlagProvider
 
@@ -28,26 +29,49 @@ import Foundation
 /// print(mock.isEnabled("new_onboarding")) // true
 /// print(mock.int(forKey: "max_retries"))   // 5
 /// ```
-final class MockFeatureFlagProvider: FeatureFlagProviding, @unchecked Sendable {
+final class MockFeatureFlagProvider: FeatureFlagProviding {
+    private struct State {
+        var flags: [String: any Sendable] = [:]
+        var simulatedDelay: TimeInterval = 0.5
+        var fetchCount: Int = 0
+        var setDefaultsCount: Int = 0
+        var configUpdateContinuation: AsyncStream<Void>.Continuation?
+    }
+
+    private let state = OSAllocatedUnfairLock(initialState: State())
+
     // MARK: Mock Configuration
 
     /// In-memory feature flag storage.
-    var flags: [String: any Sendable]
+    var flags: [String: any Sendable] {
+        get { state.withLock { $0.flags } }
+        set { state.withLock { $0.flags = newValue } }
+    }
 
     /// Simulated delay in seconds for fetch operations.
-    var simulatedDelay: TimeInterval = 0.5
+    var simulatedDelay: TimeInterval {
+        get { state.withLock { $0.simulatedDelay } }
+        set { state.withLock { $0.simulatedDelay = newValue } }
+    }
 
     // MARK: Call Tracking
 
     /// Number of fetchAndActivate operations performed.
-    private(set) var fetchCount = 0
+    var fetchCount: Int {
+        state.withLock { $0.fetchCount }
+    }
 
     /// Number of setDefaults operations performed.
-    private(set) var setDefaultsCount = 0
+    var setDefaultsCount: Int {
+        state.withLock { $0.setDefaultsCount }
+    }
 
     // MARK: Private State
 
-    private var configUpdateContinuation: AsyncStream<Void>.Continuation?
+    private var configUpdateContinuation: AsyncStream<Void>.Continuation? {
+        get { state.withLock { $0.configUpdateContinuation } }
+        set { state.withLock { $0.configUpdateContinuation = newValue } }
+    }
 
     // MARK: Initialization
 
@@ -61,15 +85,16 @@ final class MockFeatureFlagProvider: FeatureFlagProviding, @unchecked Sendable {
     // MARK: FeatureFlagProviding Implementation
 
     func fetchAndActivate() async throws {
-        fetchCount += 1
+        state.withLock { $0.fetchCount += 1 }
         try await Task.sleep(for: .seconds(simulatedDelay))
-        print("🏳️ [Mock] Fetched and activated \(flags.count) feature flags")
+        let flagCount = flags.count
+        demoLogger.info("[Mock] Fetched and activated \(flagCount) feature flags")
     }
 
     func setDefaults(_ defaults: [String: any Sendable]) {
-        setDefaultsCount += 1
+        state.withLock { $0.setDefaultsCount += 1 }
         for (key, value) in defaults where flags[key] == nil {
-            flags[key] = value
+            state.withLock { $0.flags[key] = value }
         }
     }
 
@@ -95,7 +120,7 @@ final class MockFeatureFlagProvider: FeatureFlagProviding, @unchecked Sendable {
 
     func configUpdates() -> AsyncStream<Void> {
         let (stream, continuation) = AsyncStream.makeStream(of: Void.self)
-        configUpdateContinuation = continuation
+        state.withLock { $0.configUpdateContinuation = continuation }
         return stream
     }
 

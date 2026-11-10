@@ -9,6 +9,7 @@ import ARCFirebaseAnalytics
 import ARCFirebaseAuth
 import ARCFirebaseCrashlytics
 import Foundation
+import os
 
 // MARK: - AuthViewModel
 
@@ -153,8 +154,7 @@ final class AuthViewModel {
             crashlytics.setUserID(user.id)
             crashlytics.log("User signed in successfully")
 
-            print("✅ Sign in successful: \(user.email ?? "unknown")")
-
+            demoLogger.info("Sign in successful: \(user.email ?? "unknown")")
         } catch {
             // ================================================================
             // Error Handling
@@ -162,7 +162,7 @@ final class AuthViewModel {
             // Show user-friendly message and record error for debugging.
             errorMessage = mapAuthError(error)
             crashlytics.record(error: error)
-            print("❌ Sign in failed: \(error)")
+            demoLogger.error("Sign in failed: \(error.localizedDescription, privacy: .public)")
         }
 
         isLoading = false
@@ -198,12 +198,11 @@ final class AuthViewModel {
             crashlytics.setUserID(user.id)
             crashlytics.log("New user account created")
 
-            print("✅ Sign up successful: \(user.email ?? "unknown")")
-
+            demoLogger.info("Sign up successful: \(user.email ?? "unknown")")
         } catch {
             errorMessage = mapAuthError(error)
             crashlytics.record(error: error)
-            print("❌ Sign up failed: \(error)")
+            demoLogger.error("Sign up failed: \(error.localizedDescription, privacy: .public)")
         }
 
         isLoading = false
@@ -228,12 +227,11 @@ final class AuthViewModel {
             crashlytics.clearUserID()
             crashlytics.log("User signed out")
 
-            print("✅ Sign out successful")
-
+            demoLogger.info("Sign out successful")
         } catch {
             errorMessage = error.localizedDescription
             crashlytics.record(error: error)
-            print("❌ Sign out failed: \(error)")
+            demoLogger.error("Sign out failed: \(error.localizedDescription, privacy: .public)")
         }
     }
 
@@ -249,7 +247,7 @@ final class AuthViewModel {
     func testCrashlyticsLog() {
         crashlytics.log("Test log from ARCFirebase Example App")
         crashlytics.setCustomValue("test_value", forKey: "test_key")
-        print("✅ Crashlytics test log sent")
+        demoLogger.info("Crashlytics test log sent")
     }
 
     /// Tests non-fatal error recording.
@@ -258,7 +256,7 @@ final class AuthViewModel {
                                 code: 999,
                                 userInfo: [NSLocalizedDescriptionKey: "Test non-fatal error"])
         crashlytics.recordNonFatal(error: testError)
-        print("✅ Test non-fatal error recorded")
+        demoLogger.info("Test non-fatal error recorded")
     }
 
     /// Sets mock authenticated state for previews.

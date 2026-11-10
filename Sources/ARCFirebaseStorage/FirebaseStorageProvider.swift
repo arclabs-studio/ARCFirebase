@@ -29,10 +29,14 @@ import Foundation
 /// ### Initialization
 /// - ``init()``
 /// - ``live``
-public final class FirebaseStorageProvider: StorageProviding, @unchecked Sendable {
+public final class FirebaseStorageProvider: StorageProviding {
     // MARK: - Properties
 
-    private let storage = Storage.storage()
+    /// Resolved per call: `Storage` is not `Sendable`, and `Storage.storage()` returns the shared default instance.
+    private var storage: Storage {
+        Storage.storage()
+    }
+
     private let logger = ARCLogger(subsystem: ARCFirebaseLogSubsystem.current, category: "FirebaseStorage")
     private let configuration: StorageConfiguration
 

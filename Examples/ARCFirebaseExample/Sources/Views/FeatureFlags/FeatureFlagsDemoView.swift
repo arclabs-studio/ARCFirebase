@@ -7,6 +7,7 @@
 
 import ARCFirebaseAnalytics
 import ARCFirebaseFeatureFlags
+import os
 import SwiftUI
 
 // MARK: - FeatureFlagsDemoView
@@ -51,10 +52,10 @@ struct FeatureFlagsDemoView: View {
             }
             .navigationTitle("Feature Flags")
             .task {
-                if viewModel == nil {
-                    viewModel = FeatureFlagsDemoViewModel(featureFlags: featureFlags,
-                                                          analytics: analytics)
-                }
+                let model = viewModel ?? FeatureFlagsDemoViewModel(featureFlags: featureFlags,
+                                                                   analytics: analytics)
+                viewModel = model
+                await model.listenForUpdates()
             }
         }
     }
@@ -79,52 +80,12 @@ extension FeatureFlagsDemoView {
             // ==============================================================
             // Boolean Flags Section
             // ==============================================================
-            Section("Boolean Flags") {
-                FlagRow(icon: "sparkles",
-                        title: "New Onboarding v2",
-                        value: viewModel.isNewOnboardingEnabled ? "Enabled" : "Disabled",
-                        isEnabled: viewModel.isNewOnboardingEnabled)
-
-                FlagRow(icon: "moon.fill",
-                        title: "Dark Mode",
-                        value: viewModel.isDarkModeEnabled ? "Enabled" : "Disabled",
-                        isEnabled: viewModel.isDarkModeEnabled)
-
-                FlagRow(icon: "star.fill",
-                        title: "Premium Features",
-                        value: viewModel.isPremiumEnabled ? "Enabled" : "Disabled",
-                        isEnabled: viewModel.isPremiumEnabled)
-
-                FlagRow(icon: "wrench.fill",
-                        title: "Maintenance Mode",
-                        value: viewModel.isMaintenanceMode ? "Active" : "Inactive",
-                        isEnabled: viewModel.isMaintenanceMode)
-            }
+            FeatureFlagsBooleanSection(viewModel: viewModel)
 
             // ==============================================================
             // Configuration Values Section
             // ==============================================================
-            Section("Configuration Values") {
-                FlagRow(icon: "arrow.up.circle",
-                        title: "Max Upload Size",
-                        value: "\(viewModel.maxUploadSizeMB) MB",
-                        isEnabled: true)
-
-                FlagRow(icon: "clock",
-                        title: "API Timeout",
-                        value: String(format: "%.0fs", viewModel.apiTimeout),
-                        isEnabled: true)
-
-                FlagRow(icon: "text.bubble",
-                        title: "Welcome Message",
-                        value: viewModel.welcomeMessage,
-                        isEnabled: true)
-
-                FlagRow(icon: "app.badge",
-                        title: "Min App Version",
-                        value: viewModel.minAppVersion,
-                        isEnabled: true)
-            }
+            FeatureFlagsConfigSection(viewModel: viewModel)
 
             // ==============================================================
             // How It Works Section
@@ -270,7 +231,6 @@ final class FeatureFlagsDemoViewModel {
 
     private let featureFlags: any FeatureFlagProviding
     private let analytics: any AnalyticsProviding
-    @ObservationIgnored private nonisolated(unsafe) var updateListenerTask: Task<Void, Never>?
 
     // MARK: Public State
 
@@ -318,11 +278,6 @@ final class FeatureFlagsDemoViewModel {
     init(featureFlags: any FeatureFlagProviding, analytics: any AnalyticsProviding) {
         self.featureFlags = featureFlags
         self.analytics = analytics
-        startListeningForUpdates()
-    }
-
-    deinit {
-        updateListenerTask?.cancel()
     }
 
     // MARK: Operations
@@ -338,10 +293,10 @@ final class FeatureFlagsDemoViewModel {
 
             analytics.logEvent("feature_flags_fetched", parameters: ["flag_count": 8])
 
-            print("🏳️ Feature flags fetched and activated")
+            demoLogger.info("Feature flags fetched and activated")
         } catch {
             errorMessage = error.localizedDescription
-            print("❌ Feature flags fetch failed: \(error)")
+            demoLogger.error("Feature flags fetch failed: \(error.localizedDescription, privacy: .public)")
         }
 
         isLoading = false
@@ -352,16 +307,17 @@ final class FeatureFlagsDemoViewModel {
         errorMessage = nil
     }
 
-    // MARK: Private Helpers
+    // MARK: Update Listening
 
-    private func startListeningForUpdates() {
-        updateListenerTask = Task { [weak self] in
-            guard let self else { return }
-            for await _ in featureFlags.configUpdates() {
-                updateCount += 1
-                analytics.logEvent("feature_flags_updated")
-                print("🏳️ Feature flags updated remotely (update #\(updateCount))")
-            }
+    /// Listens for remote config updates until the calling task is cancelled.
+    ///
+    /// Call it from the view's `.task`, so SwiftUI ends the loop when the view disappears.
+    func listenForUpdates() async {
+        for await _ in featureFlags.configUpdates() {
+            updateCount += 1
+            analytics.logEvent("feature_flags_updated")
+            let update = updateCount
+            demoLogger.info("Feature flags updated remotely (update #\(update))")
         }
     }
 }
