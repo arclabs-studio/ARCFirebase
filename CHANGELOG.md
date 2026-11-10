@@ -5,6 +5,39 @@ All notable changes to ARCFirebase will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.1] - 2026-11-06
+
+### Fixed
+
+- **Every provider is now checked `Sendable`.** `FirebaseAIProvider`, `FirebaseAnalyticsProvider`,
+  `FirebaseAppCheckProvider`, `FirebaseAuthProvider`, `FirebaseCloudFunctionsProvider`,
+  `FirebaseCrashlyticsProvider`, `FirebaseStorageProvider`, `FirestoreRepository` and
+  `AIConfiguration` drop `@unchecked Sendable`, so the compiler now verifies their thread safety.
+  The provider protocols already require `Sendable`, so conformances and the public API are
+  unchanged ([#43](https://github.com/arclabs-studio/ARCFirebase/pull/43)).
+- **Firebase singletons are resolved per call instead of stored.** The Auth, Storage, Firestore
+  and Crashlytics providers call `Auth.auth()`, `Storage.storage()`, `Firestore.firestore()` and
+  `Crashlytics.crashlytics()` on each use, because those SDK types are not `Sendable`. Each call
+  returns the same shared default instance, so behaviour is unchanged
+  ([#43](https://github.com/arclabs-studio/ARCFirebase/pull/43)).
+- **`FirebaseAppCheckProvider.isConfigured` is lock-protected.** The configured flag is held in an
+  `OSAllocatedUnfairLock` instead of an unsynchronised `var`
+  ([#43](https://github.com/arclabs-studio/ARCFirebase/pull/43)).
+- **`authStateChanges()` no longer smuggles listener handles across isolation.** Handles are kept
+  in an internal `@MainActor` registry instead of an `@unchecked Sendable` box. Registration and
+  removal both run on the main actor. A stream that is cancelled before its listener registers no
+  longer leaks a listener. Firebase sends the current auth state when a listener registers, so the
+  initial event still arrives. The registry's bookkeeping is now covered by unit tests through an injected listener source ([#43](https://github.com/arclabs-studio/ARCFirebase/pull/43), [#44](https://github.com/arclabs-studio/ARCFirebase/pull/44)).
+- **DocC and doc-comment mock examples** no longer show `@unchecked Sendable`.
+
+### Examples
+
+- The demo app builds again (`MockAuthProvider` implements `updateProfile(displayName:photoURL:)`),
+  logs through `os.Logger` instead of `print`, uses lock-backed mocks, cancels the mock AI stream
+  task on termination, and splits large screens into one type per file
+  ([#42](https://github.com/arclabs-studio/ARCFirebase/pull/42),
+  [#43](https://github.com/arclabs-studio/ARCFirebase/pull/43)).
+
 ## [2.0.0] - 2026-10-09
 
 ### Changed (breaking)
