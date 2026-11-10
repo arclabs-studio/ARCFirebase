@@ -429,31 +429,15 @@ extension FirebaseAuthProvider {
     }
 }
 
-// MARK: - Auth State Listener Registry
+// MARK: - Live Auth State Listener Registry
 
-/// Owns the Firebase auth-state listener handles on the main actor.
-///
-/// Registration and removal both hop to the main actor. If a stream terminates before its
-/// registration ran, the identifier is remembered so the late registration is skipped.
-@MainActor
-private final class AuthStateListenerRegistry {
-    static let shared = AuthStateListenerRegistry()
-
-    private var handles: [UUID: any NSObjectProtocol] = [:]
-    private var terminatedBeforeRegistration: Set<UUID> = []
-
-    func register(_ id: UUID, continuation: AsyncStream<User?>.Continuation) {
-        guard terminatedBeforeRegistration.remove(id) == nil else { return }
-        handles[id] = Auth.auth().addStateDidChangeListener { _, firebaseUser in
-            continuation.yield(firebaseUser.map { User(from: $0) })
+extension AuthStateListenerRegistry {
+    /// The registry backed by `Auth.auth()`, shared by every ``FirebaseAuthProvider``.
+    static let shared = AuthStateListenerRegistry(addListener: { onChange in
+        Auth.auth().addStateDidChangeListener { _, firebaseUser in
+            onChange(firebaseUser.map { User(from: $0) })
         }
-    }
-
-    func unregister(_ id: UUID) {
-        if let handle = handles.removeValue(forKey: id) {
-            Auth.auth().removeStateDidChangeListener(handle)
-        } else {
-            terminatedBeforeRegistration.insert(id)
-        }
-    }
+    }, removeListener: { handle in
+        Auth.auth().removeStateDidChangeListener(handle)
+    })
 }
